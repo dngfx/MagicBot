@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# linters
+.mypy_cache/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# logging
+*.log
+*.log.*
+
+# databases
+*.db
+bot.db.*
+test-databases/*
+
+# configs
+*.conf
+
+# ignored modules
+modules/nongit-*.py
+
+# tls
+bot.crt
+bot.key

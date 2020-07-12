@@ -1,0 +1,16 @@
+server.errorlog             = "/var/log/lighttpd/error.log"
+server.pid-file             = "/var/run/lighttpd.pid"
+server.username             = "www-data"
+server.groupname            = "www-data"
+server.port                 = 5000
+server.document-root        = "/dev/null"
+
+server.modules += ("mod_openssl", "mod_proxy", "mod_setenv")
+
+ssl.engine = "enable"
+ssl.ca-file = "/etc/letsencrypt/live/example.com/fullchain.pem"
+ssl.pemfile = "/etc/letsencrypt/live/example.com/fullchain.pem"
+ssl.privkey = "/etc/letsencrypt/live/example.com/privkey.pem"
+
+proxy.server = ("" => (( "host" => "::1", "port" => 5001 )) )
+proxy.forwarded = ( "host" => 1 )

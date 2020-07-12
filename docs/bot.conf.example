@@ -1,0 +1,96 @@
+# Any of these settings can be removed or left blank. The revelant functionality 
+# will be disabled.
+
+[bot]
+
+# configuration related to where/how bitbot accesses files and databases.
+# commented out values are the default values. {DATA} is replaced with data-directory
+
+#data-directory           = ~/.bitbot
+#log-directory            = /var/log/bitbot/
+#lock-file                = {DATA}/bot.lock
+#sock-file                = {DATA}/bot.sock
+
+#log-levels               = TRACE,INFO,WARN
+
+# database - currently only supports sqlite3
+#database                 = sqlite3:{DATA}/bot.db
+
+# client-side tls key/cert for IRC connections
+tls-key                  =
+tls-certificate          =
+
+# localhost port used for REST API
+api-port                 =
+
+# the default channel BitBot automatically joins
+bot-channel              =
+
+# module blacklist and whitelist. comma-separated. leave both empty to load all
+# modules, leave whitelist empty to load all but blacklisted modules, populate 
+# whitelist to not load all modules by default.
+module-blacklist         =
+module-whitelist         =
+
+# path to an external directory for modules to be found in
+external-modules         =
+
+# optional PEM public key used to encrypt channel_log log lines
+log-key                  =
+
+# https://openweathermap.org/api
+openweathermap-api-key   =
+
+# https://products.wolframalpha.com/api/
+wolframalpha-api-key     =
+
+# https://developers.google.com/custom-search/v1/overview#prerequisites
+google-api-key           =
+google-search-id         =
+
+# https://words.bighugelabs.com/api.php
+bighugethesaurus-api-key =
+
+# https://developer.wordnik.com/
+wordnik-api-key          =
+
+# https://www.last.fm/api
+lastfm-api-key           =
+
+# https://trakt.docs.apiary.io/#
+trakt-api-key            =
+
+# https://developers.soundcloud.com/docs/api/guide
+soundcloud-api-key       =
+
+# https://developer.twitter.com/en/docs.html
+twitter-api-key          =
+twitter-api-secret       =
+twitter-access-token     =
+twitter-access-secret    =
+
+# http://openldbsv.nationalrail.co.uk/
+nre-api-key              =
+
+# https://docs.pushbullet.com/
+pushbullet-api-key       =
+pushbullet-channel-tag   =
+
+# http://www.omdbapi.com/
+omdbapi-api-key          =
+
+# https://apidocs.imgur.com/
+imgur-api-key            =
+
+# https://developer.spotify.com/dashboard/
+spotify-client-id        =
+spotify-client-secret    =
+
+# https://opencagedata.com/users/sign_up
+opencagedata-api-key     =
+
+# https://bitly.com/a/oauth_apps
+bitly-api-key            =
+
+# https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line
+github-token             =
