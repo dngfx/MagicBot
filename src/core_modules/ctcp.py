@@ -9,7 +9,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.ctcp.request.version")
     def ctcp_version(self, event):
-        default = "BitBot %s (%s)" % (IRCBot.VERSION, IRCBot.SOURCE)
+        default = "dongbot %s (%s)" % (IRCBot.VERSION, IRCBot.SOURCE)
 
         event["user"].send_ctcp_response("VERSION", self.bot.config.get("ctcp-version", default))
 
