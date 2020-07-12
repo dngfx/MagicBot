@@ -308,8 +308,9 @@ class Module(ModuleManager.BaseModule):
         args_split = []
         if command:
             try:
-                hook, command, args_split = self._find_command_hook(event["server"], event["channel"], True, command,
-                                                                    event["user"], args)
+                hook, command, args_split = self._find_command_hook(
+                    event["server"], event["channel"], True, command,
+                    event["user"], args)
             except BadContextException:
                 event["channel"].send_message("%s: That command is not valid in a channel" % event["user"].nickname)
                 return
@@ -384,8 +385,9 @@ class Module(ModuleManager.BaseModule):
                 args = event["message"].split(" ", 1)[1]
 
             try:
-                hook, command, args_split = self._find_command_hook(event["server"], event["user"], False, command,
-                                                                    event["user"], args)
+                hook, command, args_split = self._find_command_hook(
+                    event["server"], event["user"], False, command,
+                    event["user"], args)
             except BadContextException:
                 event["user"].send_message("That command is not valid in a PM")
                 return

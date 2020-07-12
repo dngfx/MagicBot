@@ -8,14 +8,14 @@ ALGORITHMS = ["MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512"]
 
 SCRAM_ERRORS = [
     "invalid-encoding",
-    "extensions-not-supported",  # unrecognized 'm' value
+    "extensions-not-supported", # unrecognized 'm' value
     "invalid-proof",
     "channel-bindings-dont-match",
     "server-does-support-channel-binding",
     "channel-binding-not-supported",
     "unsupported-channel-binding-type",
     "unknown-user",
-    "invalid-username-encoding",  # invalid utf8 or bad SASLprep
+    "invalid-username-encoding", # invalid utf8 or bad SASLprep
     "no-resources"
 ]
 
