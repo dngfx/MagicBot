@@ -3,44 +3,21 @@ from .time import duration
 from .types import try_int
 from src.utils.datetime.parse import date_human
 
-<<<<<<< HEAD
 class SpecTypeError(Exception):
     def __init__(self, message: str, arg_count: int=1):
         self.message = message
         self.arg_count = arg_count
 
-=======
-
-class SpecTypeError(Exception):
-
-    def __init__(self, message: str, arg_count: int = 1):
-        self.message = message
-        self.arg_count = arg_count
-
-
->>>>>>> parent of 139a1327a... merged
 class SpecArgumentContext(enum.IntFlag):
     CHANNEL = 1
     PRIVATE = 2
     ALL = 3
 
-<<<<<<< HEAD
 class SpecArgumentType(object):
     context = SpecArgumentContext.ALL
 
     def __init__(self, type_name: str, name: typing.Optional[str],
             modifier: typing.Optional[str], exported: typing.Optional[str]):
-=======
-
-class SpecArgumentType(object):
-    context = SpecArgumentContext.ALL
-
-    def __init__(self,
-                 type_name: str,
-                 name: typing.Optional[str],
-                 modifier: typing.Optional[str],
-                 exported: typing.Optional[str]):
->>>>>>> parent of 139a1327a... merged
         self.type = type_name
         self._name = name
         self._set_modifier(modifier)
@@ -51,10 +28,6 @@ class SpecArgumentType(object):
 
     def name(self) -> typing.Optional[str]:
         return self._name
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args: typing.List[str]) -> typing.Tuple[typing.Any, int]:
         return None, -1
     def error(self) -> typing.Optional[str]:
@@ -64,10 +37,6 @@ class SpecArgumentTypePattern(SpecArgumentType):
     _pattern: typing.Pattern
     def _set_modifier(self, modifier):
         self._pattern = re.compile(modifier)
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         match = self._pattern.search(" ".join(args))
         if match:
@@ -75,140 +44,67 @@ class SpecArgumentTypePattern(SpecArgumentType):
         else:
             return None, 1
 
-<<<<<<< HEAD
 class SpecArgumentTypeWord(SpecArgumentType):
-=======
-
-class SpecArgumentTypeWord(SpecArgumentType):
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             return args[0], 1
         return None, 1
-<<<<<<< HEAD
 class SpecArgumentTypeAdditionalWord(SpecArgumentType):
-=======
-
-
-class SpecArgumentTypeAdditionalWord(SpecArgumentType):
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if len(args) > 1:
             return args[0], 1
         return None, 1
-<<<<<<< HEAD
 class SpecArgumentTypeWordLower(SpecArgumentTypeWord):
-=======
-
-
-class SpecArgumentTypeWordLower(SpecArgumentTypeWord):
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         out = SpecArgumentTypeWord.simple(self, args)
         if out[0]:
             return out[0].lower(), out[1]
         return out
 
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
 class SpecArgumentTypeString(SpecArgumentType):
     def name(self):
         return "%s ..." % SpecArgumentType.name(self)
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             return " ".join(args), len(args)
         return None, 1
-<<<<<<< HEAD
-=======
-
-
->>>>>>> parent of 139a1327a... merged
 class SpecArgumentTypeTrimString(SpecArgumentTypeString):
     def simple(self, args):
         return SpecArgumentTypeString.simple(self, list(filter(None, args)))
 class SpecArgumentTypeWords(SpecArgumentTypeString):
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             out = list(filter(None, args))
             return out, len(out)
         return None, 1
 
-<<<<<<< HEAD
 class SpecArgumentTypeInt(SpecArgumentType):
-=======
-
-class SpecArgumentTypeInt(SpecArgumentType):
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             return try_int(args[0]), 1
         return None, 1
 
-<<<<<<< HEAD
 class SpecArgumentTypeDuration(SpecArgumentType):
     def name(self):
         return "+%s" % (SpecArgumentType.name(self) or "duration")
-=======
-
-class SpecArgumentTypeDuration(SpecArgumentType):
-
-    def name(self):
-        return "+%s" % (SpecArgumentType.name(self) or "duration")
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             return duration(args[0]), 1
         return None, 1
-<<<<<<< HEAD
     def error(self) -> typing.Optional[str]:
         return "Invalid timeframe"
 
 class SpecArgumentTypeDate(SpecArgumentType):
     def name(self):
         return SpecArgumentType.name(self) or "yyyy-mm-dd"
-=======
-
-    def error(self) -> typing.Optional[str]:
-        return "Invalid timeframe"
-
-
-class SpecArgumentTypeDate(SpecArgumentType):
-
-    def name(self):
-        return SpecArgumentType.name(self) or "yyyy-mm-dd"
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args):
         if args:
             return date_human(args[0]), 1
         return None, 1
 
-<<<<<<< HEAD
 class SpecArgumentPrivateType(SpecArgumentType):
     context = SpecArgumentContext.PRIVATE
 
-=======
-
-class SpecArgumentPrivateType(SpecArgumentType):
-    context = SpecArgumentContext.PRIVATE
-
-
->>>>>>> parent of 139a1327a... merged
 SPEC_ARGUMENT_TYPES = {
     "word": SpecArgumentTypeWord,
     "aword": SpecArgumentTypeAdditionalWord,
@@ -222,10 +118,6 @@ SPEC_ARGUMENT_TYPES = {
     "pattern": SpecArgumentTypePattern
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
 class SpecArgument(object):
     consume = True
     optional: bool = False
@@ -244,20 +136,12 @@ class SpecArgument(object):
             name_end = argument_type.find(">")
             if name_end > 0 and argument_type.startswith("<"):
                 argument_type_name = argument_type[1:name_end]
-<<<<<<< HEAD
                 argument_type = argument_type[name_end+1:]
-=======
-                argument_type = argument_type[name_end + 1:]
->>>>>>> parent of 139a1327a... merged
 
             argument_type_modifier: typing.Optional[str] = None
             modifier_start = argument_type.find("(")
             if modifier_start > 0 and argument_type.endswith(")"):
-<<<<<<< HEAD
                 argument_type_modifier = argument_type[modifier_start+1:-1]
-=======
-                argument_type_modifier = argument_type[modifier_start + 1:-1]
->>>>>>> parent of 139a1327a... merged
                 argument_type = argument_type[:modifier_start]
 
             argument_type_class = SpecArgumentType
@@ -266,12 +150,8 @@ class SpecArgument(object):
             elif exported:
                 argument_type_class = SpecArgumentPrivateType
 
-<<<<<<< HEAD
             out.append(argument_type_class(argument_type,
                 argument_type_name, argument_type_modifier, exported))
-=======
-            out.append(argument_type_class(argument_type, argument_type_name, argument_type_modifier, exported))
->>>>>>> parent of 139a1327a... merged
 
         spec_argument = SpecArgument()
         spec_argument.optional = optional
@@ -286,11 +166,7 @@ class SpecArgument(object):
 
         names: typing.List[str] = []
         for argument_type in self.types:
-<<<<<<< HEAD
             if not (context&argument_type.context) == 0:
-=======
-            if not (context & argument_type.context) == 0:
->>>>>>> parent of 139a1327a... merged
                 name = argument_type.name() or argument_type.type
                 if name and not name in names:
                     names.append(name)
@@ -298,83 +174,48 @@ class SpecArgument(object):
             return format % "|".join(names)
         return None
 
-<<<<<<< HEAD
 class SpecArgumentTypeLiteral(SpecArgumentType):
-=======
-
-class SpecArgumentTypeLiteral(SpecArgumentType):
-
->>>>>>> parent of 139a1327a... merged
     def simple(self, args: typing.List[str]) -> typing.Tuple[typing.Any, int]:
         if args and args[0] == self.name():
             return args[0], 1
         return None, 1
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     def error(self) -> typing.Optional[str]:
         return None
 class SpecLiteralArgument(SpecArgument):
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
     @staticmethod
     def parse(optional: bool, literals: typing.List[str]) -> SpecArgument:
         spec_argument = SpecLiteralArgument()
         spec_argument.optional = optional
-<<<<<<< HEAD
         spec_argument.types = [
             SpecArgumentTypeLiteral("literal", l, None, None) for l in literals]
-=======
-        spec_argument.types = [SpecArgumentTypeLiteral("literal", l, None, None) for l in literals]
->>>>>>> parent of 139a1327a... merged
         return spec_argument
 
     def format(self, context: SpecArgumentContext) -> typing.Optional[str]:
         return "|".join(t.name() or "" for t in self.types)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of 139a1327a... merged
 def argument_spec(spec: str) -> typing.List[SpecArgument]:
     out: typing.List[SpecArgument] = []
     for spec_argument in spec.split(" "):
         optional = spec_argument[0] == "?"
 
         if spec_argument[1] == "'":
-<<<<<<< HEAD
             out.append(SpecLiteralArgument.parse(optional,
                 spec_argument[2:].split(",")))
-=======
-            out.append(SpecLiteralArgument.parse(optional, spec_argument[2:].split(",")))
->>>>>>> parent of 139a1327a... merged
         else:
             consume = True
             if spec_argument[1] == "-":
                 consume = False
                 spec_argument = spec_argument[1:]
 
-<<<<<<< HEAD
             spec_argument_obj = SpecArgument.parse(optional,
                 spec_argument[1:].split("|"))
-=======
-            spec_argument_obj = SpecArgument.parse(optional, spec_argument[1:].split("|"))
->>>>>>> parent of 139a1327a... merged
             spec_argument_obj.consume = consume
             out.append(spec_argument_obj)
 
     return out
 
-<<<<<<< HEAD
 def argument_spec_human(spec: typing.List[SpecArgument],
         context: SpecArgumentContext=SpecArgumentContext.ALL) -> str:
-=======
-
-def argument_spec_human(spec: typing.List[SpecArgument], context: SpecArgumentContext = SpecArgumentContext.ALL) -> str:
->>>>>>> parent of 139a1327a... merged
     arguments: typing.List[str] = []
     for spec_argument in spec:
         if spec_argument.consume:
