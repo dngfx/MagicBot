@@ -25,7 +25,7 @@ DEFAULT_MIN_MESSAGES = 100
 )
 @utils.export(
     "channelset",
-    utils.IntRangeSetting(10,
+    utils.IntRangeSetting(20,
                           200,
                           "ducks-min-messages",
                           "Minimum messages between ducks spawning"),
