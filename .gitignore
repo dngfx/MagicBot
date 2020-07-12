@@ -31,3 +31,4 @@ modules/nongit-*.py
 # tls
 bot.crt
 bot.key
+.vscode/sftp.json
