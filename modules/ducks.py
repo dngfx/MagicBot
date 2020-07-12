@@ -113,7 +113,7 @@ class Module(ModuleManager.BaseModule):
         ducks_plural = "duck" if action_count == 1 else "ducks"
         duck_special = utils.irc.color(utils.irc.bold("rabid "), utils.consts.RED) if self._is_special else ""
 
-        return "%s %s a %sduck in %s seconds! You've %s %d %s in %s!" % (
+        return "%s %s a %sduck in %s seconds! You've %s %s %s in %s!" % (
             utils.irc.bold(user.nickname),
             action,
             duck_special,
