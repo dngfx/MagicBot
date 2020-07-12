@@ -49,7 +49,7 @@ class Module(ModuleManager.BaseModule):
         windspeed = "%s: %s %s" % (utils.irc.bold("Windspeed"), wind_num, wind_unit)
         altimiter = "%s: %s %s" % (utils.irc.bold("Altimeter"), alt_num, alt_unit)
         readout = "%s: %s" % (utils.irc.bold("Readout"), page["sanitized"])
-        dewpoint = "%s: %s" % (utils.irc.bold("Dew Point"), dew)
+        dewpoint = "%s: %s%s" % (utils.irc.bold("Dew Point"), dew, temp_unit)
 
         event["stdout"].write("Information for %s: %s — %s — %s — %s — %s — %s" % (name,
                                                                                    visibility,
