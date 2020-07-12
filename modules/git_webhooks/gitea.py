@@ -3,35 +3,34 @@ from . import colors
 
 EVENT_CATEGORIES = {
     "ping": [
-        "ping"  # new webhook received
+        "ping" # new webhook received
     ],
     "code": ["push"],
-    "pr-minimal": ["pull_request/opened", "pull_request/closed", "pull_request/reopened"],
+    "pr-minimal": [
+        "pull_request/opened", "pull_request/closed", "pull_request/reopened"
+    ],
     "pr": [
-        "pull_request/opened",
-        "pull_request/closed",
-        "pull_request/reopened",
-        "pull_request/edited",
-        "pull_request/assigned",
+        "pull_request/opened", "pull_request/closed", "pull_request/reopened",
+        "pull_request/edited", "pull_request/assigned",
         "pull_request/unassigned"
     ],
     "pr-all": ["pull_request"],
-    "issue-minimal": ["issues/opened", "issues/closed", "issues/reopened", "issues/deleted"],
-    "issue": [
-        "issues/opened",
-        "issues/closed",
-        "issues/reopened",
-        "issues/deleted",
-        "issues/edited",
-        "issues/assigned",
-        "issues/unassigned",
-        "issue_comment"
+    "issue-minimal": [
+        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted"
     ],
-    "issue-all": ["issues", "issue_comment"],
-    "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
+    "issue": [
+        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
+        "issues/edited", "issues/assigned", "issues/unassigned", "issue_comment"
+    ],
+    "issue-all": [
+        "issues", "issue_comment"
+    ],
+    "issue-comment-minimal": [
+        "issue_comment/created", "issue_comment/deleted"
+    ],
     "repo": [
-        "create",  # a repository, branch or tag has been created
-        "delete",  # same as above but deleted
+        "create", # a repository, branch or tag has been created
+        "delete", # same as above but deleted
         "release",
         "fork",
         "repository"
@@ -40,18 +39,16 @@ EVENT_CATEGORIES = {
 
 COMMENT_ACTIONS = {
     "created": "commented",
-    "edited": "edited a comment",
+    "edited":  "edited a comment",
     "deleted": "deleted a comment"
 }
 RELEASE_ACTIONS = {
-    "updated": "published",  # there seems to be a bug that causes `updated` instead of `published`
+    "updated": "published", # there seems to be a bug that causes `updated` instead of `published`
     "published": "published",
     "deleted": "deleted"
 }
 
-
 class Gitea(object):
-
     def is_private(self, data, headers):
         if "repository" in data:
             return data["repository"]["private"]
@@ -80,7 +77,7 @@ class Gitea(object):
         event_action = None
         if "action" in data:
             event_action = "%s/%s" % (event, data["action"])
-        return [event] + ([event_action] if event_action else [])
+        return [event]+([event_action] if event_action else [])
 
     def event_categories(self, event):
         return EVENT_CATEGORIES.get(event, [event])
@@ -128,33 +125,37 @@ class Gitea(object):
                 message = commit["message"].split("\n")[0].strip()
                 url = commit["url"]
 
-                outputs.append(["%s pushed %s to %s: %s" % (author, hash_colored, branch, message), url])
+                outputs.append(["%s pushed %s to %s: %s"
+                    % (author, hash_colored, branch, message), url])
         else:
             first_id = data["before"]
             last_id = data["commits"][-1]["id"]
             url = data["compare_url"]
 
-            outputs.append(["%s pushed %d commits to %s" % (author, len(data["commits"]), branch), url])
+            outputs.append(["%s pushed %d commits to %s"
+                % (author, len(data["commits"]), branch), url])
 
         return outputs
 
     def pull_request(self, full_name, data):
-        number = utils.irc.color("#%s" % data["pull_request"]["number"], colors.COLOR_ID)
+        number = utils.irc.color("#%s" % data["pull_request"]["number"],
+            colors.COLOR_ID)
         action = data["action"]
         action_desc = "%s %s" % (action, number)
         branch = data["pull_request"]["base"]["ref"]
         colored_branch = utils.irc.color(branch, colors.COLOR_BRANCH)
 
         if action == "opened":
-            action_desc = "requested %s merge into %s" % (number, colored_branch)
+            action_desc = "requested %s merge into %s" % (number,
+                colored_branch)
         elif action == "closed":
             if data["pull_request"]["merged"]:
-                action_desc = "%s %s into %s" % (utils.irc.color("merged",
-                                                                 colors.COLOR_POSITIVE),
-                                                 number,
-                                                 colored_branch)
+                action_desc = "%s %s into %s" % (
+                    utils.irc.color("merged", colors.COLOR_POSITIVE), number,
+                    colored_branch)
             else:
-                action_desc = "%s %s" % (utils.irc.color("closed", colors.COLOR_NEGATIVE), number)
+                action_desc = "%s %s" % (
+                    utils.irc.color("closed", colors.COLOR_NEGATIVE), number)
         elif action == "ready_for_review":
             action_desc = "marked %s ready for review" % number
         elif action == "synchronize":
@@ -163,30 +164,37 @@ class Gitea(object):
         pr_title = data["pull_request"]["title"]
         author = utils.irc.bold(data["sender"]["login"])
         url = data["pull_request"]["html_url"]
-        return [["[PR] %s %s: %s" % (author, action_desc, pr_title), url]]
+        return [["[PR] %s %s: %s" %
+            (author, action_desc, pr_title), url]]
+
 
     def issues(self, full_name, data):
-        number = utils.irc.color("#%s" % data["issue"]["number"], colors.COLOR_ID)
+        number = utils.irc.color("#%s" % data["issue"]["number"],
+            colors.COLOR_ID)
         action = data["action"]
         issue_title = data["issue"]["title"]
         author = utils.irc.bold(data["sender"]["login"])
-        url = "%s/issues/%d" % (data["repository"]["html_url"], data["issue"]["number"])
+        url = "%s/issues/%d" % (data["repository"]["html_url"],
+            data["issue"]["number"])
 
-        return [["[issue] %s %s %s: %s" % (author, action, number, issue_title), url]]
-
+        return [["[issue] %s %s %s: %s" %
+            (author, action, number, issue_title), url]]
     def issue_comment(self, full_name, data):
         if "changes" in data:
             # don't show this event when nothing has actually changed
             if data["changes"]["body"]["from"] == data["comment"]["body"]:
                 return []
 
-        number = utils.irc.color("#%s" % data["issue"]["number"], colors.COLOR_ID)
+        number = utils.irc.color("#%s" % data["issue"]["number"],
+            colors.COLOR_ID)
         action = data["action"]
         issue_title = data["issue"]["title"]
         type = "PR" if data["issue"]["pull_request"] else "issue"
         commenter = utils.irc.bold(data["sender"]["login"])
         url = data["comment"]["html_url"]
-        return [["[%s] %s %s on %s: %s" % (type, commenter, COMMENT_ACTIONS[action], number, issue_title), url]]
+        return [["[%s] %s %s on %s: %s" %
+            (type, commenter, COMMENT_ACTIONS[action], number, issue_title),
+            url]]
 
     def create(self, full_name, data):
         ref = data["ref"]
@@ -216,6 +224,8 @@ class Gitea(object):
 
     def fork(self, full_name, data):
         forker = utils.irc.bold(data["sender"]["login"])
-        fork_full_name = utils.irc.color(data["repository"]["full_name"], utils.consts.LIGHTBLUE)
+        fork_full_name = utils.irc.color(data["repository"]["full_name"],
+            utils.consts.LIGHTBLUE)
         url = data["repository"]["html_url"]
-        return [["%s forked into %s" % (forker, fork_full_name), url]]
+        return [["%s forked into %s" %
+            (forker, fork_full_name), url]]

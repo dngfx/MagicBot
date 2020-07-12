@@ -11,48 +11,56 @@ PR_COMMIT_URL = "https://github.com/%s/pull/%s/commits/%s"
 DEFAULT_EVENT_CATEGORIES = ["ping", "code", "pr", "issue", "repo"]
 EVENT_CATEGORIES = {
     "ping": [
-        "ping"  # new webhook received
+        "ping" # new webhook received
     ],
-    "code": ["push", "commit_comment"],
-    "pr-minimal": ["pull_request/opened", "pull_request/closed", "pull_request/reopened"],
+    "code": [
+        "push", "commit_comment"
+    ],
+    "pr-minimal": [
+        "pull_request/opened", "pull_request/closed", "pull_request/reopened"
+    ],
     "pr": [
-        "pull_request/opened",
-        "pull_request/closed",
-        "pull_request/reopened",
-        "pull_request/edited",
-        "pull_request/assigned",
-        "pull_request/unassigned",
-        "pull_request_review",
-        "pull_request/locked",
-        "pull_request/unlocked",
+        "pull_request/opened", "pull_request/closed", "pull_request/reopened",
+        "pull_request/edited", "pull_request/assigned",
+        "pull_request/unassigned", "pull_request_review",
+        "pull_request/locked", "pull_request/unlocked",
         "pull_request_review_comment"
     ],
-    "pr-all": ["pull_request", "pull_request_review", "pull_request_review_comment"],
-    "pr-review-minimal": ["pull_request_review/submitted", "pull_request_review/dismissed"],
-    "pr-review-comment-minimal": ["pull_request_review_comment/created", "pull_request_review_comment/deleted"],
-    "issue-minimal": ["issues/opened", "issues/closed", "issues/reopened", "issues/deleted", "issues/transferred"],
+    "pr-all": [
+        "pull_request", "pull_request_review", "pull_request_review_comment"
+    ],
+    "pr-review-minimal": [
+        "pull_request_review/submitted", "pull_request_review/dismissed"
+    ],
+    "pr-review-comment-minimal": [
+        "pull_request_review_comment/created",
+        "pull_request_review_comment/deleted"
+    ],
+    "issue-minimal": [
+        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
+        "issues/transferred"
+    ],
     "issue": [
-        "issues/opened",
-        "issues/closed",
-        "issues/reopened",
-        "issues/deleted",
-        "issues/edited",
-        "issues/assigned",
-        "issues/unassigned",
-        "issues/locked",
-        "issues/unlocked",
-        "issues/transferred",
+        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
+        "issues/edited", "issues/assigned", "issues/unassigned",
+        "issues/locked", "issues/unlocked", "issues/transferred",
         "issue_comment",
     ],
-    "issue-all": ["issues", "issue_comment"],
-    "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
+    "issue-all": [
+        "issues", "issue_comment"
+    ],
+    "issue-comment-minimal": [
+        "issue_comment/created", "issue_comment/deleted"
+    ],
     "repo": [
-        "create",  # a repository, branch or tag has been created
-        "delete",  # same as above but deleted
+        "create", # a repository, branch or tag has been created
+        "delete", # same as above but deleted
         "release",
         "fork"
     ],
-    "team": ["membership"],
+    "team": [
+        "membership"
+    ],
     "star": [
         # "watch" is a misleading name for this event so this add "star" as an
         # alias for "watch"
