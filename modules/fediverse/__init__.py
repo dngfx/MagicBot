@@ -4,23 +4,17 @@ import urllib.parse
 from src import IRCBot, ModuleManager, utils
 from . import ap_actor, ap_security, ap_server, ap_utils
 
-<<<<<<< HEAD
 
 def _format_username(username, instance):
     return "@%s@%s" % (username, instance)
 
 
-=======
-def _format_username(username, instance):
-    return "@%s@%s" % (username, instance)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _setting_parse(s):
     username, instance = ap_utils.split_username(s)
     if username and instance:
         return _format_username(username, instance)
     return None
 
-<<<<<<< HEAD
 
 @utils.export("botset",
               utils.FunctionSetting(_setting_parse,
@@ -32,13 +26,6 @@ def _setting_parse(s):
                                     "fediverse",
                                     help="Set your fediverse account",
                                     example="@gargron@mastodon.social"))
-=======
-@utils.export("botset", utils.FunctionSetting(_setting_parse,
-    "fediverse-server", "The bot's local fediverse server username",
-    example="@bot@bitbot.dev"))
-@utils.export("set", utils.FunctionSetting(_setting_parse, "fediverse",
-    help="Set your fediverse account", example="@gargron@mastodon.social"))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 class Module(ModuleManager.BaseModule):
     _name = "Fedi"
 
@@ -51,7 +38,6 @@ class Module(ModuleManager.BaseModule):
                 raise ValueError("`tls-certificate` not provided in bot config")
 
             server_username, instance = ap_utils.split_username(server_username)
-<<<<<<< HEAD
             self.server = ap_server.Server(self.bot, self.exports, server_username, instance)
 
             self.events.on("api.get.ap-webfinger").hook(self.server.ap_webfinger, authenticated=False)
@@ -59,19 +45,6 @@ class Module(ModuleManager.BaseModule):
             self.events.on("api.post.ap-inbox").hook(self.server.ap_inbox, authenticated=False)
             self.events.on("api.get.ap-outbox").hook(self.server.ap_outbox, authenticated=False)
 
-=======
-            self.server = ap_server.Server(self.bot, self.exports,
-                server_username, instance)
-
-            self.events.on("api.get.ap-webfinger").hook(
-                self.server.ap_webfinger, authenticated=False)
-            self.events.on("api.get.ap-user").hook(
-                self.server.ap_user, authenticated=False)
-            self.events.on("api.post.ap-inbox").hook(
-                self.server.ap_inbox, authenticated=False)
-            self.events.on("api.get.ap-outbox").hook(
-                self.server.ap_outbox, authenticated=False)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def unload(self):
         if not self.server == None:
             self.server.unload()
@@ -127,12 +100,7 @@ class Module(ModuleManager.BaseModule):
             note = note["object"]
 
         cw, author, content, url = ap_utils.parse_note(actor, note, type)
-<<<<<<< HEAD
         shorturl = self.exports.get_one("shorturl")(event["server"], url, context=event["target"])
-=======
-        shorturl = self.exports.get_one("shorturl")(event["server"], url,
-            context=event["target"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         if cw:
             if strict_cw:
@@ -157,13 +125,7 @@ class Module(ModuleManager.BaseModule):
         nonreply = [actor.followers]
         first_item = None
         for item in items:
-<<<<<<< HEAD
             if (item["type"] == "Announce" or not "cc" in item["object"] or item["object"]["cc"] == nonreply):
-=======
-            if (item["type"] == "Announce" or
-                    not "cc" in item["object"] or
-                    item["object"]["cc"] == nonreply):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 first_item = item
                 break
 
