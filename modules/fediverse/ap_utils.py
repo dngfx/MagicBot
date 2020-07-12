@@ -3,21 +3,13 @@ import bs4
 from src import IRCBot, utils
 from . import ap_actor
 
-<<<<<<< HEAD
 LD_TYPE = ("application/ld+json; " "profile=\"https://www.w3.org/ns/activitystreams\"")
-=======
-LD_TYPE = ("application/ld+json; "
-    "profile=\"https://www.w3.org/ns/activitystreams\"")
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 JRD_TYPE = "application/jrd+json"
 ACTIVITY_TYPE = "application/activity+json"
 
 AP_TYPES = [ACTIVITY_TYPE, "application/ld+json"]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def split_username(s):
     if s[0] == "@":
         s = s[1:]
@@ -26,23 +18,17 @@ def split_username(s):
         return username, instance
     return None, None
 
-<<<<<<< HEAD
 
 def activity_request(url,
                      data=None,
                      method="GET",
                      type=ACTIVITY_TYPE,
                      headers={}):
-=======
-def activity_request(url, data=None, method="GET", type=ACTIVITY_TYPE,
-        headers={}):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     content_type = None
 
     if method == "POST":
         content_type = type
     else:
-<<<<<<< HEAD
         headers = {
             "Accept": type
         }
@@ -56,29 +42,15 @@ def activity_request(url, data=None, method="GET", type=ACTIVITY_TYPE,
                                  fallback_encoding="utf8")
     return utils.http.request(request)
 
-=======
-        headers = {"Accept": type}
-
-    request = utils.http.Request(url, headers=headers,
-        content_type=content_type, post_data=data, method=method,
-        json_body=True, fallback_encoding="utf8")
-    return utils.http.request(request)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 HOSTMETA_TEMPLATE = "https://%s/.well-known/host-meta"
 WEBFINGER_TEMPLATE = "https://%s/.well-known/webfinger?resource={uri}"
 
-<<<<<<< HEAD
 
 class FindActorException(Exception):
     pass
 
 
-=======
-class FindActorException(Exception):
-    pass
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def find_actor(username, instance):
     hostmeta = HOSTMETA_TEMPLATE % instance
     hostmeta_request = utils.http.Request(HOSTMETA_TEMPLATE % instance)
@@ -96,12 +68,7 @@ def find_actor(username, instance):
 
     if not webfinger_url:
         webfinger_url = WEBFINGER_TEMPLATE % instance
-<<<<<<< HEAD
     webfinger_url = webfinger_url.replace("{uri}", "acct:%s@%s" % (username, instance), 1)
-=======
-    webfinger_url = webfinger_url.replace("{uri}",
-        "acct:%s@%s" % (username, instance), 1)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     try:
         webfinger = activity_request(webfinger_url, type=JRD_TYPE)
@@ -114,20 +81,12 @@ def find_actor(username, instance):
             if link["type"] == ACTIVITY_TYPE:
                 return link["href"]
     else:
-<<<<<<< HEAD
         raise FindActorException("Could not find user @%s@%s" % (username, instance))
 
 
 KNOWN_TAGS = ["p", "br"]
 
 
-=======
-        raise FindActorException("Could not find user @%s@%s" %
-            (username, instance))
-
-KNOWN_TAGS = ["p", "br"]
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _line(item):
     if type(item) == bs4.element.Tag:
         if item.name == "p":
@@ -140,10 +99,7 @@ def _line(item):
     else:
         return str(item)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _normalise_note(content):
     soup = bs4.BeautifulSoup(content, "lxml").body
     lines = []
@@ -160,10 +116,7 @@ def _normalise_note(content):
 
     return utils.parse.line_normalise(out)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _content(note):
     content = note.get("content", None)
     attachment = note.get("attachment", [])
@@ -187,10 +140,7 @@ def _content(note):
 
         return "<%s>" % filename
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def parse_note(actor, note, type="Create"):
     if type == "Announce":
         retoot_url = note
@@ -207,10 +157,6 @@ def parse_note(actor, note, type="Create"):
 
         return (retoot.get("summary", None), author, retoot_content, retoot_url)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     elif type == "Create":
         content = _content(note)
         url = note.get("url", note["id"])
