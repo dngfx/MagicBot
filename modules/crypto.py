@@ -1,107 +1,116 @@
 #--depends-on commands
 
-import hashlib, re, urllib.parse, datetime, time
+import hashlib, re, urllib.parse, datetime, time, math
 from src import EventManager, ModuleManager, utils
+from decimal import *
 
-TICKER_URL = "https://blockchain.info/ticker"
-STATS_URL = "https://api.blockchain.info/stats"
-CONVERT_URL = "https://blockchain.info/tobtc?currency=%s&value=%s"
+API_URL = "https://api.coincap.io/v2/%s"
 MIN_TIME = 900
+ARROW_UP = "↑"
+ARROW_DOWN = "↓"
 
 
 class Module(ModuleManager.BaseModule):
-    _valid_currencies = None
-    _ticker = None
-    _stats = None
-    _last_updated = None
-    _name = "Bitcoin"
+    _assets = {}
+    _name = "Cryptocurrency"
 
-    @utils.hook("received.command.btc", alias_of="bitcoin")
-    @utils.hook("received.command.bitcoin", min_args=1)
-    @utils.kwarg("help", "Get the current bitcoin value in local currency")
-    @utils.kwarg("usage", "<currency code> (ie GBP)")
-    def price(self, event):
-        self.check_ticker(event)
-
-        currency = event["args"].upper()
-
-        if currency not in self._valid_currencies:
-            event["stderr"].write("Invalid currency (%s)" % currency)
-            return
-
-        info = self._ticker[currency]
-        event["stdout"].write("%s (%s) - %s%s" % (utils.irc.bold("BTC Price"),
-                                                  currency,
-                                                  utils.irc.bold(info["symbol"]),
-                                                  utils.irc.bold(info["last"])))
-
-    @utils.hook("received.command.vc", alias_of="validcurrencies")
-    @utils.hook("received.command.validcurrencies")
-    @utils.kwarg("help", "Get a list of valid currencies for BTC checking")
-    def show_currencies(self, event):
-        self.check_ticker(event)
-
-        valid = ", ".join(self._valid_currencies)
-        event["stdout"].write("Valid Bitcoin currencies are: %s" % valid)
-
-    @utils.hook("received.command.curtobtc", alias_of="currencytobtc")
-    @utils.hook("received.command.currencytobtc", min_args=2)
-    @utils.kwarg("help", "Convert currency to BTC amount")
-    @utils.kwarg("usage", "<amount> <currency code>")
-    def convert(self, event):
-        self.check_ticker(event)
-
-        currency = event["args_split"][1].upper()
-        amount = event["args_split"][0]
-        symbol = self._ticker[currency]["symbol"]
-
-        if currency not in self._valid_currencies:
-            event["stderr"].write("Invalid currency (%s)" % currency)
-            return
-
-        conv = CONVERT_URL % (currency, amount)
-        price = utils.http.request(conv).json()
-
-        event["stdout"].write("Convert %s (%s) to BTC: %s BTC" % (utils.irc.bold(symbol + amount),
-                                                                  currency,
-                                                                  utils.irc.bold(price)))
-
-    @utils.hook("received.command.btcstats")
-    @utils.kwarg("help", "Shows various statistics from the last 24 hours of BTC mining")
+    @utils.hook("received.command.coinstats")
+    @utils.kwarg("help", "Shows market information about the coin requested")
+    @utils.spec("!<coin>lstring")
     def show_stats(self, event):
-        self.check_ticker(event)
+        coin = event["spec"][0]
+        page = utils.http.request(API_URL % "assets",
+                                  get_params={
+                                      "search": coin,
+                                      "limit": 1
+                                  }).json()
+        data = page["data"]
 
-        stats = self._stats
+        if not data:
+            event["stderr"].write("Invalid Coin (%s)" % utils.irc.bold(coin))
+            return
 
-        tx = "%s: %s" % (utils.irc.bold("Transactions"), stats["n_tx"])
-        blocks_mined = "%s: %s" % (utils.irc.bold("Blocks Mined"), stats["n_blocks_mined"])
-        avg_mins = "%s: %s" % (utils.irc.bold("Avg Minutes Between Blocks"), stats["minutes_between_blocks"])
-        trade_volume = "%s: %s" % (utils.irc.bold("BTC Traded"), stats["trade_volume_btc"])
+        info = data[0]
 
-        title = "%s (Last 24 Hours)" % utils.irc.bold("BTC Stats")
+        self._assets[info["symbol"]] = info
 
-        event["stdout"].write("%s: %s — %s — %s — %s" % (title, tx, blocks_mined, avg_mins, trade_volume))
+        # Bitcoin (BTC) Last 24H — Trade Vol: $2.6B — Avg Price: $9257.11 — Chg -0.18%
+        # —=
 
-    def check_ticker(self, event):
-        if self._ticker == None or self._valid_currencies == None or self._last_updated == None:
-            self.populate_ticker()
+        trade_vol = int(info["volumeUsd24Hr"].split(".")[0])
+        trade_vol = f"{trade_vol:,}"
+        chg_parts = info["changePercent24Hr"].split(".")
+        chg_positive = float(info["changePercent24Hr"]) > 0
+        chg = "%s.%s" % (chg_parts[0], chg_parts[1][:3])
+        color = utils.consts.GREEN if chg_positive else utils.consts.RED
+        arrow = ARROW_UP if chg_positive else ARROW_DOWN
+        chg_text = utils.irc.bold(utils.irc.color(chg + "% " + arrow, color))
+        avg_parts = info["vwap24Hr"].split(".")
+        avg_price = "%s.%s" % (avg_parts[0], avg_parts[1][:2])
 
-        if self._last_updated != None:
-            time_now = round(time.time())
-            if (time_now - self._last_updated) > MIN_TIME:
-                self.populate_ticker()
+        event["stdout"].write("%s (%s) Last 24H — Trade Vol: $%s — Avg Price: $%s — Chg %s" % (info["name"],
+                                                                                               info["symbol"],
+                                                                                               trade_vol,
+                                                                                               avg_price,
+                                                                                               chg_text))
 
-    def populate_ticker(self):
-        ticker = utils.http.request(TICKER_URL).json()
-        stats = utils.http.request(STATS_URL).json()
+    @utils.hook("received.command.curtocoin", alias_of="currencytocoin")
+    @utils.hook("received.command.currencytocoin")
+    @utils.kwarg("help", "Convert currency to coin amount")
+    @utils.spec("!<amount>word !<currency>word !<coin>word")
+    def convert(self, event):
+        currency = event["spec"][1].upper()
+        amount = event["spec"][0]
+        coin = event["spec"][2].upper()
 
-        if self._valid_currencies == None:
-            valid = []
-            for cur in ticker:
-                valid.append(cur)
+        page = utils.http.request(API_URL % "markets",
+                                  get_params={
+                                      "baseSymbol": coin,
+                                      "quoteSymbol": currency,
+                                      "limit": 1
+                                  }).json()
+        data = page["data"]
 
-            self._valid_currencies = valid
+        if not data:
+            event["stderr"].write("Invalid Cryptocurrency (%s)" % utils.irc.bold(coin))
+            return
 
-        self._ticker = ticker
-        self._stats = stats
-        self._last_updated = round(time.time())
+        info = data[0]
+        price = int(amount) / int(info["priceQuote"].split(".")[0])
+        symbol = info["quoteSymbol"]
+
+        event["stdout"].write("Convert %s %s to %s: %s %s" % (utils.irc.bold(amount),
+                                                              utils.irc.bold(currency),
+                                                              utils.irc.bold(coin),
+                                                              utils.irc.bold(price),
+                                                              utils.irc.bold(coin)))
+
+    @utils.hook("received.command.coinprice")
+    @utils.kwarg("help", "Get the price of one coin in local currency")
+    @utils.spec("!<coin>word !<currency>word")
+    def onecoin(self, event):
+        currency = event["spec"][1].upper()
+        coin = event["spec"][0].upper()
+
+        page = utils.http.request(API_URL % "markets",
+                                  get_params={
+                                      "baseSymbol": coin,
+                                      "quoteSymbol": currency,
+                                      "limit": 1
+                                  }).json()
+        data = page["data"]
+
+        if not data:
+            event["stderr"].write("Invalid Cryptocurrency (%s)" % utils.irc.bold(coin))
+            return
+
+        info = data[0]
+        price_parts = info["priceQuote"].split(".")
+        price = "%s.%s" % (price_parts[0], price_parts[1][:2])
+        symbol = info["quoteSymbol"]
+
+        event["stdout"].write("%s to %s: 1 %s = %s %s" % (utils.irc.bold(coin),
+                                                          utils.irc.bold(currency),
+                                                          utils.irc.bold(coin),
+                                                          utils.irc.bold(price),
+                                                          utils.irc.bold(currency)))
