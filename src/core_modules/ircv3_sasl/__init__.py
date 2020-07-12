@@ -6,28 +6,16 @@ from . import scram
 
 CAP = utils.irc.Capability("sasl")
 
-<<<<<<< HEAD
 USERPASS_MECHANISMS = ["SCRAM-SHA-512", "SCRAM-SHA-256", "SCRAM-SHA-1", "PLAIN"]
 ALL_MECHANISMS = USERPASS_MECHANISMS + ["EXTERNAL"]
 SETTING_MECHANISMS = ALL_MECHANISMS + ["USERPASS"]
 
-=======
-USERPASS_MECHANISMS = [
-    "SCRAM-SHA-512",
-    "SCRAM-SHA-256",
-    "SCRAM-SHA-1",
-    "PLAIN"
-]
-ALL_MECHANISMS = USERPASS_MECHANISMS+["EXTERNAL"]
-SETTING_MECHANISMS = ALL_MECHANISMS+["USERPASS"]
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def _parse(value):
     mechanism, _, arguments = value.partition(" ")
     mechanism = mechanism.upper()
 
     if mechanism in SETTING_MECHANISMS:
-<<<<<<< HEAD
         return {
             "mechanism": mechanism.upper(),
             "args": arguments
@@ -51,24 +39,6 @@ HARDFAIL = utils.BoolSetting("sasl-hard-fail", "Set whether a SASL failure shoul
 @utils.export("botset", HARDFAIL)
 class Module(ModuleManager.BaseModule):
 
-=======
-        return {"mechanism": mechanism.upper(), "args": arguments}
-    else:
-        raise utils.settings.SettingParseException(
-            "Unknown SASL mechanism '%s'" % mechanism)
-
-SASL_TIMEOUT = 15 # 15 seconds
-
-HARDFAIL = utils.BoolSetting("sasl-hard-fail",
-    "Set whether a SASL failure should cause a disconnect")
-
-@utils.export("serverset", utils.FunctionSetting(_parse, "sasl",
-    "Set the sasl username/password for this server",
-    example="PLAIN BitBot:hunter2", format=utils.sensitive_format))
-@utils.export("serverset", HARDFAIL)
-@utils.export("botset", HARDFAIL)
-class Module(ModuleManager.BaseModule):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     @utils.hook("new.server")
     def new_server(self, event):
         event["server"]._sasl_timeout = None
@@ -112,22 +82,12 @@ class Module(ModuleManager.BaseModule):
 
             if mechanism:
                 cap = CAP.copy()
-<<<<<<< HEAD
                 cap.on_ack(lambda: self._sasl_ack(event["server"], mechanism))
-=======
-                cap.on_ack(
-                    lambda: self._sasl_ack(event["server"], mechanism))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 return cap
 
     def _sasl_ack(self, server, mechanism):
         server.send_authenticate(mechanism)
-<<<<<<< HEAD
         server._sasl_timeout = self.timers.add("sasl-timeout", self._sasl_timeout, SASL_TIMEOUT, server=server)
-=======
-        server._sasl_timeout = self.timers.add("sasl-timeout",
-            self._sasl_timeout, SASL_TIMEOUT, server=server)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         server._sasl_mechanism = mechanism
 
         server.wait_for_capability("sasl")
@@ -147,12 +107,7 @@ class Module(ModuleManager.BaseModule):
                 event["server"].send_authenticate("*")
             else:
                 sasl_username, sasl_password = sasl["args"].split(":", 1)
-<<<<<<< HEAD
                 auth_text = ("%s\0%s\0%s" % (sasl_username, sasl_username, sasl_password)).encode("utf8")
-=======
-                auth_text = ("%s\0%s\0%s" % (
-                    sasl_username, sasl_username, sasl_password)).encode("utf8")
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         elif mechanism == "EXTERNAL":
             if event["message"] != "+":
@@ -168,12 +123,7 @@ class Module(ModuleManager.BaseModule):
                 # create SCRAM helper
                 sasl_username, sasl_password = sasl["args"].split(":", 1)
                 algo = mechanism.split("SCRAM-", 1)[1]
-<<<<<<< HEAD
                 event["server"]._scram = scram.SCRAM(algo, sasl_username, sasl_password)
-=======
-                event["server"]._scram = scram.SCRAM(
-                    algo, sasl_username, sasl_password)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
                 # generate client-first-message
                 auth_text = event["server"]._scram.client_first()
@@ -221,7 +171,6 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.903")
     def sasl_success(self, event):
-<<<<<<< HEAD
         self.log.info("SASL authentication succeeded for %s", [str(event["server"])])
         self._end_sasl(event["server"])
 
@@ -229,16 +178,6 @@ class Module(ModuleManager.BaseModule):
     def sasl_failure(self, event):
         if not event["server"]._sasl_retry:
             self._panic(event["server"], "ERR_SASLFAIL (%s)" % event["line"].args[1])
-=======
-        self.log.info("SASL authentication succeeded for %s",
-            [str(event["server"])])
-        self._end_sasl(event["server"])
-    @utils.hook("received.904")
-    def sasl_failure(self, event):
-        if not event["server"]._sasl_retry:
-            self._panic(event["server"], "ERR_SASLFAIL (%s)" %
-                event["line"].args[1])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         else:
             event["server"]._sasl_retry = False
 
@@ -247,12 +186,7 @@ class Module(ModuleManager.BaseModule):
         self._end_sasl(event["server"])
 
     def _panic(self, server, message):
-<<<<<<< HEAD
         if server.get_setting("sasl-hard-fail", self.bot.get_setting("sasl-hard-fail", False)):
-=======
-        if server.get_setting("sasl-hard-fail",
-                self.bot.get_setting("sasl-hard-fail", False)):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             message = "SASL panic for %s: %s" % (str(server), message)
             self.log.error(message)
             self.bot.disconnect(server)

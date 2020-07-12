@@ -9,7 +9,6 @@ CAPABILITIES = [
     utils.irc.Capability("extended-join"),
     utils.irc.Capability("away-notify"),
     utils.irc.Capability("userhost-in-names"),
-<<<<<<< HEAD
     utils.irc.Capability("message-tags",
                          "draft/message-tags-0.2"),
     utils.irc.Capability("cap-notify"),
@@ -27,19 +26,6 @@ def _cap_depend_sort(caps, server_caps):
 
     caps_copy = {alias: cap.copy() for alias,
                  cap in caps.items()}
-=======
-    utils.irc.Capability("message-tags", "draft/message-tags-0.2"),
-    utils.irc.Capability("cap-notify"),
-    utils.irc.Capability("batch"),
-    utils.irc.Capability(None, "draft/rename", alias="rename"),
-    utils.irc.Capability("setname", "draft/setname")
-]
-
-def _cap_depend_sort(caps, server_caps):
-    sorted_caps = []
-
-    caps_copy = {alias: cap.copy() for alias, cap in caps.items()}
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     for cap in caps.values():
         if not cap.available(server_caps):
@@ -74,10 +60,7 @@ def _cap_depend_sort(caps, server_caps):
             sorted_caps.append(fulfilled_cap)
     return [caps[alias] for alias in sorted_caps]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _cap_match(server, caps):
     matched_caps = {}
     blacklist = server.get_setting("blacklisted-caps", [])
@@ -95,10 +78,7 @@ def _cap_match(server, caps):
             matched_caps[available] = cap
     return matched_caps
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def cap(exports, events, event):
     capabilities = utils.parse.keyvalue(event["line"].args[-1])
     subcommand = event["line"].args[1].upper()
@@ -110,12 +90,7 @@ def cap(exports, events, event):
             if capability in event["server"].server_capabilities:
                 del event["server"].server_capabilities[capability]
 
-<<<<<<< HEAD
         events.on("received.cap.del").call(server=event["server"], capabilities=capabilities)
-=======
-        events.on("received.cap.del").call(server=event["server"],
-            capabilities=capabilities)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     elif subcommand == "ACK":
         for cap_name, cap_args in capabilities.items():
             if cap_name[0] == "-":
@@ -123,12 +98,7 @@ def cap(exports, events, event):
             else:
                 event["server"].agreed_capabilities.add(cap_name)
 
-<<<<<<< HEAD
         events.on("received.cap.ack").call(capabilities=capabilities, server=event["server"])
-=======
-        events.on("received.cap.ack").call(capabilities=capabilities,
-           server=event["server"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     if subcommand == "LS" or subcommand == "NEW":
         event["server"].server_capabilities.update(capabilities)
@@ -139,14 +109,8 @@ def cap(exports, events, event):
             export_caps = [cap.copy() for cap in exports.get_all("cap")]
             all_caps.extend(export_caps)
 
-<<<<<<< HEAD
             module_caps = events.on("received.cap.ls").call(capabilities=event["server"].server_capabilities,
                                                             server=event["server"])
-=======
-            module_caps = events.on("received.cap.ls").call(
-                capabilities=event["server"].server_capabilities,
-                server=event["server"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             module_caps = list(filter(None, module_caps))
             all_caps.extend(module_caps)
 
@@ -158,10 +122,6 @@ def cap(exports, events, event):
             else:
                 event["server"].send_capability_end()
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     if subcommand == "ACK" or subcommand == "NAK":
         ack = subcommand == "ACK"
         for capability in capabilities:
@@ -173,19 +133,9 @@ def cap(exports, events, event):
                 else:
                     cap_obj.nak()
 
-<<<<<<< HEAD
         if (not event["server"].capabilities_requested and not event["server"].waiting_for_capabilities()):
             event["server"].send_capability_end()
 
 
 def authenticate(events, event):
     events.on("received.authenticate").call(message=event["line"].args[0], server=event["server"])
-=======
-        if (not event["server"].capabilities_requested and
-                not event["server"].waiting_for_capabilities()):
-            event["server"].send_capability_end()
-
-def authenticate(events, event):
-    events.on("received.authenticate").call(message=event["line"].args[0],
-        server=event["server"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5

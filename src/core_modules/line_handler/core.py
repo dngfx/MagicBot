@@ -3,17 +3,11 @@ import codecs, re
 RE_ISUPPORT_ESCAPE = re.compile(r"\\x(\d\d)", re.I)
 RE_MODES = re.compile(r"[-+]\w+")
 
-<<<<<<< HEAD
 
 def ping(event):
     event["server"].send_pong(event["line"].args[0])
 
 
-=======
-def ping(event):
-    event["server"].send_pong(event["line"].args[0])
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def handle_001(event):
     event["server"].socket.enable_write_throttle()
     event["server"].name = event["line"].source.hostmask
@@ -22,10 +16,7 @@ def handle_001(event):
     event["server"].send_mode(event["server"].nickname)
     event["server"].connected = True
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def handle_005(events, event):
     isupport_list = event["line"].args[1:-1]
     isupport = {}
@@ -43,12 +34,7 @@ def handle_005(events, event):
             isupport[key] = None
     event["server"].isupport.update(isupport)
 
-<<<<<<< HEAD
     if "NAMESX" in isupport and not event["server"].has_capability_str("multi-prefix"):
-=======
-    if "NAMESX" in isupport and not event["server"].has_capability_str(
-            "multi-prefix"):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         event["server"].send_raw("PROTOCTL NAMESX")
 
     if "PREFIX" in isupport:
@@ -74,11 +60,7 @@ def handle_005(events, event):
     if "QUIET" in isupport:
         quiet = dict(enumerate(isupport["QUIET"].split(",")))
         prefix = quiet.get(1, "")
-<<<<<<< HEAD
         list_numeric = qiuet.get(2, "367")  # RPL_BANLIST
-=======
-        list_numeric = qiuet.get(2, "367") # RPL_BANLIST
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         end_numeric = quiet.get(3, "368")  # RPL_ENDOFBANLIST
         event["server"].quiet = [quiet[0], prefix, list_numeric, end_numeric]
     if "TARGMAX" in isupport:
@@ -89,18 +71,12 @@ def handle_005(events, event):
                 targmax[cmd] = int(n)
         event["server"].targmax = targmax
 
-<<<<<<< HEAD
     events.on("received.005").call(isupport=isupport, server=event["server"])
 
-=======
-    events.on("received.005").call(isupport=isupport,
-        server=event["server"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def handle_004(event):
     event["server"].version = event["line"].args[2]
 
-<<<<<<< HEAD
 
 def motd_start(event):
     event["server"].motd_lines.clear()
@@ -110,13 +86,6 @@ def motd_line(event):
     event["server"].motd_lines.append(event["line"].args[1])
 
 
-=======
-def motd_start(event):
-    event["server"].motd_lines.clear()
-def motd_line(event):
-    event["server"].motd_lines.append(event["line"].args[1])
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _own_modes(server, modes):
     mode_chunks = RE_MODES.findall(modes)
     for chunk in mode_chunks:
@@ -124,10 +93,7 @@ def _own_modes(server, modes):
         for mode in chunk[1:]:
             server.change_own_mode(remove, mode)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def mode(events, event):
     user = event["server"].get_user(event["line"].source.nickname)
     target = event["line"].args[0]
@@ -135,25 +101,16 @@ def mode(events, event):
     if is_channel:
         channel = event["server"].channels.get(target)
         modes = event["line"].args[1]
-<<<<<<< HEAD
         args = event["line"].args[2:]
-=======
-        args  = event["line"].args[2:]
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         new_modes = channel.parse_modes(modes, args[:])
 
         events.on("received.mode.channel").call(modes=new_modes,
-<<<<<<< HEAD
                                                 channel=channel,
                                                 server=event["server"],
                                                 user=user,
                                                 modes_str=modes,
                                                 args_str=args)
-=======
-            channel=channel, server=event["server"], user=user, modes_str=modes,
-            args_str=args)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     elif event["server"].is_own_nickname(target):
         modes = event["line"].args[1]
         _own_modes(event["server"], modes)
@@ -161,31 +118,20 @@ def mode(events, event):
         events.on("self.mode").call(modes=modes, server=event["server"])
         event["server"].send_who(event["server"].nickname)
 
-<<<<<<< HEAD
 
 def handle_221(event):
     _own_modes(event["server"], event["line"].args[1])
 
 
-=======
-def handle_221(event):
-    _own_modes(event["server"], event["line"].args[1])
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def invite(events, event):
     target_channel = event["line"].args[1]
     user = event["server"].get_user(event["line"].source.nickname)
     target_user = event["server"].get_user(event["line"].args[0])
-<<<<<<< HEAD
     events.on("received.invite").call(user=user,
                                       target_channel=target_channel,
                                       server=event["server"],
                                       target_user=target_user)
 
-=======
-    events.on("received.invite").call(user=user, target_channel=target_channel,
-        server=event["server"], target_user=target_user)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def handle_352(events, event):
     nickname = event["line"].args[5]
@@ -199,13 +145,8 @@ def handle_352(events, event):
     target = event["server"].get_user(nickname)
     target.username = username
     target.hostname = hostname
-<<<<<<< HEAD
     events.on("received.who").call(server=event["server"], user=target)
 
-=======
-    events.on("received.who").call(server=event["server"],
-        user=target)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def handle_354(events, event):
     if event["line"].args[1] == "111":
@@ -228,27 +169,17 @@ def handle_354(events, event):
             target.account = account
         else:
             target.account = None
-<<<<<<< HEAD
         events.on("received.whox").call(server=event["server"], user=target)
 
-=======
-        events.on("received.whox").call(server=event["server"],
-            user=target)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def _nick_in_use(server):
     new_nick = "%s|" % server.connection_params.nickname
     server.send_nick(new_nick)
 
-<<<<<<< HEAD
 
 def handle_433(event):
     _nick_in_use(event["server"])
 
 
-=======
-def handle_433(event):
-    _nick_in_use(event["server"])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def handle_437(event):
     _nick_in_use(event["server"])

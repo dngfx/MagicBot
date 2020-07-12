@@ -4,27 +4,17 @@ import base64, enum, hashlib, hmac, os, typing
 # https://tools.ietf.org/html/rfc5802#section-4
 # https://www.iana.org/assignments/hash-function-text-names/
 # MD2 has been removed as it's unacceptably weak
-<<<<<<< HEAD
 ALGORITHMS = ["MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512"]
 
 SCRAM_ERRORS = [
     "invalid-encoding",
     "extensions-not-supported",  # unrecognized 'm' value
-=======
-ALGORITHMS = [
-    "MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512"]
-
-SCRAM_ERRORS = [
-    "invalid-encoding",
-    "extensions-not-supported", # unrecognized 'm' value
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     "invalid-proof",
     "channel-bindings-dont-match",
     "server-does-support-channel-binding",
     "channel-binding-not-supported",
     "unsupported-channel-binding-type",
     "unknown-user",
-<<<<<<< HEAD
     "invalid-username-encoding",  # invalid utf8 or bad SASLprep
     "no-resources"
 ]
@@ -46,21 +36,6 @@ def _scram_xor(s1: bytes, s2: bytes) -> bytes:
     return bytes(a ^ b for a, b in zip(s1, s2))
 
 
-=======
-    "invalid-username-encoding", # invalid utf8 or bad SASLprep
-    "no-resources"
-]
-
-def _scram_nonce() -> bytes:
-    return base64.b64encode(os.urandom(32))
-def _scram_escape(s: bytes) -> bytes:
-    return s.replace(b"=", b"=3D").replace(b",", b"=2C")
-def _scram_unescape(s: bytes) -> bytes:
-    return s.replace(b"=3D", b"=").replace(b"=2C", b",")
-def _scram_xor(s1: bytes, s2: bytes) -> bytes:
-    return bytes(a ^ b for a, b in zip(s1, s2))
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 class SCRAMState(enum.Enum):
     Uninitialised = 0
     ClientFirst = 1
@@ -69,7 +44,6 @@ class SCRAMState(enum.Enum):
     Failed = 4
     VerifyFailed = 5
 
-<<<<<<< HEAD
 
 class SCRAMError(Exception):
     pass
@@ -77,21 +51,11 @@ class SCRAMError(Exception):
 
 class SCRAM(object):
 
-=======
-class SCRAMError(Exception):
-    pass
-
-class SCRAM(object):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def __init__(self, algo: str, username: str, password: str):
         if not algo in ALGORITHMS:
             raise ValueError("Unknown SCRAM algorithm '%s'" % algo)
 
-<<<<<<< HEAD
         self._algo = algo.replace("-", "")  # SHA-1 -> SHA1
-=======
-        self._algo = algo.replace("-", "") # SHA-1 -> SHA1
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         self._username = username.encode("utf8")
         self._password = password.encode("utf8")
 
@@ -109,10 +73,7 @@ class SCRAM(object):
 
     def _hmac(self, key: bytes, msg: bytes) -> bytes:
         return hmac.new(key, msg, self._algo).digest()
-<<<<<<< HEAD
 
-=======
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def _hash(self, msg: bytes) -> bytes:
         return hashlib.new(self._algo, msg).digest()
 
@@ -121,12 +82,7 @@ class SCRAM(object):
 
     def client_first(self) -> bytes:
         self.state = SCRAMState.ClientFirst
-<<<<<<< HEAD
         self._client_first = b"n=%s,r=%s" % (_scram_escape(self._username), _scram_nonce())
-=======
-        self._client_first = b"n=%s,r=%s" % (
-            _scram_escape(self._username), _scram_nonce())
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         # n,,n=<username>,r=<nonce>
         return b"n,,%s" % self._client_first
@@ -135,20 +91,11 @@ class SCRAM(object):
         self.state = SCRAMState.ClientFinal
 
         pieces = self._get_pieces(data)
-<<<<<<< HEAD
         nonce = pieces[b"r"]  # server combines your nonce with it's own
         salt = base64.b64decode(pieces[b"s"])  # salt is b64encoded
         iterations = int(pieces[b"i"])
 
         salted_password = hashlib.pbkdf2_hmac(self._algo, self._password, salt, iterations, dklen=None)
-=======
-        nonce = pieces[b"r"] # server combines your nonce with it's own
-        salt = base64.b64decode(pieces[b"s"]) # salt is b64encoded
-        iterations = int(pieces[b"i"])
-
-        salted_password = hashlib.pbkdf2_hmac(self._algo, self._password,
-            salt, iterations, dklen=None)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         self._salted_password = salted_password
 
         client_key = self._hmac(salted_password, b"Client Key")

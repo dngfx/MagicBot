@@ -8,12 +8,8 @@ with open("VERSION", "r") as version_file:
 setuptools.setup(
     name="bitbot",
     version=version,
-<<<<<<< HEAD
     scripts=["bitbotd",
              "bitbotctl"],
-=======
-    scripts=["bitbotd", "bitbotctl"],
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     author="jesopo",
     author_email="bitbot@jesopo.uk",
     description="Modular event-driven IRC bot",

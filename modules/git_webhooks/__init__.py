@@ -9,7 +9,6 @@ from . import colors, gitea, github, gitlab
 
 FORM_ENCODED = "application/x-www-form-urlencoded"
 
-<<<<<<< HEAD
 DEFAULT_EVENT_CATEGORIES = ["ping", "code", "pr", "issue", "repo"]
 
 PRIVATE_SETTING_NAME = "git-show-private"
@@ -25,24 +24,6 @@ PRIVATE_SETTING = utils.BoolSetting(PRIVATE_SETTING_NAME,
 @utils.export("channelset",
               utils.BoolSetting("git-shorten-urls",
                                 "Weather or not git webhook URLs should be shortened"))
-=======
-DEFAULT_EVENT_CATEGORIES = [
-    "ping", "code", "pr", "issue", "repo"
-]
-
-PRIVATE_SETTING_NAME = "git-show-private"
-PRIVATE_SETTING = utils.BoolSetting(PRIVATE_SETTING_NAME,
-    "Whether or not to show git activity for private repositories")
-
-@utils.export("channelset", utils.BoolSetting("git-prevent-highlight",
-    "Enable/disable preventing highlights"))
-@utils.export("channelset", utils.BoolSetting("git-hide-organisation",
-    "Hide/show organisation in repository names"))
-@utils.export("channelset", utils.BoolSetting("git-hide-prefix",
-    "Hide/show command-like prefix on git webhook outputs"))
-@utils.export("channelset", utils.BoolSetting("git-shorten-urls",
-    "Weather or not git webhook URLs should be shortened"))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 @utils.export("botset", PRIVATE_SETTING)
 @utils.export("channelset", PRIVATE_SETTING)
 class Module(ModuleManager.BaseModule):
@@ -55,7 +36,6 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("api.post.github")
     def _api_github_webhook(self, event):
-<<<<<<< HEAD
         return self._webhook("github", "GitHub", self._github, event["data"], event["headers"], event["params"])
 
     @utils.hook("api.post.gitea")
@@ -70,44 +50,16 @@ class Module(ModuleManager.BaseModule):
         payload = payload_str.decode("utf8")
         if headers["Content-Type"] == FORM_ENCODED:
             payload = urllib.parse.unquote(urllib.parse.parse_qs(payload)["payload"][0])
-=======
-        return self._webhook("github", "GitHub", self._github,
-            event["data"], event["headers"], event["params"])
-
-    @utils.hook("api.post.gitea")
-    def _api_gitea_webhook(self, event):
-        return self._webhook("gitea", "Gitea", self._gitea,
-            event["data"], event["headers"], event["params"])
-
-    @utils.hook("api.post.gitlab")
-    def _api_gitlab_webhook(self, event):
-        return self._webhook("gitlab", "GitLab", self._gitlab,
-            event["data"], event["headers"], event["params"])
-
-    def _webhook(self, webhook_type, webhook_name, handler, payload_str,
-            headers, params):
-        payload = payload_str.decode("utf8")
-        if headers["Content-Type"] == FORM_ENCODED:
-            payload = urllib.parse.unquote(urllib.parse.parse_qs(payload)[
-                "payload"][0])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         data = json.loads(payload)
 
         is_private = handler.is_private(data, headers)
         if is_private and not self.bot.get_setting(PRIVATE_SETTING_NAME, True):
-<<<<<<< HEAD
             return {
                 "state": "success",
                 "deliveries": 0
             }
 
         full_name, repo_username, repo_name, organisation = handler.names(data, headers)
-=======
-            return {"state": "success", "deliveries": 0}
-
-        full_name, repo_username, repo_name, organisation = handler.names(
-            data, headers)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         full_name_lower = (full_name or "").lower()
         repo_username_lower = (repo_username or "").lower()
@@ -127,7 +79,6 @@ class Module(ModuleManager.BaseModule):
 
                     if server and channel_name in server.channels:
                         channel = server.channels.get(channel_name)
-<<<<<<< HEAD
                         hooks = channel.get_setting("git-webhooks",
                                                     {})
 
@@ -141,39 +92,14 @@ class Module(ModuleManager.BaseModule):
                                 unfiltered_targets.append([server, channel, found_hook])
         else:
             unfiltered_targets = self._find_targets(full_name_lower, repo_username_lower, organisation_lower)
-=======
-                        hooks = channel.get_setting("git-webhooks", {})
-
-                        if hooks:
-                            found_hook = self._find_hook(
-                                full_name_lower, repo_username_lower,
-                                organisation_lower, hooks)
-
-                            if found_hook:
-                                unfiltered_targets.append([
-                                    server, channel, found_hook])
-        else:
-            unfiltered_targets = self._find_targets(full_name_lower,
-                repo_username_lower, organisation_lower)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         repo_hooked = bool(unfiltered_targets)
         targets = []
         for server, channel, hook in unfiltered_targets:
-<<<<<<< HEAD
             if is_private and not channel.get_setting(PRIVATE_SETTING_NAME, False):
                 continue
 
             if (branch and hook["branches"] and not branch in hook["branches"]):
-=======
-            if is_private and not channel.get_setting(
-                    PRIVATE_SETTING_NAME, False):
-                continue
-
-            if (branch and
-                    hook["branches"] and
-                    not branch in hook["branches"]):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 continue
 
             hooked_events = []
@@ -181,25 +107,17 @@ class Module(ModuleManager.BaseModule):
                 hooked_events.append(handler.event_categories(hooked_event))
             hooked_events = set(itertools.chain(*hooked_events))
 
-<<<<<<< HEAD
             if bool(set(current_events) & set(hooked_events)):
-=======
-            if bool(set(current_events)&set(hooked_events)):
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 targets.append([server, channel])
 
         if not targets:
             if not repo_hooked:
                 return None
             else:
-<<<<<<< HEAD
                 return {
                     "state": "success",
                     "deliveries": 0
                 }
-=======
-                return {"state": "success", "deliveries": 0}
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         outputs = handler.webhook(full_name, current_events[0], data, headers)
 
@@ -211,7 +129,6 @@ class Module(ModuleManager.BaseModule):
                     source = repo_name
 
                 for output, url in outputs:
-<<<<<<< HEAD
                     output = "(%s) %s" % (utils.irc.color(source, colors.COLOR_REPO), output)
 
                     if url:
@@ -233,27 +150,6 @@ class Module(ModuleManager.BaseModule):
             "state": "success",
             "deliveries": len(targets)
         }
-=======
-                    output = "(%s) %s" % (
-                        utils.irc.color(source, colors.COLOR_REPO), output)
-
-                    if url:
-                        if channel.get_setting("git-shorten-urls", False):
-                            url = self.exports.get_one("shorturl")(server, url,
-                                context=channel) or url
-                        output = "%s - %s" % (output, url)
-
-                    if channel.get_setting("git-prevent-highlight", False):
-                        output = self._prevent_highlight(server, channel,
-                            output)
-
-                    hide_prefix = channel.get_setting("git-hide-prefix", False)
-                    self.events.on("send.stdout").call(target=channel,
-                        module_name=webhook_name, server=server, message=output,
-                        hide_prefix=hide_prefix)
-
-        return {"state": "success", "deliveries": len(targets)}
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     def _prevent_highlight(self, server, channel, s):
         for user in channel.users:
@@ -262,35 +158,18 @@ class Module(ModuleManager.BaseModule):
                 # will fire indefininitely.
                 continue
 
-<<<<<<< HEAD
             regex = re.compile(r"([0-9]|\W)(%s)(%s)" % (re.escape(user.nickname[0]),
                                                         re.escape(user.nickname[1:])),
                                re.I)
-=======
-            regex = re.compile(r"([0-9]|\W)(%s)(%s)" % (
-                re.escape(user.nickname[0]), re.escape(user.nickname[1:])),
-                re.I)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             s = regex.sub("\\1\\2\u200c\\3", s)
 
         return s
 
-<<<<<<< HEAD
     def _find_targets(self, full_name_lower, repo_username_lower, organisation_lower):
         hooks = self.bot.database.channel_settings.find_by_setting("git-webhooks")
         targets = []
         for server_id, channel_name, hooked_repos in hooks:
             found_hook = self._find_hook(full_name_lower, repo_username_lower, organisation_lower, hooked_repos)
-=======
-    def _find_targets(self, full_name_lower, repo_username_lower,
-            organisation_lower):
-        hooks = self.bot.database.channel_settings.find_by_setting(
-            "git-webhooks")
-        targets = []
-        for server_id, channel_name, hooked_repos in hooks:
-            found_hook = self._find_hook(full_name_lower, repo_username_lower,
-                organisation_lower, hooked_repos)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             server = self.bot.get_server_by_id(server_id)
             if found_hook and server and channel_name in server.channels:
                 channel = server.channels.get(channel_name)
@@ -298,7 +177,6 @@ class Module(ModuleManager.BaseModule):
 
         return targets
 
-<<<<<<< HEAD
     def _find_hook(self, full_name_lower, repo_username_lower, organisation_lower, hooks):
         hooked_repos_lower = {k.lower(): v for k,
                               v in hooks.items()}
@@ -309,21 +187,6 @@ class Module(ModuleManager.BaseModule):
         elif (organisation_lower and organisation_lower in hooked_repos_lower):
             return hooked_repos_lower[organisation_lower]
 
-=======
-    def _find_hook(self, full_name_lower, repo_username_lower,
-            organisation_lower, hooks):
-        hooked_repos_lower = {k.lower(): v for k, v in hooks.items()}
-        if full_name_lower and full_name_lower in hooked_repos_lower:
-            return hooked_repos_lower[full_name_lower]
-        elif (repo_username_lower and
-                repo_username_lower in hooked_repos_lower):
-            return hooked_repos_lower[repo_username_lower]
-        elif (organisation_lower and
-                organisation_lower in hooked_repos_lower):
-            return hooked_repos_lower[organisation_lower]
-
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     @utils.hook("received.command.webhook", min_args=1, channel_only=True)
     def github_webhook(self, event):
         """
@@ -337,12 +200,8 @@ class Module(ModuleManager.BaseModule):
         :usage: events <hook> [category [category ...]]
         :usage: branches <hook> [branch [branch ...]]
         """
-<<<<<<< HEAD
         all_hooks = event["target"].get_setting("git-webhooks",
                                                 {})
-=======
-        all_hooks = event["target"].get_setting("git-webhooks", {})
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         hook_name = None
         existing_hook = None
         if len(event["args_split"]) > 1:
@@ -356,19 +215,10 @@ class Module(ModuleManager.BaseModule):
 
         subcommand = event["args_split"][0].lower()
         if subcommand == "list":
-<<<<<<< HEAD
             event["stdout"].write("Registered webhooks: %s" % ", ".join(all_hooks.keys()))
         elif subcommand == "add":
             if existing_hook:
                 raise utils.EventError("There's already a hook for %s" % hook_name)
-=======
-            event["stdout"].write("Registered webhooks: %s" %
-                ", ".join(all_hooks.keys()))
-        elif subcommand == "add":
-            if existing_hook:
-                raise utils.EventError("There's already a hook for %s" %
-                    hook_name)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
             all_hooks[hook_name] = {
                 "events": DEFAULT_EVENT_CATEGORIES.copy(),
@@ -388,13 +238,8 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("No hook found for %s" % hook_name)
 
             if len(event["args_split"]) < 3:
-<<<<<<< HEAD
                 event["stdout"].write("Events for hook %s: %s" % (hook_name,
                                                                   " ".join(all_hooks[existing_hook]["events"])))
-=======
-                event["stdout"].write("Events for hook %s: %s" %
-                    (hook_name, " ".join(all_hooks[existing_hook]["events"])))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             else:
                 new_events = [e.lower() for e in event["args_split"][2:]]
                 all_hooks[existing_hook]["events"] = new_events
@@ -405,22 +250,12 @@ class Module(ModuleManager.BaseModule):
 
             if len(event["args_split"]) < 3:
                 branches = ",".join(all_hooks[existing_hook]["branches"])
-<<<<<<< HEAD
                 event["stdout"].write("Branches shown for hook %s: %s" % (hook_name, branches))
-=======
-                event["stdout"].write("Branches shown for hook %s: %s" %
-                    (hook_name, branches))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
             else:
                 all_hooks[existing_hook]["branches"] = event["args_split"][2:]
                 success_message = "Updated branches for hook %s" % hook_name
         else:
-<<<<<<< HEAD
             event["stderr"].write("Unknown command '%s'" % event["args_split"][0])
-=======
-            event["stderr"].write("Unknown command '%s'" %
-                event["args_split"][0])
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         if not success_message == None:
             if all_hooks:

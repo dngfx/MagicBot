@@ -16,29 +16,18 @@ _events = None
 _exports = None
 _log = None
 
-<<<<<<< HEAD
 REGEX_TWITTERURL = re.compile("https?://(?:www\.|mobile\.)?twitter.com/[^/]+/status/(\d+)", re.I)
 
-=======
-REGEX_TWITTERURL = re.compile(
-    "https?://(?:www\.|mobile\.)?twitter.com/[^/]+/status/(\d+)", re.I)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 def _get_follows():
     return _bot.database.channel_settings.find_by_setting("twitter-follow")
 
-<<<<<<< HEAD
 
 class BitBotStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         _bot.trigger(lambda: self._on_status(status))
 
-=======
-class BitBotStreamListener(tweepy.StreamListener):
-    def on_status(self, status):
-        _bot.trigger(lambda: self._on_status(status))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def _on_status(self, status):
         _log.debug("Got tweet from stream: %s", [status])
         given_username = status.user.screen_name.lower()
@@ -53,7 +42,6 @@ class BitBotStreamListener(tweepy.StreamListener):
 
         for server, channel in follows:
             tweet = format._tweet(_exports, server, status)
-<<<<<<< HEAD
             _events.on("send.stdout").call(target=channel, module_name="Tweets", server=server, message=tweet)
 
 
@@ -61,15 +49,6 @@ class BitBotStreamListener(tweepy.StreamListener):
 class Module(ModuleManager.BaseModule):
     _stream = None
 
-=======
-            _events.on("send.stdout").call(target=channel,
-                module_name="Tweets", server=server, message=tweet)
-
-@utils.export("channelset", utils.BoolSetting("auto-tweet",
-    "Enable/disable automatically getting tweet info"))
-class Module(ModuleManager.BaseModule):
-    _stream = None
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def on_load(self):
         self._thread = None
 
@@ -91,34 +70,18 @@ class Module(ModuleManager.BaseModule):
             self._stream.disconnect()
 
     def _get_auth(self):
-<<<<<<< HEAD
         auth = tweepy.OAuthHandler(self.bot.config["twitter-api-key"], self.bot.config["twitter-api-secret"])
         auth.set_access_token(self.bot.config["twitter-access-token"], self.bot.config["twitter-access-secret"])
         return auth
 
-=======
-        auth = tweepy.OAuthHandler(self.bot.config["twitter-api-key"],
-            self.bot.config["twitter-api-secret"])
-        auth.set_access_token(self.bot.config["twitter-access-token"],
-            self.bot.config["twitter-access-secret"])
-        return auth
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def _get_api(self, auth):
         return tweepy.API(auth)
 
     def _from_id(self, tweet_id):
-<<<<<<< HEAD
         return self._get_api(self._get_auth()).get_status(tweet_id, tweet_mode="extended")
 
     def _from_username(self, username):
         return self._get_api(self._get_auth()).user_timeline(screen_name=username, count=1, tweet_mode="extended")[0]
-=======
-        return self._get_api(self._get_auth()).get_status(tweet_id,
-            tweet_mode="extended")
-    def _from_username(self, username):
-        return self._get_api(self._get_auth()).user_timeline(
-            screen_name=username, count=1, tweet_mode="extended")[0]
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     def _start_stream(self):
         self._dispose_stream()
@@ -137,17 +100,9 @@ class Module(ModuleManager.BaseModule):
         for username in usernames:
             user_ids.append(str(api.get_user(screen_name=username).id))
 
-<<<<<<< HEAD
         self._stream = tweepy.Stream(auth=auth, listener=BitBotStreamListener(), tweet_mode="extended")
 
         self._thread = threading.Thread(target=lambda: self._stream.filter(follow=user_ids))
-=======
-        self._stream = tweepy.Stream(auth=auth, listener=BitBotStreamListener(),
-            tweet_mode="extended")
-
-        self._thread = threading.Thread(
-            target=lambda: self._stream.filter(follow=user_ids))
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         self._thread.daemon = True
         self._thread.start()
         return True
@@ -210,12 +165,7 @@ class Module(ModuleManager.BaseModule):
                 tweet = self._from_username(target)
 
             if tweet:
-<<<<<<< HEAD
                 tweet_str = format._tweet(self.exports, event["server"], tweet, from_url=not url_match == None)
-=======
-                tweet_str = format._tweet(self.exports, event["server"], tweet,
-                    from_url=not url_match==None)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 event["stdout"].write(tweet_str)
             else:
                 event["stderr"].write("Invalid tweet identifiers provided")
@@ -232,12 +182,5 @@ class Module(ModuleManager.BaseModule):
             tweet_id = event["match"].group(1)
             tweet = self._from_id(tweet_id)
             if tweet:
-<<<<<<< HEAD
                 tweet_str = format._tweet(self.exports, event["server"], tweet, from_url=True)
                 event["stdout"].write(tweet_str)
-=======
-                tweet_str = format._tweet(self.exports, event["server"], tweet,
-                    from_url=True)
-                event["stdout"].write(tweet_str)
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5

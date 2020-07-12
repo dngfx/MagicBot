@@ -1,5 +1,9 @@
 import dataclasses, re, typing
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 139a1327a... merged
 def _tokens(s: str, token: str) -> typing.List[int]:
     backslash = False
     tokens = []
@@ -13,11 +17,19 @@ def _tokens(s: str, token: str) -> typing.List[int]:
             backslash = False
     return tokens
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 139a1327a... merged
 class Sed(object):
     type: str
     def match(self, s: str) -> typing.Optional[str]:
         return None
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 139a1327a... merged
 @dataclasses.dataclass
 class SedReplace(Sed):
     type: str
@@ -28,10 +40,18 @@ class SedReplace(Sed):
     def match(self, s):
         replace_copy = self.replace
         for token in reversed(_tokens(replace_copy, "&")):
+<<<<<<< HEAD
             replace_copy = replace_copy[:token]+r"\g<0>"+replace_copy[token+1:]
         s = re.sub(self.pattern, replace_copy, s, self.count)
         return s
 
+=======
+            replace_copy = replace_copy[:token] + r"\g<0>" + replace_copy[token + 1:]
+        s = re.sub(self.pattern, replace_copy, s, self.count)
+        return s
+
+
+>>>>>>> parent of 139a1327a... merged
 @dataclasses.dataclass
 class SedMatch(Sed):
     type: str
@@ -43,18 +63,32 @@ class SedMatch(Sed):
             return match.group(0)
         return None
 
+<<<<<<< HEAD
 def _sed_split(s: str) -> typing.List[str]:
     tokens = _tokens(s, "/")
     if tokens and (not tokens[-1] == (len(s)-1)):
+=======
+
+def _sed_split(s: str) -> typing.List[str]:
+    tokens = _tokens(s, "/")
+    if tokens and (not tokens[-1] == (len(s) - 1)):
+>>>>>>> parent of 139a1327a... merged
         tokens.append(len(s))
 
     last = 0
     out = []
     for i in tokens:
         out.append(s[last:i].replace("\\/", "/"))
+<<<<<<< HEAD
         last = i+1
     return out
 
+=======
+        last = i + 1
+    return out
+
+
+>>>>>>> parent of 139a1327a... merged
 def _sed_flags(s: str) -> typing.Tuple[int, int]:
     count = 1
     re_flags = 0
@@ -64,6 +98,10 @@ def _sed_flags(s: str) -> typing.Tuple[int, int]:
         re_flags |= re.I
     return count, re_flags
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 139a1327a... merged
 def parse(sed_s: str) -> typing.Optional[Sed]:
     type, pattern, *args = _sed_split(sed_s)
     if type == "s":
@@ -76,6 +114,10 @@ def parse(sed_s: str) -> typing.Optional[Sed]:
         return SedMatch(type, re.compile(pattern, flags))
     return None
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 139a1327a... merged
 def sed(sed_obj: Sed, s: str) -> typing.Tuple[str, typing.Optional[str]]:
     out = sed_obj.match(s)
     return sed_obj.type, out

@@ -1,7 +1,6 @@
 import datetime, html, time
 from src import utils
 
-<<<<<<< HEAD
 
 def _timestamp(dt):
     seconds_since = time.time() - dt.timestamp()
@@ -13,33 +12,15 @@ def _normalise(tweet):
     return html.unescape(utils.parse.line_normalise(tweet))
 
 
-=======
-def _timestamp(dt):
-    seconds_since = time.time()-dt.timestamp()
-    timestamp = utils.datetime.format.to_pretty_since(
-        seconds_since, max_units=2)
-    return "%s ago" % timestamp
-
-def _normalise(tweet):
-    return html.unescape(utils.parse.line_normalise(tweet))
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _tweet(exports, server, tweet, from_url):
     linked_id = tweet.id
     username = tweet.user.screen_name
 
     verified = ""
     if tweet.user.verified:
-<<<<<<< HEAD
         verified = " %s" % utils.irc.color("âœ“", utils.consts.LIGHTBLUE)
 
     tweet_link = "https://twitter.com/%s/status/%s" % (username, linked_id)
-=======
-        verified = " %s" % utils.irc.color("✓", utils.consts.LIGHTBLUE)
-
-    tweet_link = "https://twitter.com/%s/status/%s" % (username,
-        linked_id)
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     short_url = ""
     if not from_url:
@@ -52,7 +33,6 @@ def _tweet(exports, server, tweet, from_url):
         original_username = tweet.retweeted_status.user.screen_name
         original_text = tweet.retweeted_status.full_text
         original_timestamp = _timestamp(tweet.retweeted_status.created_at)
-<<<<<<< HEAD
         return "(@%s%s (%s) retweeted @%s (%s)) %s%s" % (username,
                                                          verified,
                                                          created_at,
@@ -62,12 +42,3 @@ def _tweet(exports, server, tweet, from_url):
                                                          short_url)
     else:
         return "(@%s%s, %s) %s%s" % (username, verified, created_at, _normalise(tweet.full_text), short_url)
-=======
-        return "(@%s%s (%s) retweeted @%s (%s)) %s%s" % (username, verified,
-            created_at, original_username, original_timestamp,
-            _normalise(original_text), short_url)
-    else:
-        return "(@%s%s, %s) %s%s" % (username, verified, created_at,
-            _normalise(tweet.full_text), short_url)
-
->>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
