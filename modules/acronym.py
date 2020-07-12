@@ -18,6 +18,6 @@ class Module(ModuleManager.BaseModule):
             acronyms.append(element.expan.string)
 
         if acronyms:
-            event["stdout"].write("%s: %s" % (query, ", ".join(acronyms)))
+            event["stdout"].write("%s: %s" % (utils.irc.bold(query), ", ".join(acronyms)))
         else:
             raise utils.EventResultsError()
