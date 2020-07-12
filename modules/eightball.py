@@ -5,6 +5,7 @@ from src import ModuleManager, utils
 
 CHOICES = [
     "Definitely",
+    "For Sure",
     "Yes",
     "Probably",
     "Maybe",
