@@ -3,7 +3,10 @@ from src import ModuleManager, utils
 import dns.resolver
 from . import lists as _lists
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 class Module(ModuleManager.BaseModule):
     _name = "DNSBL"
 
@@ -27,7 +30,12 @@ class Module(ModuleManager.BaseModule):
         failed = self._check_lists(lists, address)
         if failed:
             failed = ["%s (%s)" % item for item in failed]
+<<<<<<< HEAD
             event["stderr"].write("%s matched for lists: %s" % (address, ", ".join(failed)))
+=======
+            event["stderr"].write("%s matched for lists: %s" %
+                (address, ", ".join(failed)))
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         else:
             event["stdout"].write("%s not found in blacklists" % address)
 

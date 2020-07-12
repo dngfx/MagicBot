@@ -3,6 +3,7 @@ from . import colors
 
 EVENT_CATEGORIES = {
     "ping": [
+<<<<<<< HEAD
         "ping"  # new webhook received
     ],
     "code": ["push"],
@@ -46,12 +47,46 @@ EVENT_CATEGORIES = {
                   "confidential_issue",
                   "note+issue",
                   "confidential_note+issue"],
+=======
+        "ping" # new webhook received
+    ],
+    "code": ["push"],
+    "pr-minimal": [
+        "merge_request/open", "merge_request/close", "merge_request/reopen",
+        "merge_request/merge"
+    ],
+    "pr": [
+        "merge_request/open", "merge_request/close", "merge_request/reopen",
+        "merge_request/update", "merge_request/merge", "note+mergerequest",
+        "confidential_note+mergerequest"
+    ],
+    "pr-all": [
+        "merge_request", "note+mergerequest", "confidential_note+mergerequest"
+    ],
+    "issue-minimal": [
+        "issue/open", "issue/close", "issue/reopen", "confidential_issue/open",
+        "confidential_issue/close", "confidential_issue/reopen"
+    ],
+    "issue": [
+        "issue/open", "issue/close", "issue/reopen", "issue/update",
+        "confidential_issue/open", "confidential_issue/close",
+        "confidential_issue/reopen", "confidential_issue/update", "note+issue",
+        "confidential_note+issue"
+    ],
+    "issue-all": [
+        "issue", "confidential_issue", "note+issue", "confidential_note+issue"
+    ],
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     "repo": ["tag_push"]
 }
 
 COMMENT_ACTIONS = {
     "created": "commented",
+<<<<<<< HEAD
     "edited": "edited a comment",
+=======
+    "edited":  "edited a comment",
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     "deleted": "deleted a comment"
 }
 
@@ -69,9 +104,13 @@ WIKI_ACTIONS = {
     "delete": "deleted"
 }
 
+<<<<<<< HEAD
 
 class GitLab(object):
 
+=======
+class GitLab(object):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def is_private(self, data, headers):
         if "project" in data:
             return not data["project"]["visibility_level"] == 20
@@ -118,7 +157,12 @@ class GitLab(object):
                 category_action = "%s/%s" % (category, action)
             event_action = "%s/%s" % (event, action)
 
+<<<<<<< HEAD
         return [event] + list(filter(None, [event_action, category, category_action]))
+=======
+        return [event]+list(filter(None,
+            [event_action, category, category_action]))
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     def event_categories(self, event):
         return EVENT_CATEGORIES.get(event, [event])
@@ -142,7 +186,12 @@ class GitLab(object):
 
     def tag_push(self, full_name, data):
         create = not data["after"].strip("0") == ""
+<<<<<<< HEAD
         tag = utils.irc.color(data["ref"].rsplit("/", 1)[-1], colors.COLOR_BRANCH)
+=======
+        tag = utils.irc.color(data["ref"].rsplit("/", 1)[-1],
+            colors.COLOR_BRANCH)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         author = utils.irc.bold(data["user_username"])
         action = "created" if create else "deleted"
 
@@ -157,33 +206,65 @@ class GitLab(object):
         if len(data["commits"]) <= 3:
             for commit in data["commits"]:
                 hash = commit["id"]
+<<<<<<< HEAD
                 hash_colored = utils.irc.color(self._short_hash(hash), colors.COLOR_ID)
                 message = commit["message"].split("\n")[0].strip()
                 url = commit["url"]
 
                 outputs.append(["%s pushed %s to %s: %s" % (author, hash_colored, branch, message), url])
+=======
+                hash_colored = utils.irc.color(self._short_hash(hash),
+                    colors.COLOR_ID)
+                message = commit["message"].split("\n")[0].strip()
+                url = commit["url"]
+
+                outputs.append(["%s pushed %s to %s: %s"
+                    % (author, hash_colored, branch, message), url])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         else:
             first_id = data["before"]
             last_id = data["after"]
             url = data["compare_url"]
 
+<<<<<<< HEAD
             outputs.append(["%s pushed %d commits to %s" % (author, len(data["commits"]), branch), None])
+=======
+            outputs.append(["%s pushed %d commits to %s"
+                % (author, len(data["commits"]), branch), None])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         return outputs
 
     def merge_request(self, full_name, data):
+<<<<<<< HEAD
         number = utils.irc.color("!%s" % data["object_attributes"]["iid"], colors.COLOR_ID)
+=======
+        number = utils.irc.color("!%s" % data["object_attributes"]["iid"],
+            colors.COLOR_ID)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         action = data["object_attributes"]["action"]
         action_desc = "%s %s" % (ISSUE_ACTIONS.get(action, action), number)
         branch = data["object_attributes"]["target_branch"]
         colored_branch = utils.irc.color(branch, colors.COLOR_BRANCH)
 
         if action == "open":
+<<<<<<< HEAD
             action_desc = "requested %s merge into %s" % (number, colored_branch)
         elif action == "close":
             action_desc = "%s %s" % (utils.irc.color("closed", colors.COLOR_NEGATIVE), number)
         elif action == "merge":
             action_desc = "%s %s into %s" % (utils.irc.color("merged", colors.COLOR_POSITIVE), number, colored_branch)
+=======
+            action_desc = "requested %s merge into %s" % (number,
+                colored_branch)
+        elif action == "close":
+            action_desc = "%s %s" % (
+                utils.irc.color("closed", colors.COLOR_NEGATIVE), number)
+        elif action == "merge":
+            action_desc = "%s %s into %s" % (
+                utils.irc.color("merged", colors.COLOR_POSITIVE), number,
+                colored_branch)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         pr_title = data["object_attributes"]["title"]
         author = utils.irc.bold(data["user"]["username"])
@@ -194,14 +275,24 @@ class GitLab(object):
         if not "action" in data["object_attributes"]:
             return
 
+<<<<<<< HEAD
         number = utils.irc.color("#%s" % data["object_attributes"]["iid"], colors.COLOR_ID)
+=======
+        number = utils.irc.color("#%s" % data["object_attributes"]["iid"],
+            colors.COLOR_ID)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         action = data["object_attributes"]["action"]
         action = ISSUE_ACTIONS.get(action, action)
         issue_title = data["object_attributes"]["title"]
         author = utils.irc.bold(data["user"]["username"])
         url = data["object_attributes"]["url"]
 
+<<<<<<< HEAD
         return [["[issue] %s %s %s: %s" % (author, action, number, issue_title), url]]
+=======
+        return [["[issue] %s %s %s: %s" %
+            (author, action, number, issue_title), url]]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     def note(self, full_name, data):
         type = data["object_attributes"]["noteable_type"]
@@ -218,7 +309,12 @@ class GitLab(object):
         title = object["title"]
         commenter = utils.irc.bold(data["user"]["username"])
         url = data["object_attributes"]["url"]
+<<<<<<< HEAD
         return [["[%s] %s commented on %s: %s" % (type, commenter, number, title), url]]
+=======
+        return [["[%s] %s commented on %s: %s" %
+            (type, commenter, number, title), url]]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     def wiki_page(self, data):
         author = utils.irc.bold(data["user"]["username"])

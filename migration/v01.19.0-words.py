@@ -10,7 +10,12 @@ import datetime, sqlite3
 database = sqlite3.connect(args.database)
 cursor = database.cursor()
 
+<<<<<<< HEAD
 cursor.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='words'")
+=======
+cursor.execute(
+    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='words'")
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 if cursor.fetchone()[0] == 0:
     cursor.execute("""
         CREATE TABLE words
@@ -30,7 +35,12 @@ for server_id, channel_id, name in cursor.fetchall():
     channels[channel_id] = (server_id, name)
 print(channels)
 
+<<<<<<< HEAD
 date = (datetime.datetime.now().date() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+=======
+date = (datetime.datetime.now().date()-datetime.timedelta(days=1)
+    ).strftime("%Y-%m-%d")
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 cursor.execute("""
     SELECT user_id, channel_id, value FROM user_channel_settings
@@ -40,6 +50,7 @@ for user_id, channel_id, count in cursor.fetchall():
     nickname = users[user_id]
     server_id, channel_name = channels[channel_id]
 
+<<<<<<< HEAD
     print("[%s] Migrating %s/%s (%s)" % (servers[server_id], channel_name, nickname, count))
 
     cursor.execute("""
@@ -49,6 +60,14 @@ for user_id, channel_id, count in cursor.fetchall():
                     channel_id,
                     date,
                     count])
+=======
+    print("[%s] Migrating %s/%s (%s)" %
+        (servers[server_id], channel_name, nickname, count))
+
+    cursor.execute("""
+        INSERT INTO words (user_id, channel_id, date, count)
+        VALUES (?, ?, ?, ?)""", [user_id, channel_id, date, count])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 database.commit()
 database.close()

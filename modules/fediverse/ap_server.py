@@ -5,9 +5,13 @@ from . import ap_activities, ap_actor, ap_security, ap_utils
 
 ACTIVITY_SETTING_PREFIX = "ap-activity-"
 
+<<<<<<< HEAD
 
 class Server(object):
 
+=======
+class Server(object):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def __init__(self, bot, exports, username, instance):
         self.bot = bot
         self.exports = exports
@@ -25,7 +29,12 @@ class Server(object):
         del url_for
 
         self._request_queue = queue.Queue()
+<<<<<<< HEAD
         self._request_thread = threading.Thread(target=self._request_loop, args=(private_key, our_actor))
+=======
+        self._request_thread = threading.Thread(target=self._request_loop,
+            args=(private_key, our_actor))
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         self._request_thread.daemon = True
         self._request_thread.start()
 
@@ -47,6 +56,7 @@ class Server(object):
 
     def _get_activities(self):
         activities = []
+<<<<<<< HEAD
         for setting, (content, timestamp) in self.bot.find_settings(prefix=ACTIVITY_SETTING_PREFIX):
             activity_id = setting.replace(ACTIVITY_SETTING_PREFIX, "", 1)
             activities.append([activity_id, content, timestamp])
@@ -60,6 +70,23 @@ class Server(object):
 
     def _toot(self, activity_id):
         content, timestamp = self.bot.get_setting("ap-activity-%s" % activity_id)
+=======
+        for setting, (content, timestamp) in self.bot.find_settings(
+                prefix=ACTIVITY_SETTING_PREFIX):
+            activity_id = setting.replace(ACTIVITY_SETTING_PREFIX, "", 1)
+            activities.append([activity_id, content, timestamp])
+        return activities
+    def _make_activity(self, content):
+        timestamp = utils.datetime.format.iso8601_now()
+        activity_id = self._random_id()
+        self.bot.set_setting("ap-activity-%s" % activity_id,
+            [content, timestamp])
+        return activity_id
+
+    def _toot(self, activity_id):
+        content, timestamp = self.bot.get_setting(
+            "ap-activity-%s" % activity_id)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         url_for = self.exports.get_one("url-for")
         self_id = self._ap_self_url(url_for)
         activity_url = self._ap_activity_url(url_for, activity_id)
@@ -83,6 +110,7 @@ class Server(object):
 
     def _ap_url(self, url_for, fragment, arg):
         return "https://%s" % url_for("api", fragment, args=[arg])
+<<<<<<< HEAD
 
     def _ap_self_url(self, url_for):
         return self._ap_url(url_for, "ap-user", self.username)
@@ -99,6 +127,18 @@ class Server(object):
     def _ap_keyid_url(self, url_for):
         return "%s#key" % self._ap_self_url(url_for)
 
+=======
+    def _ap_self_url(self, url_for):
+        return self._ap_url(url_for, "ap-user", self.username)
+    def _ap_inbox_url(self, url_for):
+        return self._ap_url(url_for, "ap-inbox", self.username)
+    def _ap_outbox_url(self, url_for):
+        return self._ap_url(url_for, "ap-outbox", self.username)
+    def _ap_activity_url(self, url_for, activity_id):
+        return self._ap_url(url_for, "ap-activity", activity_id)
+    def _ap_keyid_url(self, url_for):
+        return "%s#key" % self._ap_self_url(url_for)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def _ap_uuid_url(self, url_for):
         return self._ap_url(url_for, "ap-id", str(uuid.uuid4()))
 
@@ -108,9 +148,17 @@ class Server(object):
             resource = resource.split(":", 1)[1]
 
         if resource:
+<<<<<<< HEAD
             requested_username, requested_instance = ap_utils.split_username(resource)
 
             if (requested_username == self.username and requested_instance == self.instance):
+=======
+            requested_username, requested_instance = ap_utils.split_username(
+                resource)
+
+            if (requested_username == self.username and
+                    requested_instance == self.instance):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
                 self_id = self._ap_self_url(event["url_for"])
 
@@ -146,12 +194,19 @@ class Server(object):
             event["response"].content_type = ap_utils.LD_TYPE
             event["response"].write_json({
                 "@context": "https://www.w3.org/ns/activitystreams",
+<<<<<<< HEAD
                 "id": self_id,
                 "url": self_id,
                 "type": "Service",
                 "summary": "beep boop",
                 "preferredUsername": self.username,
                 "name": self.username,
+=======
+                "id": self_id, "url": self_id,
+                "type": "Service",
+                "summary": "beep boop",
+                "preferredUsername": self.username, "name": self.username,
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 "inbox": inbox,
                 "outbox": outbox,
                 "publicKey": {
@@ -163,7 +218,12 @@ class Server(object):
         else:
             event["response"].code = 404
 
+<<<<<<< HEAD
     def _prepare_activity(self, url_for, self_id, activity_id, content, timestamp):
+=======
+    def _prepare_activity(self, url_for, self_id, activity_id, content,
+            timestamp):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         activity_url = self._ap_activity_url(url_for, activity_id)
         context = "data:%s" % activity_id
         return activity_url, {
@@ -226,10 +286,19 @@ class Server(object):
 
                     actor = ap_actor.Actor(new_follower)
                     actor.load()
+<<<<<<< HEAD
                     accept = ap_activities.Accept(self._ap_uuid_url(event["url_for"]), data)
                     self._request_queue.put([actor, accept])
 
                     follow = ap_activities.Follow(self._ap_uuid_url(event["url_for"]), actor.url)
+=======
+                    accept = ap_activities.Accept(
+                        self._ap_uuid_url(event["url_for"]), data)
+                    self._request_queue.put([actor, accept])
+
+                    follow = ap_activities.Follow(
+                        self._ap_uuid_url(event["url_for"]), actor.url)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                     self._request_queue.put([actor, follow])
             else:
                 event["response"].code = 404

@@ -7,10 +7,16 @@ from .types import try_int
 from . import sed
 
 COMMENT_TYPES = ["#", "//"]
+<<<<<<< HEAD
 
 
 def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[str]]]:
     hashflags = []  # type: typing.List[typing.Tuple[str, typing.Optional[str]]]
+=======
+def hashflags(filename: str
+        ) -> typing.List[typing.Tuple[str, typing.Optional[str]]]:
+    hashflags = [] # type: typing.List[typing.Tuple[str, typing.Optional[str]]]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     with io.open(filename, "r") as f:
         for line in f:
             line = line.strip("\n")
@@ -28,21 +34,35 @@ def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[st
                 hashflags.append((hashflag, (value if sep else None)))
     return hashflags
 
+<<<<<<< HEAD
 
 class Docstring(object):
 
     def __init__(self, description: str, items: typing.Dict[str, str], var_items: typing.Dict[str, typing.List[str]]):
+=======
+class Docstring(object):
+    def __init__(self, description: str, items: typing.Dict[str, str],
+            var_items: typing.Dict[str, typing.List[str]]):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         self.description = description
         self.items = items
         self.var_items = var_items
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def docstring(s: str) -> Docstring:
     description = ""
     last_item = None
     last_item_no_space = False
+<<<<<<< HEAD
     items = {}  # type: typing.Dict[str, str]
     var_items = {}  # type: typing.Dict[str, typing.List[str]]
+=======
+    items = {} # type: typing.Dict[str, str]
+    var_items = {} # type: typing.Dict[str, typing.List[str]]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     if s:
         for line in s.split("\n"):
             line = line.strip()
@@ -71,9 +91,15 @@ def docstring(s: str) -> Docstring:
                         description += line
     return Docstring(description, items, var_items)
 
+<<<<<<< HEAD
 
 def keyvalue(s: str, delimiter: str = " ") -> typing.Dict[str, typing.Optional[str]]:
     items = {}  # type: typing.Dict[str, typing.Optional[str]]
+=======
+def keyvalue(s: str, delimiter: str=" "
+        ) -> typing.Dict[str, typing.Optional[str]]:
+    items = {} # type: typing.Dict[str, typing.Optional[str]]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     pairs = s.split(delimiter)
     for pair in filter(None, pairs):
         key, sep, value = pair.partition("=")
@@ -83,12 +109,18 @@ def keyvalue(s: str, delimiter: str = " ") -> typing.Dict[str, typing.Optional[s
             items[key] = None
     return items
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def line_normalise(s: str) -> str:
     lines = list(filter(None, [line.strip() for line in s.split("\n")]))
     return "  ".join(line.replace("  ", " ") for line in lines)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def parse_number(s: str) -> str:
     try:
         decimal.Decimal(s)
@@ -101,7 +133,12 @@ def parse_number(s: str) -> str:
     try:
         number = decimal.Decimal(number_str)
     except:
+<<<<<<< HEAD
         raise ValueError("Invalid format '%s' passed to parse_number" % number_str)
+=======
+        raise ValueError("Invalid format '%s' passed to parse_number" %
+            number_str)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     if unit == "k":
         number *= decimal.Decimal("1_000")
@@ -113,10 +150,17 @@ def parse_number(s: str) -> str:
         raise ValueError("Unknown unit '%s' given to parse_number" % unit)
     return str(number)
 
+<<<<<<< HEAD
 
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:
     i = 0
     max = len(s) - 1
+=======
+def format_tokens(s: str, sigil: str="$"
+        ) -> typing.List[typing.Tuple[int, int, str]]:
+    i = 0
+    max = len(s)-1
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     sigil_found = False
     tokens: typing.List[typing.Tuple[int, int, str]] = []
 
@@ -127,6 +171,7 @@ def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int
                 token_end = s.find("}", i)
                 if token_end > i:
                     token = s[i:token_end]
+<<<<<<< HEAD
                     tokens.append((i - 1, token_end, s[i + 1:token_end]))
                     i = token_end
             elif s[i] == sigil:
@@ -136,6 +181,17 @@ def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int
 
 
 def format_token_replace(s: str, vars: typing.Dict[str, str], sigil: str = "$") -> str:
+=======
+                    tokens.append((i-1, token_end, s[i+1:token_end]))
+                    i = token_end
+            elif s[i] == sigil:
+                tokens.append((i-1, i, sigil))
+        i += 1
+    return tokens
+
+def format_token_replace(s: str, vars: typing.Dict[str, str],
+        sigil: str="$") -> str:
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     vars = vars.copy()
     vars.update({sigil: sigil})
 
@@ -146,5 +202,9 @@ def format_token_replace(s: str, vars: typing.Dict[str, str], sigil: str = "$") 
 
     for start, end, token in tokens:
         if token in vars:
+<<<<<<< HEAD
             s = s[:start] + vars[token] + s[end + 1:]
+=======
+            s = s[:start] + vars[token] + s[end+1:]
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     return s

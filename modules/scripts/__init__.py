@@ -3,9 +3,13 @@
 import glob, json, os, subprocess
 from src import IRCObject, ModuleManager, utils
 
+<<<<<<< HEAD
 
 class Module(ModuleManager.BaseModule):
 
+=======
+class Module(ModuleManager.BaseModule):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def on_load(self):
         our_directory = os.path.abspath(os.path.dirname(__file__))
         self._directory = os.path.join(our_directory, "scripts")
@@ -50,7 +54,12 @@ class Module(ModuleManager.BaseModule):
             elif isinstance(value, (IRCObject.Object,)):
                 env[key.upper()] = str(value)
 
+<<<<<<< HEAD
         proc = subprocess.Popen([filename], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+=======
+        proc = subprocess.Popen([filename], env=env,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         try:
             proc.wait(5)
         except subprocess.TimeoutExpired as e:

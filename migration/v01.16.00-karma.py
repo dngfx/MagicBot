@@ -10,7 +10,12 @@ import json, sqlite3
 database = sqlite3.connect(args.database)
 
 cursor = database.cursor()
+<<<<<<< HEAD
 cursor.execute("""SELECT server_id, setting, value FROM server_settings
+=======
+cursor.execute(
+    """SELECT server_id, setting, value FROM server_settings
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
        WHERE setting LIKE 'karma-%'""")
 results = cursor.fetchall()
 
@@ -23,12 +28,28 @@ servers = dict(cursor.fetchall())
 server_users = {}
 for server_id, setting, karma in results:
     if not server_id in server_users:
+<<<<<<< HEAD
         cursor.execute("INSERT INTO users (server_id, nickname) VALUES (?, ?)", [server_id, "*karma"])
         cursor.execute("SELECT user_id FROM users WHERE server_id=? AND nickname=?", [server_id, "*karma"])
         server_users[server_id] = cursor.fetchone()[0]
 
     print("[%s] Migrating '%s' (%s)" % (servers[server_id], setting.replace("karma-", "", 1), karma))
     cursor.execute("INSERT INTO user_settings VALUES (?, ?, ?)", [server_users[server_id], setting, karma])
+=======
+        cursor.execute(
+            "INSERT INTO users (server_id, nickname) VALUES (?, ?)",
+            [server_id, "*karma"])
+        cursor.execute(
+            "SELECT user_id FROM users WHERE server_id=? AND nickname=?",
+            [server_id, "*karma"])
+        server_users[server_id] = cursor.fetchone()[0]
+
+    print("[%s] Migrating '%s' (%s)" %
+        (servers[server_id], setting.replace("karma-", "", 1), karma))
+    cursor.execute(
+        "INSERT INTO user_settings VALUES (?, ?, ?)",
+        [server_users[server_id], setting, karma])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 database.commit()
 database.close()

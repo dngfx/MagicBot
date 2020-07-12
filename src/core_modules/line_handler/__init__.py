@@ -2,20 +2,29 @@ import enum
 from src import EventManager, IRCLine, ModuleManager, utils
 from . import channel, core, ircv3, message, user
 
+<<<<<<< HEAD
 
 class Module(ModuleManager.BaseModule):
 
+=======
+class Module(ModuleManager.BaseModule):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     def _handle(self, server, line):
         hooks = self.events.on("raw.received").on(line.command).get_hooks()
         default_events = []
         for hook in hooks:
             default_events.append(hook.get_kwarg("default_event", False))
 
+<<<<<<< HEAD
         kwargs = {
             "server": server,
             "line": line,
             "direction": utils.Direction.Recv
         }
+=======
+        kwargs = {"server": server, "line": line,
+            "direction": utils.Direction.Recv}
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
         self.events.on("raw.received").on(line.command).call_unsafe(**kwargs)
         if any(default_events) or not hooks:
@@ -23,16 +32,29 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.received")
     def handle_raw(self, event):
+<<<<<<< HEAD
         if ("batch" in event["line"].tags and event["line"].tags["batch"] in event["server"].batches):
             event["server"].batches[event["line"].tags["batch"]].add_line(event["line"])
+=======
+        if ("batch" in event["line"].tags and
+                event["line"].tags["batch"] in event["server"].batches):
+            event["server"].batches[event["line"].tags["batch"]].add_line(
+                event["line"])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         else:
             self._handle(event["server"], event["line"])
 
     @utils.hook("raw.send")
     def handle_send(self, event):
+<<<<<<< HEAD
         self.events.on("raw.send").on(event["line"].command).call_unsafe(server=event["server"],
                                                                          direction=utils.Direction.Send,
                                                                          line=event["line"])
+=======
+        self.events.on("raw.send").on(event["line"].command).call_unsafe(
+            server=event["server"], direction=utils.Direction.Send,
+            line=event["line"])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     # ping from the server
     @utils.hook("raw.received.ping")
@@ -41,8 +63,13 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.received.error")
     def error(self, event):
+<<<<<<< HEAD
         self.log.error("ERROR received from %s: %s", [str(event["server"]), event["line"].args[0]])
 
+=======
+        self.log.error("ERROR received from %s: %s",
+            [str(event["server"]), event["line"].args[0]])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     @utils.hook("raw.received.fail")
     def fail(self, event):
         command = event["line"].args[0]
@@ -50,11 +77,18 @@ class Module(ModuleManager.BaseModule):
         context = event["line"].args[2:-1]
         description = event["line"].args[-1]
 
+<<<<<<< HEAD
         self.log.warn("FAIL (%s %s) received on %s: %s", [command, error_code, str(event["server"]), description])
         self.events.on("received.fail").on(command).call(error_code=error_code,
                                                          context=context,
                                                          description=description,
                                                          server=event["server"])
+=======
+        self.log.warn("FAIL (%s %s) received on %s: %s",
+            [command, error_code, str(event["server"]), description])
+        self.events.on("received.fail").on(command).call(error_code=error_code,
+            context=context, description=description, server=event["server"])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     # first numeric line the server sends
     @utils.hook("raw.received.001", default_event=True)
@@ -123,7 +157,12 @@ class Module(ModuleManager.BaseModule):
     # unknown command sent by us, oops!
     @utils.hook("raw.received.421", default_event=True)
     def handle_421(self, event):
+<<<<<<< HEAD
         self.bot.log.warn("We sent an unknown command to %s: %s", [str(event["server"]), event["line"].args[1]])
+=======
+        self.bot.log.warn("We sent an unknown command to %s: %s",
+            [str(event["server"]), event["line"].args[1]])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     # a user has disconnected!
     @utils.hook("raw.received.quit")
@@ -150,7 +189,10 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("raw.received.mode")
     def mode(self, event):
         core.mode(self.events, event)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     # server telling us our own modes
     @utils.hook("raw.received.221")
     def umodeis(self, event):
@@ -182,17 +224,31 @@ class Module(ModuleManager.BaseModule):
             batch_type = event["line"].args[1]
             args = event["line"].args[2:]
 
+<<<<<<< HEAD
             batch = IRCLine.IRCBatch(identifier, batch_type, args, event["line"].tags, source=event["line"].source)
             event["server"].batches[identifier] = batch
 
             self.events.on("received.batch.start").call(batch=batch, server=event["server"])
+=======
+            batch = IRCLine.IRCBatch(identifier, batch_type, args,
+                event["line"].tags, source=event["line"].source)
+            event["server"].batches[identifier] = batch
+
+            self.events.on("received.batch.start").call(batch=batch,
+                server=event["server"])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         else:
             batch = event["server"].batches[identifier]
             del event["server"].batches[identifier]
 
             lines = batch.get_lines()
 
+<<<<<<< HEAD
             results = self.events.on("received.batch.end").call(batch=batch, server=event["server"])
+=======
+            results = self.events.on("received.batch.end").call(batch=batch,
+                server=event["server"])
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
             for result in results:
                 if not result == None:
@@ -240,7 +296,10 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("raw.received.433", default_event=True)
     def handle_433(self, event):
         core.handle_433(event)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
     # nickname/channel is temporarily unavailable
     @utils.hook("raw.received.437")
     def handle_437(self, event):

@@ -7,11 +7,15 @@ ISO8601_FORMAT_TZ = "%z"
 TIME_HUMAN = "%H:%M:%S"
 DATE_HUMAN = "%Y-%m-%d"
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 class TimeSpec(enum.Enum):
     NORMAL = 1
     MILLISECOND = 2
 
+<<<<<<< HEAD
 
 TIME_SECOND = 1
 TIME_MINUTE = TIME_SECOND * 60
@@ -23,6 +27,18 @@ SECONDS_MINUTES = 60
 SECONDS_HOURS = SECONDS_MINUTES * 60
 SECONDS_DAYS = SECONDS_HOURS * 24
 SECONDS_WEEKS = SECONDS_DAYS * 7
+=======
+TIME_SECOND = 1
+TIME_MINUTE = TIME_SECOND*60
+TIME_HOUR = TIME_MINUTE*60
+TIME_DAY = TIME_HOUR*24
+TIME_WEEK = TIME_DAY*7
+
+SECONDS_MINUTES = 60
+SECONDS_HOURS = SECONDS_MINUTES*60
+SECONDS_DAYS = SECONDS_HOURS*24
+SECONDS_WEEKS = SECONDS_DAYS*7
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 UNIT_MINIMUM = 6
 UNIT_SECOND = 5
@@ -33,6 +49,7 @@ UNIT_WEEK = 1
 UNIT_MONTH = 1
 UNIT_YEAR = 1
 
+<<<<<<< HEAD
 
 def utcnow() -> _datetime.datetime:
     return _datetime.datetime.utcnow().replace(tzinfo=_datetime.timezone.utc)
@@ -45,6 +62,17 @@ def timestamp(seconds: float) -> _datetime.datetime:
 def seconds_since(dt: _datetime.datetime) -> float:
     return (utcnow() - dt).total_seconds()
 
+=======
+def utcnow() -> _datetime.datetime:
+    return _datetime.datetime.utcnow().replace(tzinfo=_datetime.timezone.utc)
+
+def timestamp(seconds: float) -> _datetime.datetime:
+    return _datetime.datetime.fromtimestamp(seconds).replace(
+        tzinfo=_datetime.timezone.utc)
+
+def seconds_since(dt: _datetime.datetime) -> float:
+    return (utcnow()-dt).total_seconds()
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
 class RelativeDirection(enum.Enum):
     FORWARD = 1

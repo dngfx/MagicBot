@@ -1,14 +1,20 @@
 import uuid
 from src import IRCBuffer, IRCLine, utils
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def _from_self(server, source):
     if source:
         return server.is_own_nickname(source.nickname)
     else:
         return False
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 def message(events, event):
     from_self = _from_self(event["server"], event["line"].source)
     if from_self == None:
@@ -23,7 +29,13 @@ def message(events, event):
         message = event["line"].args[1]
 
     source = event["line"].source
+<<<<<<< HEAD
     if (not event["server"].nickname or not source or source.hostmask == event["server"].name):
+=======
+    if (not event["server"].nickname
+            or not source
+            or source.hostmask == event["server"].name):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
         if source:
             event["server"].name = event["line"].source.hostmask
         else:
@@ -33,7 +45,13 @@ def message(events, event):
     if from_self:
         user = event["server"].get_user(event["server"].nickname)
     else:
+<<<<<<< HEAD
         user = event["server"].get_user(source.nickname, username=source.username, hostname=source.hostname)
+=======
+        user = event["server"].get_user(source.nickname,
+            username=source.username,
+            hostname=source.hostname)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     # strip prefix_symbols from the start of target, for when people use
     # e.g. 'PRIVMSG +#channel :hi' which would send a message to only
@@ -55,6 +73,7 @@ def message(events, event):
     else:
         target_obj = event["server"].get_user(target)
 
+<<<<<<< HEAD
     kwargs = {
         "server": event["server"],
         "target": target_obj,
@@ -66,6 +85,12 @@ def message(events, event):
         "line": event["line"],
         "statusmsg": statusmsg
     }
+=======
+    kwargs = {"server": event["server"], "target": target_obj,
+        "target_str": target_str, "user": user, "tags": event["line"].tags,
+        "is_channel": is_channel, "from_self": from_self, "line": event["line"],
+        "statusmsg": statusmsg}
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     action = False
 
@@ -73,14 +98,26 @@ def message(events, event):
         ctcp_message = utils.irc.parse_ctcp(message)
 
         if ctcp_message:
+<<<<<<< HEAD
             if (not ctcp_message.command == "ACTION" or not event["line"].command == "PRIVMSG"):
+=======
+            if (not ctcp_message.command == "ACTION" or not
+                    event["line"].command == "PRIVMSG"):
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                 if event["line"].command == "PRIVMSG":
                     ctcp_action = "request"
                 else:
                     ctcp_action = "response"
+<<<<<<< HEAD
                 events.on(direction).on("ctcp").on(ctcp_action).call(message=ctcp_message.message, **kwargs)
                 events.on(direction).on("ctcp").on(ctcp_action).on(ctcp_message.command).call(
                     message=ctcp_message.message,
+=======
+                events.on(direction).on("ctcp").on(ctcp_action).call(
+                    message=ctcp_message.message, **kwargs)
+                events.on(direction).on("ctcp").on(ctcp_action).on(
+                    ctcp_message.command).call(message=ctcp_message.message,
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
                     **kwargs)
                 return
             else:
@@ -101,12 +138,17 @@ def message(events, event):
 
     buffer_line = None
     if message:
+<<<<<<< HEAD
         buffer_line = IRCBuffer.BufferLine(user.nickname,
                                            message,
                                            action,
                                            event["line"].tags,
                                            from_self,
                                            event["line"].command)
+=======
+        buffer_line = IRCBuffer.BufferLine(user.nickname, message, action,
+            event["line"].tags, from_self, event["line"].command)
+>>>>>>> 553eb1a1e901b385368c200de5d5904a0c42eeb5
 
     buffer_obj = target_obj
     if is_channel:
