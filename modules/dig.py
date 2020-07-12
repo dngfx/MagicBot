@@ -23,6 +23,6 @@ class Module(ModuleManager.BaseModule):
         dig = pydig.query(domain, record)
         dig_formatted = ", ".join(dig)
         if not dig:
-            dig_formatted = "No Record"
+            dig_formatted = utils.irc.color(utils.irc.bold("[No Record]"), utils.consts.RED)
 
         event["stdout"].write("%s Record for %s: %s" % (utils.irc.bold(record), utils.irc.bold(domain), dig_formatted))
