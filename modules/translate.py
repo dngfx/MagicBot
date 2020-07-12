@@ -44,7 +44,9 @@ class Module(ModuleManager.BaseModule):
 
         if "data" in page:
             translation = page["data"]["translations"][0]["translatedText"]
-            event["stdout"].write("(%s -> %s) %s" % (source_language, target_language, translation))
+            event["stdout"].write("(%s -> %s) %s" % (utils.irc.bold(source_language),
+                                                     utils.irc.bold(target_language),
+                                                     translation))
         else:
             event["stderr"].write("Failed to translate, try checking "
                                   "source/target languages (" + URL_LANGUAGES + ")")

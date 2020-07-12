@@ -36,4 +36,5 @@ class Module(ModuleManager.BaseModule):
 
         page = utils.http.request(STARSIGN_URL % sign).json()
 
-        event["stdout"].write("Today's Horoscope for %s: %s" % (utils.irc.bold(sign.capitalize()), page["horoscope"]))
+        event["stdout"].write("%s: %s" % (utils.irc.bold("Today's Horoscope for " + sign.capitalize()),
+                                          page["horoscope"]))

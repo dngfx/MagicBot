@@ -41,7 +41,7 @@ class Module(ModuleManager.BaseModule):
                     item = page["items"][0]
                     link = item["link"]
                     text = utils.parse.line_normalise(item["snippet"] or item["title"])
-                    event["stdout"].write("%s: %s - %s" % (event["user"].nickname, text, link))
+                    event["stdout"].write("%s: %s — %s" % (event["user"].nickname, text, link))
                 else:
                     event["stderr"].write("No results found")
             else:

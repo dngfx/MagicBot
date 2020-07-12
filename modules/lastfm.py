@@ -95,7 +95,7 @@ class Module(ModuleManager.BaseModule):
 
                 track_name = utils.irc.bold("%s - %s" % (artist, track_name))
 
-                event["stdout"].write("%s %s: %s%s%s%s" % (shown_username,
+                event["stdout"].write("%s %s: %s%s%s%s" % (utils.irc.bold(shown_username),
                                                            time_language,
                                                            track_name,
                                                            play_count_str,

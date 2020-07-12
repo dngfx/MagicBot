@@ -89,7 +89,10 @@ class Module(ModuleManager.BaseModule):
         """
         url = self._find_url(event["target"], event["args_split"])
 
-        event["stdout"].write("Shortened URL: %s" % self._shorturl(event["server"], url, context=event["target"]))
+        event["stdout"].write("%s: %s" % (utils.irc.bold("Shortened URL"),
+                                          self._shorturl(event["server"],
+                                                         url,
+                                                         context=event["target"])))
 
     @utils.hook("received.command.unshorten")
     def unshorten(self, event):

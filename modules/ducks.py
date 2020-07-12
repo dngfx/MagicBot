@@ -114,14 +114,14 @@ class Module(ModuleManager.BaseModule):
         duck_special = utils.irc.color(utils.irc.bold("rabid "), utils.consts.RED) if self._is_special else ""
 
         return "%s %s a %sduck in %s seconds! You've %s %d %s in %s!" % (
-            user.nickname,
+            utils.irc.bold(user.nickname),
             action,
             duck_special,
             utils.irc.bold(seconds),
             action,
-            action_count,
+            utils.irc.bold(action_count),
             ducks_plural,
-            channel.name,
+            utils.irc.bold(channel.name),
         )
 
     def _no_duck(self, channel, user, stderr):
@@ -194,7 +194,7 @@ class Module(ModuleManager.BaseModule):
         channel_query_str = ""
         if not channel_query == None:
             channel_query = server.irc_lower(channel_query)
-            channel_query_str = " in %s" % channel_query
+            channel_query_str = " in %s" % utils.irc.bold(channel_query)
 
         stats = server.find_all_user_channel_settings(setting)
 
@@ -207,9 +207,9 @@ class Module(ModuleManager.BaseModule):
 
         top_10 = utils.top_10(
             user_stats,
-            convert_key=lambda n: self._get_nickname(server,
-                                                     target,
-                                                     n),
+            convert_key=lambda n: utils.irc.bold(self._get_nickname(server,
+                                                                    target,
+                                                                    n)),
         )
         return "Top duck %s%s: %s" % (
             description,
@@ -257,16 +257,16 @@ class Module(ModuleManager.BaseModule):
 
         current_str = ""
         if current:
-            current_str = " (%d/%d in %s)" % (
-                current["bef"],
-                current["trap"],
-                event["target"].name,
+            current_str = " (%s Befriended, %s Killed in %s)" % (
+                utils.irc.bold(current["bef"]),
+                utils.irc.bold(current["trap"]),
+                utils.irc.bold(event["target"].name),
             )
 
-        event["stdout"].write("%s has befriended %d and killed %d ducks%s" % (
-            target_user.nickname,
-            overall["bef"],
-            overall["trap"],
+        event["stdout"].write("%s has befriended %s and killed %s ducks%s" % (
+            utils.irc.bold(target_user.nickname),
+            utils.irc.bold(overall["bef"]),
+            utils.irc.bold(overall["trap"]),
             current_str,
         ))
 
