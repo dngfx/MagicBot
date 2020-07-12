@@ -22,6 +22,9 @@ test-databases/*
 # configs
 *.conf
 
+# vscode
+.vscode/
+
 # ignored modules
 modules/nongit-*.py
 
