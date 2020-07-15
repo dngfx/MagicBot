@@ -101,7 +101,7 @@ class Module(ModuleManager.BaseModule):
         data = page["data"]
 
         if not data:
-            event["stderr"].write("Invalid Cryptocurrency (%s)" % utils.irc.bold(coin))
+            event["stderr"].write("Invalid Cryptocurrency or no marketplace is willing to trade that currency pair")
             return
 
         info = data[0]

@@ -81,13 +81,15 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("permission", "setkarma")
     def set_karma(self, event):
         server = event["server"]
-        karma = "karma-%s" % event["args_split"][0]
-        amount = int(event["args_split"][1])
+        karma_ev = event["args_split"][1:]
+        karma_text = " ".join(karma_ev)
+        karma = "karma-%s" % karma_text
+        amount = int(event["args_split"][0])
 
         sender = event["user"]
         sender.set_setting(karma, amount)
 
-        event["stdout"].write("Set %s karma to %s" % (event["args_split"][0], amount))
+        event["stdout"].write("Set %s karma to %s" % (karma_text, amount))
 
     @utils.hook("command.regex", pattern=REGEX_WORD)
     @utils.hook("command.regex", pattern=REGEX_PARENS)
