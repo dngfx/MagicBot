@@ -63,6 +63,11 @@ class Module(ModuleManager.BaseModule):
             if "weather" in page:
                 if location_name:
                     location_str = location_name
+
+                    place_name = page["sys"]["name"] if "name" in page["sys"] else page["name"]
+
+                    if place_name != location_str.split(",")[0]:
+                        location_str = "%s, %s" % (place_name, location_name)
                 else:
                     location_parts = [page["name"]]
                     if "country" in page["sys"]:
