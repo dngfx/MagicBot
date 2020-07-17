@@ -13,24 +13,18 @@ DUCK_GOLD_COLOR = utils.consts.GOLD
 DUCK_RED_COLOR = utils.consts.RED
 DUCK_METAL_COLOR = utils.consts.GREY
 
-SPECIAL_DUCKS = [[{
-    "type": "Gold",
-    "color": DUCK_GOLD_COLOR,
-    "lang": "Golden",
-    "xpbonus": 5
-}],
-                 [{
-                     "type": "Metal",
-                     "color": DUCK_METAL_COLOR,
-                     "lang": "Metal",
-                     "xpbonus": 2
-                 }],
-                 [{
-                     "type": "Red",
-                     "color": DUCK_RED_COLOR,
-                     "lang": "Rabid",
-                     "xpbonus": 0.5
-                 }]]
+SPECIAL_DUCKS = [[{"type": "Gold",
+                   "color": DUCK_GOLD_COLOR,
+                   "lang": "Golden",
+                   "xpbonus": 5}],
+                 [{"type": "Metal",
+                   "color": DUCK_METAL_COLOR,
+                   "lang": "Metal",
+                   "xpbonus": 2}],
+                 [{"type": "Red",
+                   "color": DUCK_RED_COLOR,
+                   "lang": "Rabid",
+                   "xpbonus": 0.5}]]
 
 DEFAULT_MIN_MESSAGES = 40
 DEFAULT_MISS_COOLDOWN = 5
@@ -180,10 +174,8 @@ class Module(ModuleManager.BaseModule):
         action = "shoot" if action == "killed" else "befriend"
 
         if nick not in channel.duck_cooldowns:
-            channel.duck_cooldowns[nick] = {
-                "cooldown_time": 0,
-                "missed_times": 0
-            }
+            channel.duck_cooldowns[nick] = {"cooldown_time": 0,
+                                            "missed_times": 0}
 
         ustats = channel.duck_cooldowns[nick]
 
@@ -205,10 +197,8 @@ class Module(ModuleManager.BaseModule):
             event["stderr"].write(err)
             return False
 
-        channel.duck_cooldowns[nick] = {
-            "cooldown_time": 0,
-            "missed_times": 0
-        }
+        channel.duck_cooldowns[nick] = {"cooldown_time": 0,
+                                        "missed_times": 0}
         return True
 
     def _duck_action(self, event, channel, user, action, setting):
@@ -378,14 +368,10 @@ class Module(ModuleManager.BaseModule):
         all = [(chan, val, "bef") for chan, val in befs]
         all += [(chan, val, "trap") for chan, val in traps]
 
-        current = {
-            "bef": 0,
-            "trap": 0
-        }
-        overall = {
-            "bef": 0,
-            "trap": 0
-        }
+        current = {"bef": 0,
+                   "trap": 0}
+        overall = {"bef": 0,
+                   "trap": 0}
 
         if event["is_channel"]:
             for channel_name, value, action in all:
