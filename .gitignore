@@ -22,13 +22,12 @@ test-databases/*
 # configs
 *.conf
 
-# vscode
-.vscode/*
-
 # ignored modules
 modules/nongit-*.py
 
 # tls
 bot.crt
 bot.key
-.vscode/sftp.json
+
+# vscode folder
+.vscode/
