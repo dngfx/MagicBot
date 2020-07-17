@@ -1,0 +1,712 @@
+#0 object(ExportsContext) (2)    _parent => object(Exports) (2)        _exports => dict(0)         _context_exports => dict(61)
+['57e349e2-ae63-41e2-aeee-b76a9694a5bb'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(9) "multiline"
+   _caps => object(set) ({None, 'draft/multiline'})
+   depends_on => list(0)
+    _on_ack_callbacks => list(0)
+['8eb5e939-f694-4c06-ba3b-62c65ebddae0'] => dict(1)
+    ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(7) "botlist"
+   help => str(52) "Whether or not I should respond to !botlist commands"            ['86224e64-2fdf-4967-920d-0686a9902462'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(4) "edit"
+   _caps => object(set) ({None, 'draft/edit'})
+   depends_on => list(0)
+    _on_ack_callbacks => list(0)
+['9c8ac88e-a94c-4aea-a099-d5427e71ba41'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(7) "rainbow"
+   help => str(51) "Enable/disable allowing rainbowification of strings"            ['cbabf0bb-dda1-4ce3-a17b-4293d288a884'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "ircv3-stats"
+   help => str(64) "Whether or not to include the current server in IRCv3 statistics"            ['491ea46b-b3bc-4dd5-a28f-174ec77c5021'] => dict(3)
+    ['channelset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(22) "inactive-channel-modes"
+   help => str(69) "Whether or not we will leave inactive channels that we have a mode in"
+       [1] => object(BoolSetting) (2)
+   name => str(17) "inactive-channels"
+   help => str(55) "Whether or not to leave inactive channels after 2 weeks"
+   ['serverset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(22) "inactive-channel-modes"
+   help => str(69) "Whether or not we will leave inactive channels that we have a mode in"
+       [1] => object(BoolSetting) (2)
+   name => str(17) "inactive-channels"
+   help => str(55) "Whether or not to leave inactive channels after 2 weeks"
+   ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(17) "inactive-channels"
+   help => str(55) "Whether or not to leave inactive channels after 2 weeks"            ['2c64a3c6-36b8-4c97-aee6-4840ce848a2f'] => dict(1)
+    ['channelset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(6) "markov"
+   help => str(41) "Disable/Enable markov chains in a channel"
+       [1] => object(IntRangeSetting) (4)
+   _n_min => int(0)
+    _n_max => int(100)
+    name => str(13) "markov-chance"
+   help => str(66) "0 to 100 percent chance of markov chains being generated at random"            ['c60a4e77-b85d-43ed-91cc-8c7ce969d7fe'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(12) "echo-message"
+   _caps => object(set) ({None, 'echo-message'})
+   depends_on => list(1)
+        [0] => str(16) "labeled-response"
+   _on_ack_callbacks => list(0)
+['14c87591-e9f2-4c5a-80b6-fe41676c2bcf'] => dict(1)
+    ['format'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(6) "format"
+
+  [1] => NoneType(None)
+['76c4dded-aa81-4cca-ab87-b5be8c6574a8'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(16) "labeled-response"
+   _caps => object(set) ({'labeled-response', 'draft/labeled-response-0.2'})
+   depends_on => list(1)
+        [0] => str(5) "batch"
+   _on_ack_callbacks => list(0)
+['428c48d1-bc3b-4b5c-9cb3-bcc24ce79b2a'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(Setting) (3)
+   name => str(3) "key"
+   help => str(22) "Channel key (password)"
+   example => str(7) "hunter2"            ['00404a15-fb8d-4ce4-a517-89b9d4ee37b5'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(8) "throttle"
+   help => str(55) "Configure lines:seconds throttle for the current server"
+   example => str(3) "4:2"            ['f85cf8ce-af84-436e-8bed-a4b62fe1d6b2'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(9) "blacklist"
+   help => str(30) "Refuse to join a given channel"            ['5e28380e-fb65-465f-8cab-0a5f9c540482'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(5) "proxy"
+   help => str(42) "Proxy configuration for the current server"
+   example => str(23) "socks5://localhost:9050"            ['30e0737f-314a-4900-93f0-fa0b5ff55fe6'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(11) "server-time"
+   _caps => object(set) ({None, 'server-time'})
+   depends_on => list(0)
+    _on_ack_callbacks => list(0)
+['38815456-bb8f-4c20-96d8-cb29b4f40d1b'] => dict(1)
+    ['cap'] => list(1)
+[0] => object(Capability) (4)
+   alias => str(14) "event-playback"
+   _caps => object(set) ({None, 'draft/event-playback'})
+   depends_on => list(0)
+    _on_ack_callbacks => list(0)
+['7eab4bca-d82a-437a-9b1a-0388049d64a5'] => dict(4)
+    ['channelset'] => list(5)
+[0] => object(BoolSetting) (2)
+   name => str(17) "prefixed-commands"
+   help => str(57) "Disable/enable responding to prefixed commands in-channel"
+       [1] => object(BoolSetting) (2)
+   name => str(8) "commands"
+   help => str(48) "Disable/enable responding to commands in-channel"
+       [2] => object(BoolSetting) (2)
+   name => str(11) "hide-prefix"
+   help => str(48) "Disable/enable hiding prefix in command reponses"
+       [3] => object(OptionsSetting) (4)
+   _options => list(2)
+        [0] => str(7) "PRIVMSG"
+       [1] => str(6) "NOTICE"
+   _options_factory => NoneType(None)
+    name => str(14) "command-method"
+   help => str(42) "Set the method used to respond to commands"
+       [4] => object(Setting) (3)
+   name => str(14) "command-prefix"
+   help => str(43) "Set the command prefix used in this channel"
+   example => str(1) "!"
+   ['set'] => list(1)
+[0] => object(OptionsSetting) (4)
+   _options => list(2)
+        [0] => str(7) "PRIVMSG"
+       [1] => str(6) "NOTICE"
+   _options_factory => NoneType(None)
+    name => str(14) "command-method"
+   help => str(42) "Set the method used to respond to commands"
+   ['serverset'] => list(2)
+[0] => object(OptionsSetting) (4)
+   _options => list(2)
+        [0] => str(7) "PRIVMSG"
+       [1] => str(6) "NOTICE"
+   _options_factory => NoneType(None)
+    name => str(14) "command-method"
+   help => str(42) "Set the method used to respond to commands"
+       [1] => object(Setting) (3)
+   name => str(14) "command-prefix"
+   help => str(42) "Set the command prefix used on this server"
+   example => str(1) "!"
+   ['botset'] => list(1)
+[0] => object(OptionsSetting) (4)
+   _options => list(2)
+        [0] => str(7) "PRIVMSG"
+       [1] => str(6) "NOTICE"
+   _options_factory => NoneType(None)
+    name => str(14) "command-method"
+   help => str(42) "Set the method used to respond to commands"            ['1af42dba-05d9-432d-a5e1-5cda431067a0'] => dict(2)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(19) "command-suggestions"
+   help => str(34) "Disable/enable command suggestions"
+   ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(19) "command-suggestions"
+   help => str(34) "Disable/enable command suggestions"            ['17e8b325-e275-4d5e-89fd-bc581ce9b28c'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "auto-reddit"
+   help => str(43) "Auto parse Reddit URLs to display with info"            ['eeab0cef-0c95-4fed-9f1b-e8fe4f41e580'] => dict(1)
+    ['command-spec.marginstring'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(25) "command-spec.marginstring"
+
+  [1] => NoneType(None)
+['b5f1ffb3-7dfb-46e3-b2d9-b7e6190c99e2'] => dict(3)
+    ['channelset'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(14) "dns-nameserver"
+   help => str(18) "Set DNS nameserver"
+   example => str(7) "8.8.8.8"
+   ['serverset'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(14) "dns-nameserver"
+   help => str(18) "Set DNS nameserver"
+   example => str(7) "8.8.8.8"
+   ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(24) "configurable-nameservers"
+   help => str(56) "Whether or not users can configure their own nameservers"            ['77ee1d25-196a-447a-b343-335992e4799c'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(9) "auto-wiki"
+   help => str(61) "Disable/Enable automatically getting info from wikipedia URLs"            ['e739e083-841f-4581-9dab-00d3256de9fd'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(14) "channel-quotes"
+   help => str(70) "Whether or not quotes added from this channel are kept in this channel"            ['cf4bac74-3e1a-4850-9fbd-ab9033dafdf0'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(10) "auto-4chan"
+   help => str(42) "Auto parse 4chan URLs to display with info"            ['defb4236-1da1-4ae6-8429-1745cfd33a5d'] => dict(1)
+    ['channelset'] => list(2)
+[0] => object(Setting) (3)
+   name => str(9) "mode-high"
+   help => str(56) "Set which channel mode is considered to be 'high' access"
+   example => str(1) "o"
+       [1] => object(Setting) (3)
+   name => str(8) "mode-low"
+   help => str(55) "Set which channel mode is considered to be 'low' access"
+   example => str(1) "v"            ['574f77ee-e0b4-435a-a289-6b2799768826'] => dict(2)
+    ['account-name'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(12) "account-name"
+
+  [1] => NoneType(None)
+    ['is-identified'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(13) "is-identified"
+
+  [1] => NoneType(None)
+['c5974858-14e6-4af1-a9ed-0ddd323eb73c'] => dict(1)
+    ['channelset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(21) "votes-cast-restricted"
+   help => str(69) "Whether casting a vote should be restricted to voiced-and-above users"
+       [1] => object(BoolSetting) (2)
+   name => str(22) "votes-start-restricted"
+   help => str(51) "Whether starting a vote should be restricted to ops"            ['c60c7c8a-c1ef-4ffe-a4f2-5e4b88c36f5e'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(12) "relay-extras"
+   help => str(51) "Whether or not to relay joins/parts/quits/modes/etc"            ['382f6459-ccda-443d-a3fa-c62683d146f2'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(13) "karma-pattern"
+   help => str(41) "Enable/disable parsing ++/-- karma format"            ['63380e4e-6860-41d2-bafb-815f070beaee'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(Setting) (3)
+   name => str(8) "greeting"
+   help => str(46) "Set a greeting to send to users when they join"
+   example => str(23) "welcome to the channel!"            ['88afc74b-7dbc-40bd-a8bb-7e7a0362f79e'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(17) "google-safesearch"
+   help => str(23) "Turn safe search off/on"            ['9857576a-5ad2-44ce-acd4-4294238c5779'] => dict(1)
+    ['channelset'] => list(8)
+[0] => object(IntSetting) (3)
+   name => str(20) "ducks-special-chance"
+   help => str(48) "Chance in percent a spawned duck will be special"
+   example => str(1) "2"
+       [1] => object(BoolSetting) (2)
+   name => str(20) "ducks-enable-special"
+   help => str(71) "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
+       [2] => object(BoolSetting) (2)
+   name => str(28) "ducks-prevent-user-highlight"
+   help => str(82) "Whether or not to prevent highlighting users with !friends/!enemies (Default True)"
+       [3] => object(BoolSetting) (2)
+   name => str(10) "ducks-kick"
+   help => str(75) "Whether or not to kick someone attempting to catch/kill a non-existent duck"
+       [4] => object(IntRangeSetting) (4)
+   _n_min => int(2)
+    _n_max => int(10)
+    name => str(18) "ducks-spawn-chance"
+   help => str(66) "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
+       [5] => object(IntRangeSetting) (4)
+   _n_min => int(10)
+    _n_max => int(200)
+    name => str(18) "ducks-min-messages"
+   help => str(69) "Minimum messages between ducks spawning (Min 10, max 200, default 40)"
+       [6] => object(BoolSetting) (2)
+   name => str(23) "ducks-print-missed-time"
+   help => str(63) "Whether or not to show how long in seconds you missed a duck by"
+       [7] => object(BoolSetting) (2)
+   name => str(13) "ducks-enabled"
+   help => str(29) "Whether or not to spawn ducks"            ['e3534588-b155-4795-901e-dca39dd4b127'] => dict(1)
+    ['channelset'] => list(3)
+[0] => object(IntSetting) (3)
+   name => str(20) "auto-github-cooldown"
+   help => str(52) "Set amount of seconds between auto-github duplicates"
+   example => str(3) "300"
+       [1] => object(BoolSetting) (2)
+   name => str(11) "auto-github"
+   help => str(57) "Enable/disable automatically getting github issue/PR info"
+       [2] => object(Setting) (3)
+   name => str(19) "github-default-repo"
+   help => str(51) "Set the default github repo for the current channel"
+   example => str(13) "jesopo/bitbot"            ['4f206a94-9a65-40e7-a099-627c1aa492ce'] => dict(2)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(10) "xp-enabled"
+   help => str(25) "Is the XP module enabled?"
+   ['xpaddinternal'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(1)
+            [0] => tuple(2)
+
+   [0] => str(30) "received.command.xpaddinternal"
+
+  [1] => dict(0)
+        _kwargs => list(1)
+            [0] => tuple(2)
+
+   [0] => str(4) "help"
+
+  [1] => str(18) "See your XP score!"
+       _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(13) "xpaddinternal"
+
+  [1] => NoneType(None)
+['1a484aef-d706-43c4-9134-edd100ab9998'] => dict(1)
+    ['set'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(8) "birthday"
+   help => str(17) "Set your birthday"
+   example => str(10) "1995-09-15"            ['f53930b4-86ae-4724-a2a6-304781071f9c'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(SensitiveSetting) (3)
+   name => str(17) "nickserv-password"
+   help => str(41) "Set the nickserv password for this server"
+   example => str(7) "hunter2"            ['969ed240-c50e-4c75-88ee-4ab60bdf348d'] => dict(3)
+    ['channelset'] => list(4)
+[0] => object(Setting) (3)
+   name => str(19) "default-kick-reason"
+   help => str(27) "Set the default kick reason"
+   example => str(16) "have a nice trip"
+       [1] => object(BoolSetting) (2)
+   name => str(10) "auto-voice"
+   help => str(33) "Automatically voice users on join"
+       [2] => object(Setting) (3)
+   name => str(18) "ban-format-account"
+   help => str(102) "Set ban format for users with accounts (${n} = nick, ${u} = username, ${h} = hostname, ${a} = account)"
+   example => str(7) "~a:${a}"
+       [3] => object(Setting) (3)
+   name => str(10) "ban-format"
+   help => str(78) "Set ban format (${n} = nick, ${u} = username, ${h} = hostname, ${a} = account)"
+   example => str(11) "*!${u}@${h}"
+   ['serverset'] => list(3)
+[0] => object(Setting) (3)
+   name => str(19) "default-kick-reason"
+   help => str(27) "Set the default kick reason"
+   example => str(16) "have a nice trip"
+       [1] => object(OptionsSetting) (4)
+   _options => list(3)
+        [0] => str(5) "chary"
+       [1] => str(4) "insp"
+       [2] => str(6) "unreal"
+   _options_factory => NoneType(None)
+    name => str(11) "aban-method"
+   help => str(52) "Set this server's method of banning users by account"
+       [2] => object(OptionsSetting) (4)
+   _options => list(3)
+        [0] => str(5) "qmode"
+       [1] => str(4) "insp"
+       [2] => str(6) "unreal"
+   _options_factory => NoneType(None)
+    name => str(12) "quiet-method"
+   help => str(40) "Set this server's method of muting users"
+   ['botset'] => list(1)
+[0] => object(Setting) (3)
+   name => str(19) "default-kick-reason"
+   help => str(27) "Set the default kick reason"
+   example => str(16) "have a nice trip"            ['e8a9629f-fdae-41b0-a33c-0398ae76dbfe'] => dict(1)
+    ['channelset'] => list(3)
+[0] => object(BoolSetting) (2)
+   name => str(18) "highlight-spam-ban"
+   help => str(65) "Enable/Disable banning highlight spammers instead of just kicking"
+       [1] => object(BoolSetting) (2)
+   name => str(25) "highlight-spam-protection"
+   help => str(40) "Enable/Disable highlight spam protection"
+       [2] => object(IntSetting) (2)
+   name => str(24) "highlight-spam-threshold"
+   help => str(63) "Set the number of nicknames in a message that qualifies as spam"            ['3b911bcd-fdf4-46ad-9d3d-a99f1a0e0e4d'] => dict(2)
+    ['botset'] => list(3)
+[0] => object(Setting) (2)
+   name => str(13) "rest-api-host"
+   help => str(37) "Public hostname:port for the REST API"
+       [1] => object(BoolSetting) (2)
+   name => str(15) "rest-api-minify"
+   help => str(33) "Enable/disable REST API minifying"
+       [2] => object(BoolSetting) (2)
+   name => str(8) "rest-api"
+   help => str(23) "Enable/disable REST API"
+   ['url-for'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(7) "url-for"
+
+  [1] => NoneType(None)
+['c3320fab-11c0-43a7-9430-e032f1e41e5b'] => dict(3)
+    ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "channel-log"
+   help => str(30) "Enable/disable channel logging"
+   ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "channel-log"
+   help => str(30) "Enable/disable channel logging"
+   ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(3) "log"
+   help => str(30) "Enable/disable channel logging"            ['6a7894e9-6b6b-484c-b63a-3a8d07b5ffa4'] => dict(3)
+    ['channelset'] => list(3)
+[0] => object(BoolSetting) (2)
+   name => str(23) "words-prevent-highlight"
+   help => str(54) "Whether or not to prevent highlights in wordiest lists"
+       [1] => object(BoolSetting) (2)
+   name => str(24) "word-tracking-registered"
+   help => str(53) "Whether or not word tracking is registered-users-only"
+       [2] => object(BoolSetting) (2)
+   name => str(13) "word-tracking"
+   help => str(39) "Disable/enable tracking your wordcounts"
+   ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(24) "word-tracking-registered"
+   help => str(53) "Whether or not word tracking is registered-users-only"
+   ['set'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(13) "word-tracking"
+   help => str(39) "Disable/enable tracking your wordcounts"            ['c8748903-30ab-43d6-adf0-e0f298cdaaf2'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(10) "auto-imgur"
+   help => str(57) "Disable/Enable automatically getting info from Imgur URLs"            ['a47bd17c-9cac-46ca-a592-7c3c9ee1bf8c'] => dict(6)
+    ['channelset'] => list(1)
+[0] => object(OptionsSetting) (4)
+   _options => list(0)
+    _options_factory => object(method) (0)
+   name => str(13) "url-shortener"
+   help => str(25) "Set URL shortener service"
+   ['serverset'] => list(1)
+[0] => object(OptionsSetting) (4)
+   _options => list(0)
+    _options_factory => object(method) (0)
+   name => str(13) "url-shortener"
+   help => str(25) "Set URL shortener service"
+   ['botset'] => list(1)
+[0] => object(OptionsSetting) (4)
+   _options => list(0)
+    _options_factory => object(method) (0)
+   name => str(13) "url-shortener"
+   help => str(25) "Set URL shortener service"
+   ['shorturl-s-bitly'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(16) "shorturl-s-bitly"
+
+  [1] => NoneType(None)
+    ['shorturl'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(8) "shorturl"
+
+  [1] => NoneType(None)
+    ['shorturl-any'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(12) "shorturl-any"
+
+  [1] => NoneType(None)
+['866e2cbe-a238-476a-8c40-64d5ab4a79c4'] => dict(2)
+    ['channelset'] => list(2)
+[0] => object(IntSetting) (2)
+   name => str(17) "kick-rejoin-delay"
+   help => str(52) "Amount of seconds to wait before rejoining a channel"
+       [1] => object(BoolSetting) (2)
+   name => str(11) "kick-rejoin"
+   help => str(57) "Whether or not I should rejoin channels I get kicked from"
+   ['serverset'] => list(2)
+[0] => object(IntSetting) (2)
+   name => str(17) "kick-rejoin-delay"
+   help => str(52) "Amount of seconds to wait before rejoining a channel"
+       [1] => object(BoolSetting) (2)
+   name => str(11) "kick-rejoin"
+   help => str(57) "Whether or not I should rejoin channels I get kicked from"            ['197f12bd-58e0-4474-9360-5304594c9255'] => dict(1)
+    ['channelset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(15) "sed-sender-only"
+   help => str(64) "Disable/Enable sed only looking at the messages sent by the user"
+       [1] => object(BoolSetting) (2)
+   name => str(3) "sed"
+   help => str(31) "Disable/Enable sed in a channel"            ['dfe70e04-7bba-4db3-bec2-c7d258b96713'] => dict(2)
+    ['channelset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(18) "youtube-safesearch"
+   help => str(23) "Turn safe search off/on"
+       [1] => object(BoolSetting) (2)
+   name => str(12) "auto-youtube"
+   help => str(59) "Disable/Enable automatically getting info from youtube URLs"
+   ['search-youtube'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(14) "search-youtube"
+
+  [1] => NoneType(None)
+['252e8f6e-bb70-4f80-96e4-592c458f5861'] => dict(1)
+    ['set'] => list(1)
+[0] => object(Setting) (3)
+   name => str(8) "pronouns"
+   help => str(17) "Set your pronouns"
+   example => str(7) "she/her"            ['7c1868a9-8b64-4dca-8e6f-c912ecf69ade'] => dict(1)
+    ['set'] => list(1)
+[0] => object(Setting) (3)
+   name => str(6) "lastfm"
+   help => str(20) "Set last.fm username"
+   example => str(6) "jesopo"            ['d71411c6-8f2c-450b-bcce-99b1ce1ee4db'] => dict(2)
+    ['set'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(method) (1)
+       __bitbot => object(BitBotMagic) (3)
+           _hooks => list(0)
+            _kwargs => list(0)
+            _exports => list(1)
+
+   [0] => tuple(2)
+
+       [0] => str(12) "get-location"
+
+      [1] => NoneType(None)
+    name => str(8) "location"
+   help => str(17) "Set your location"
+   example => str(10) "London, GB"
+   ['get-location'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(12) "get-location"
+
+  [1] => NoneType(None)
+['71658fd1-9127-446c-9b66-c500af3e4076'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(Setting) (3)
+   name => str(11) "bot-channel"
+   help => str(16) "Set main channel"
+   example => str(7) "#bitbot"            ['a3026241-b3de-4713-b6c5-c43128cb8bdb'] => dict(2)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "strip-color"
+   help => str(62) "Set whether I strip colors from my messages on in this channel"
+   ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "strip-color"
+   help => str(58) "Set whether I strip colors from my messages on this server"            ['50d091cf-2197-4bd5-90a7-9748d2e66e15'] => dict(2)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(5) "print"
+   help => str(50) "Whether or not to print activity a channel to logs"
+   ['botset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(15) "pretty-activity"
+   help => str(39) "Whether or not to pretty print activity"
+       [1] => object(BoolSetting) (2)
+   name => str(10) "print-motd"
+   help => str(25) "Set whether I print /motd"            ['45973726-9987-42ee-bf4d-96d2979a3cbc'] => dict(2)
+    ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(14) "accept-invites"
+   help => str(28) "Set whether I accept invites"
+   ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(14) "accept-invites"
+   help => str(28) "Set whether I accept invites"            ['40b4c7f1-de3f-4990-af9e-2ff6b00ab435'] => dict(1)
+    ['serverset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(14) "ctcp-responses"
+   help => str(45) "Set whether I respond to CTCPs on this server"            ['68ebcbee-54c1-47ce-a089-71339eab3801'] => dict(2)
+    ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(14) "sasl-hard-fail"
+   help => str(52) "Set whether a SASL failure should cause a disconnect"
+   ['serverset'] => list(2)
+[0] => object(BoolSetting) (2)
+   name => str(14) "sasl-hard-fail"
+   help => str(52) "Set whether a SASL failure should cause a disconnect"
+       [1] => object(FunctionSetting) (5)
+   _func => object(function) (0)
+   name => str(4) "sasl"
+   help => str(46) "Set the sasl username/password for this server"
+   example => str(20) "PLAIN BitBot:hunter2"
+   format => object(function) (0)            ['66808870-bba3-4558-a53c-4da0608c7544'] => dict(1)
+    ['channelset'] => list(4)
+[0] => object(BoolSetting) (2)
+   name => str(21) "auto-title-difference"
+   help => str(87) "Enable/disable checking if a <title> is different enough from the URL before showing it"
+       [1] => object(BoolSetting) (2)
+   name => str(16) "auto-title-first"
+   help => str(66) "Enable/disable showing who first posted a URL that was auto-titled"
+       [2] => object(BoolSetting) (2)
+   name => str(13) "title-shorten"
+   help => str(55) "Enable/disable shortening URLs when getting their title"
+       [3] => object(BoolSetting) (2)
+   name => str(10) "auto-title"
+   help => str(58) "Disable/Enable automatically getting info titles from URLs"            ['8a528723-2b7a-4a19-8948-09e6741f95a5'] => dict(2)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(11) "rss-shorten"
+   help => str(34) "Whether or not to shorten RSS urls"
+   ['botset'] => list(1)
+[0] => object(IntSetting) (3)
+   name => str(12) "rss-interval"
+   help => str(39) "Interval (in seconds) between RSS polls"
+   example => str(3) "120"            ['644b2b9a-4b6e-4dc0-a4b9-d85a5c845780'] => dict(1)
+    ['time-localise'] => list(1)
+[0] => object(method) (1)
+   __bitbot => object(BitBotMagic) (3)
+       _hooks => list(0)
+        _kwargs => list(0)
+        _exports => list(1)
+            [0] => tuple(2)
+
+   [0] => str(13) "time-localise"
+
+  [1] => NoneType(None)
+['dd1de6a6-75c2-4d7b-9eb2-6bbde3f1849a'] => dict(2)
+    ['set'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(9) "fediverse"
+   help => str(26) "Set your fediverse account"
+   example => str(24) "@gargron@mastodon.social"
+   ['botset'] => list(1)
+[0] => object(FunctionSetting) (4)
+   _func => object(function) (0)
+   name => str(16) "fediverse-server"
+   help => str(41) "The bot's local fediverse server username"
+   example => str(15) "@bot@bitbot.dev"            ['ee554872-f61d-4a17-92d1-61f1871a3004'] => dict(1)
+    ['channelset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(10) "auto-tweet"
+   help => str(47) "Enable/disable automatically getting tweet info"            ['1e2f51d7-e475-4926-a270-856018d007e2'] => dict(2)
+    ['channelset'] => list(5)
+[0] => object(BoolSetting) (2)
+   name => str(16) "git-show-private"
+   help => str(60) "Whether or not to show git activity for private repositories"
+       [1] => object(BoolSetting) (2)
+   name => str(16) "git-shorten-urls"
+   help => str(51) "Weather or not git webhook URLs should be shortened"
+       [2] => object(BoolSetting) (2)
+   name => str(15) "git-hide-prefix"
+   help => str(52) "Hide/show command-like prefix on git webhook outputs"
+       [3] => object(BoolSetting) (2)
+   name => str(21) "git-hide-organisation"
+   help => str(42) "Hide/show organisation in repository names"
+       [4] => object(BoolSetting) (2)
+   name => str(21) "git-prevent-highlight"
+   help => str(36) "Enable/disable preventing highlights"
+   ['botset'] => list(1)
+[0] => object(BoolSetting) (2)
+   name => str(16) "git-show-private"
+   help => str(60) "Whether or not to show git activity for private repositories"    context => str(36) "4f206a94-9a65-40e7-a099-627c1aa492ce"
