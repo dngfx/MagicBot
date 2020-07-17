@@ -7,18 +7,9 @@ import enum
 from src import ModuleManager, utils
 
 QUIET_METHODS = {
-    "qmode": ["q",
-              "",
-              "728",
-              "729"],
-    "insp": ["b",
-             "m:",
-             "367",
-             "368"],
-    "unreal": ["b",
-               "~q:",
-               "367",
-               "368"]
+    "qmode": ["q", "", "728", "729"],
+    "insp": ["b", "m:", "367", "368"],
+    "unreal": ["b", "~q:", "367", "368"]
 }
 ABAN_METHODS = {
     "chary": "$a:",
@@ -43,23 +34,23 @@ BAN_FORMATTING = "${n} = nick, ${u} = username, ${h} = hostname, ${a} = account"
 
 
 @utils.export("channelset", utils.Setting("ban-format", "Set ban format (%s)" % BAN_FORMATTING, example="*!${u}@${h}"))
-@utils.export("channelset",
-              utils.Setting("ban-format-account",
-                            "Set ban format for users with accounts (%s)" % BAN_FORMATTING,
-                            example="~a:${a}"))
-@utils.export("channelset",
-              utils.BoolSetting(
-                  "auto-voice",
-                  "Automatically voice users on join",
-              ))
-@utils.export("serverset",
-              utils.OptionsSetting(list(QUIET_METHODS.keys()),
-                                   "quiet-method",
-                                   "Set this server's method of muting users"))
-@utils.export("serverset",
-              utils.OptionsSetting(list(ABAN_METHODS.keys()),
-                                   "aban-method",
-                                   "Set this server's method of banning users by account"))
+@utils.export(
+    "channelset",
+    utils.Setting(
+        "ban-format-account", "Set ban format for users with accounts (%s)" % BAN_FORMATTING, example="~a:${a}"
+    )
+)
+@utils.export("channelset", utils.BoolSetting("auto-voice", "Automatically voice users on join",))
+@utils.export(
+    "serverset",
+    utils.OptionsSetting(list(QUIET_METHODS.keys()), "quiet-method", "Set this server's method of muting users")
+)
+@utils.export(
+    "serverset",
+    utils.OptionsSetting(
+        list(ABAN_METHODS.keys()), "aban-method", "Set this server's method of banning users by account"
+    )
+)
 @utils.export("botset", KICK_REASON_SETTING)
 @utils.export("serverset", KICK_REASON_SETTING)
 @utils.export("channelset", KICK_REASON_SETTING)
@@ -85,9 +76,8 @@ class Module(ModuleManager.BaseModule):
     def _kick_reason(self, server, channel):
         return channel.get_setting(
             "default-kick-reason",
-            server.get_setting("default-kick-reason",
-                               self.bot.get_setting("default-kick-reson",
-                                                    KICK_REASON)))
+            server.get_setting("default-kick-reason", self.bot.get_setting("default-kick-reson", KICK_REASON))
+        )
 
     def _kick(self, server, channel, nicknames, reason):
         reason = reason or self._kick_reason(server, channel)

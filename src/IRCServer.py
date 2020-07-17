@@ -8,12 +8,10 @@ PING_INTERVAL_SECONDS = 30
 
 class Server(IRCObject.Object):
 
-    def __init__(self,
-                 bot: "IRCBot.Bot",
-                 events: EventManager.Events,
-                 id: int,
-                 alias: str,
-                 connection_params: utils.irc.IRCConnectionParameters):
+    def __init__(
+        self, bot: "IRCBot.Bot", events: EventManager.Events, id: int, alias: str,
+        connection_params: utils.irc.IRCConnectionParameters
+    ):
         self.bot = bot
         self.events = events
         self.id = id
@@ -25,6 +23,7 @@ class Server(IRCObject.Object):
         self.connected = False
         self.reconnected = False
         self.from_init = False
+        self.testing_enabled = False
 
         self.nickname = None  # type: typing.Optional[str]
         self.username = None  # type: typing.Optional[str]
@@ -57,8 +56,7 @@ class Server(IRCObject.Object):
         self.channel_types = ["#"]
         self.case_mapping = "rfc1459"
         self.statusmsg = []  # type: typing.List[str]
-        self.targmax: typing.Dict[str,
-                                  int] = {}
+        self.targmax: typing.Dict[str, int] = {}
 
         self.motd_lines = []  # type: typing.List[str]
         self.motd_done = False
@@ -79,21 +77,18 @@ class Server(IRCObject.Object):
         return "%s!%s@%s" % (self.nickname, self.username, self.hostname)
 
     def connect(self):
-        self.socket = IRCSocket.Socket(self.bot.log,
-                                       self.get_setting("encoding",
-                                                        "utf8"),
-                                       self.get_setting("fallback-encoding",
-                                                        "iso-8859-1"),
-                                       self.connection_params.hostname,
-                                       self.connection_params.port,
-                                       self.connection_params.bindhost,
-                                       self.connection_params.tls,
-                                       tls_verify=self.get_setting("ssl-verify",
-                                                                   True),
-                                       cert=self.bot.config.get("tls-certificate",
-                                                                None),
-                                       key=self.bot.config.get("tls-key",
-                                                               None))
+        self.socket = IRCSocket.Socket(
+            self.bot.log,
+            self.get_setting("encoding", "utf8"),
+            self.get_setting("fallback-encoding", "iso-8859-1"),
+            self.connection_params.hostname,
+            self.connection_params.port,
+            self.connection_params.bindhost,
+            self.connection_params.tls,
+            tls_verify=self.get_setting("ssl-verify", True),
+            cert=self.bot.config.get("tls-certificate", None),
+            key=self.bot.config.get("tls-key", None)
+        )
         self.events.on("preprocess.connect").call(server=self)
         self.socket.connect()
 
@@ -105,6 +100,8 @@ class Server(IRCObject.Object):
         nickname = self.connection_params.nickname
         username = self.connection_params.username or nickname
         realname = self.connection_params.realname or nickname
+
+        self.testing_enabled = self.get_setting("testing-enabled", False)
 
         self.send_user(username, realname)
         self.send_nick(nickname)
@@ -191,6 +188,10 @@ class Server(IRCObject.Object):
         if new:
             self.events.on("new.user").call(user=new_user, server=self)
         return user
+
+    def is_testing_enabled(self):
+        self.testing_enabled = self.get_setting("testing-enabled", False)
+        return self.testing_enabled
 
     def get_user_id(self, nickname: str) -> int:
         nickname_lower = self.irc_lower(nickname)
@@ -290,9 +291,8 @@ class Server(IRCObject.Object):
 
         line_events = self.events.new_root()
 
-        self.events.on("preprocess.send").on(line_parsed.command).call_unsafe(server=self,
-                                                                              line=line_parsed,
-                                                                              events=line_events)
+        self.events.on("preprocess.send").on(line_parsed.command
+                                             ).call_unsafe(server=self, line=line_parsed, events=line_events)
         self.events.on("preprocess.send").call_unsafe(server=self, line=line_parsed, events=line_events)
 
         if line_parsed.valid() or line_parsed.assured():
@@ -309,10 +309,7 @@ class Server(IRCObject.Object):
     def send_raw(self, line: str):
         return self.send(IRCLine.parse_line(line))
 
-    def _line(self,
-              command: str,
-              unfiltered_args: typing.Sequence[typing.Optional[str]],
-              tags={}):
+    def _line(self, command: str, unfiltered_args: typing.Sequence[typing.Optional[str]], tags={}):
         args: typing.List[str] = [a for a in unfiltered_args if not a is None]
         return IRCLine.ParsedLine(command, args, tags=tags)
 
@@ -393,16 +390,10 @@ class Server(IRCObject.Object):
     def send_quit(self, reason: str = "Leaving") -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("QUIT", [reason]))
 
-    def send_message(self,
-                     target: str,
-                     message: str,
-                     tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
+    def send_message(self, target: str, message: str, tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PRIVMSG", [target, message], tags=tags))
 
-    def send_notice(self,
-                    target: str,
-                    message: str,
-                    tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
+    def send_notice(self, target: str, message: str, tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("NOTICE", [target, message], tags=tags))
 
     def send_tagmsg(self, target: str, tags: dict):
