@@ -53,7 +53,7 @@ DEFAULT_SPECIAL_ENABLED = False
 @utils.export(
     "channelset",
     utils.IntRangeSetting(
-        2, 10, "ducks-spawn-chance", "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
+        2, 20, "ducks-spawn-chance", "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
     )
 )
 @utils.export(
@@ -207,6 +207,8 @@ class Module(ModuleManager.BaseModule):
 
         ustats = channel.duck_cooldowns[nick]
 
+        duck_miss_chance = duck_miss_chance - (ustats["missed_times"] * duck_miss_reduction)
+
         # Are we shooting too fast?
         if timenow - ustats["cooldown_time"] < ducks_miss_cooldown:
             err = "You're exhausted and fail to %s the duck, try again soon" % (action)
@@ -214,7 +216,7 @@ class Module(ModuleManager.BaseModule):
             return False
 
         # Are we going to miss?
-        if random.randint(0, 99) > duck_miss_chance:
+        if random.randint(0, 99) < duck_miss_chance:
             missed = True
 
             channel.duck_cooldowns[nick]["cooldown_time"] = time.time()
