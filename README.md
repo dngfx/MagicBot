@@ -25,4 +25,6 @@ I (df) can be found at [#premium on Rizon](https://qchat.rizon.net/?channels=pre
 Alternatively connect via your irc client irc://irc.rizon.net:+6697/#premium (Must use SSL)
 
 ## License
-This project is licensed under GNU General Public License v2.0 with parts under the WTFPL - see [LICENSE](LICENSE) for details.
+This majority of this project is licensed under GNU General Public License v2.0 - see [LICENSE](LICENSE) for details.
+
+Parts licenced under the WTFPL will have comments in the file marking it as such.
