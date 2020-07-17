@@ -30,4 +30,4 @@ bot.crt
 bot.key
 
 # vscode folder
-.vscode/
+.vscode/*
