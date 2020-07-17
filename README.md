@@ -21,7 +21,8 @@ dongbot is currently only on [Rizon](https://www.rizon.net/)
 If you need support with setting up this bot it might be an idea to use [BitBot](https://git.io/bitbot) instead, as more support is offered. I will help if I can.
 
 I (df) can be found at [#premium on Rizon](https://qchat.rizon.net/?channels=premium).
-Alternatively [Connect via your irc client](irc://irc.rizon.net:+6697/#premium) (Must use SSL)
+
+Alternatively connect via your irc client irc://irc.rizon.net:+6697/#premium (Must use SSL)
 
 ## License
 This project is licensed under GNU General Public License v2.0 with parts under the WTFPL - see [LICENSE](LICENSE) for details.
