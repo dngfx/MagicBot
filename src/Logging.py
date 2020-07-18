@@ -12,7 +12,7 @@ class Logger(object):
             colorize=True,
             format=
             "<green>[{time:HH:mm:ss!UTC}]</green> — <le>{name}: {line}</le> — <level>[{level}]</level> — <level>{message}</level>",
-            level="DEBUG",
+            level="INFO",
             catch=True,
             enqueue=True
         )
