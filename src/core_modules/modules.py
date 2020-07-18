@@ -4,6 +4,7 @@
 from src import ModuleManager, utils
 
 ERR_NOTLOADED = "Module '%s' isn't loaded"
+DO_NOT_RELOAD = ["rest_api"]
 
 
 class Module(ModuleManager.BaseModule):
@@ -42,7 +43,11 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(
             "%s: '%s' was loaded at %s and has handled %d %s" %
-            (event["user"].nickname, module.name, loaded_at, event_calls, event_str)
+            (event["user"].nickname,
+             module.name,
+             loaded_at,
+             event_calls,
+             event_str)
         )
 
     @utils.hook("received.command.loadmodule")
@@ -76,6 +81,10 @@ class Module(ModuleManager.BaseModule):
     @utils.spec("!<name>wordlower")
     def reload(self, event):
         name = event["spec"][0]
+        if name in DO_NOT_RELOAD:
+            module_name = DO_NOT_RELOAD[DO_NOT_RELOAD.index(name)]
+            event["stderr"].write("Cannot reload %s due to compatibility issues. Please restart the bot." % module_name)
+            return
         self._catch(name, lambda: self.bot.modules.try_reload_module(self.bot, name))
         event["stdout"].write("Reloaded '%s'" % name)
 
@@ -83,7 +92,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Reload all modules")
     @utils.kwarg("permission", "reloadallmodules")
     def reload_all(self, event):
-        result = self.bot.try_reload_modules()
+        result = self.bot.try_reload_modules(DO_NOT_RELOAD)
         if result.success:
             event["stdout"].write(result.message)
         else:

@@ -31,7 +31,11 @@ class TriggerEvent(object):
 class ListLambdaPollHook(PollHook.PollHook):
 
     def __init__(
-        self, collection: typing.Callable[[], typing.Iterable[typing.Any]], func: typing.Callable[[typing.Any], None]
+        self,
+        collection: typing.Callable[[],
+                                    typing.Iterable[typing.Any]],
+        func: typing.Callable[[typing.Any],
+                              None]
     ):
         self._collection = collection
         self._func = func
@@ -80,11 +84,13 @@ class Bot(object):
 
         self._poll_timeouts = []  # typing.List[PollHook.PollHook]
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(), lambda server: server.until_read_timeout())
+            ListLambdaPollHook(lambda: self.servers.values(),
+                               lambda server: server.until_read_timeout())
         )
 
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(), lambda server: server.until_next_ping())
+            ListLambdaPollHook(lambda: self.servers.values(),
+                               lambda server: server.until_next_ping())
         )
 
         self._poll_timeouts.append(ListLambdaPollHook(lambda: self.servers.values(), self._throttle_timeout))
@@ -117,7 +123,10 @@ class Bot(object):
             self._write_condition.notify()
 
     def trigger(
-        self, func: typing.Optional[typing.Callable[[], typing.Any]] = None, trigger_threads=True
+        self,
+        func: typing.Optional[typing.Callable[[],
+                                              typing.Any]] = None,
+        trigger_threads=True
     ) -> typing.Any:
         func = func or (lambda: None)
 
@@ -156,7 +165,7 @@ class Bot(object):
         if any(sys.exc_info()):
             exc_info = True
 
-        log.critical(log,"panic() called: %s" % reason)
+        log.critical(log, "panic() called: %s" % reason)
         sys.exit(utils.consts.Exit.PANIC)
 
     def get_config(self, name: str) -> Config.Config:
@@ -176,21 +185,26 @@ class Bot(object):
         whitelist, blacklist = self._module_lists()
         return self.modules.load_modules(self, whitelist=whitelist, blacklist=blacklist)
 
-    def try_reload_modules(self) -> ModuleManager.TryReloadResult:
+    def try_reload_modules(self, no_reload) -> ModuleManager.TryReloadResult:
         whitelist, blacklist = self._module_lists()
-        return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist)
+        return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist, do_not_reload=no_reload)
 
     def add_server(
         self,
         server_id: int,
         connect: bool = True,
-        connection_param_args: typing.Dict[str, str] = {}
+        connection_param_args: typing.Dict[str,
+                                           str] = {}
     ) -> IRCServer.Server:
         connection_params = utils.irc.IRCConnectionParameters(*self.database.servers.get(server_id))
         connection_params.args = connection_param_args
 
         new_server = IRCServer.Server(
-            self, self._events, connection_params.id, connection_params.alias, connection_params
+            self,
+            self._events,
+            connection_params.id,
+            connection_params.alias,
+            connection_params
         )
         self._events.on("new.server").call(server=new_server)
 
@@ -246,7 +260,9 @@ class Bot(object):
             del self.reconnections[server_id]
 
     def reconnect(
-        self, server_id: int, connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
+        self,
+        server_id: int,
+        connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
     ) -> bool:
         args = {}  # type: typing.Dict[str, str]
         if not connection_params == None:
@@ -462,11 +478,14 @@ class Bot(object):
                     reconnect_delay = self.config.get("reconnect-delay", 10)
 
                     timer = self._timers.add(
-                        "timed-reconnect", self._timed_reconnect, reconnect_delay, server_id=server.id
+                        "timed-reconnect",
+                        self._timed_reconnect,
+                        reconnect_delay,
+                        server_id=server.id
                     )
                     self.reconnections[server.id] = timer
 
-                    log.warn(log,"Disconnected from %s, reconnecting in %d seconds" % (str(server), reconnect_delay))
+                    log.warn(log, "Disconnected from %s, reconnecting in %d seconds" % (str(server), reconnect_delay))
             elif (server.socket.waiting_throttled_send() and server.socket.throttle_done()):
                 server.socket._fill_throttle()
                 throttle_filled = True

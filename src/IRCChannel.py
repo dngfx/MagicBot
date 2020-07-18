@@ -46,6 +46,9 @@ class Channel(IRCObject.Object):
     def add_user(self, user: IRCUser.User):
         self.users.add(user)
 
+    def user_count(self):
+        return len(self.users)
+
     def remove_user(self, user: IRCUser.User):
         self.users.remove(user)
         for mode in list(self.modes.keys()):

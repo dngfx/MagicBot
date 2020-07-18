@@ -39,8 +39,8 @@ class Module(ModuleManager.BaseModule):
                                               utils.irc.bold(chosen_side))
         )
 
-    @utils.hook("received.command.uuid4", alias_of="uuid")
-    @utils.hook("received.command.uuid")
+    @utils.hook("received.command.uuid", alias_of="uuid4")
+    @utils.hook("received.command.uuid4")
     def uuid(self, event):
         """
         :help: Get a random uuid4

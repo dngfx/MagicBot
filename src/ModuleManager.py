@@ -130,8 +130,14 @@ class LoadedModule(object):
 class ModuleManager(object):
 
     def __init__(
-        self, events: EventManager.Events, exports: Exports.Exports, timers: Timers.Timers, config: Config.Config,
-        log: log, core_modules: str, extra_modules: typing.List[str]
+        self,
+        events: EventManager.Events,
+        exports: Exports.Exports,
+        timers: Timers.Timers,
+        config: Config.Config,
+        log: log,
+        core_modules: str,
+        extra_modules: typing.List[str]
     ):
         self.events = events
         self.exports = exports
@@ -153,10 +159,13 @@ class ModuleManager(object):
 
         return {definition.name: definition for definition in modules}
 
-    def list_modules(self, whitelist: typing.List[str],
-                     blacklist: typing.List[str]) -> typing.Dict[str, ModuleDefinition]:
+    def list_modules(self,
+                     whitelist: typing.List[str],
+                     blacklist: typing.List[str]) -> typing.Dict[str,
+                                                                 ModuleDefinition]:
         core_modules = self._list_modules(self._core_modules, True)
-        extra_modules: typing.Dict[str, ModuleDefinition] = {}
+        extra_modules: typing.Dict[str,
+                                   ModuleDefinition] = {}
 
         for directory in self._extra_modules:
             for name, module in self._list_modules(directory, False).items():
@@ -231,7 +240,10 @@ class ModuleManager(object):
                     raise ModuleNotLoadableWarning("required config not present")
 
     def _load_module(
-        self, bot: "IRCBot.Bot", definition: ModuleDefinition, check_dependency: bool = True
+        self,
+        bot: "IRCBot.Bot",
+        definition: ModuleDefinition,
+        check_dependency: bool = True
     ) -> LoadedModule:
         if definition.name in self.modules:
             raise ModuleNameCollisionException("Module name '%s' " "attempted to be used twice" % definition.name)
@@ -266,7 +278,12 @@ class ModuleManager(object):
         context_exports = self.exports.new_context(context)
         context_timers = self.timers.new_context(context)
         module_object = module_object_pointer(
-            definition, bot, context_events, context_exports, context_timers, self.log
+            definition,
+            bot,
+            context_events,
+            context_exports,
+            context_timers,
+            self.log
         )
         module_object.on_load()
 
@@ -292,7 +309,13 @@ class ModuleManager(object):
         branch, commit = utils.git_commit(bot.directory)
 
         return LoadedModule(
-            definition.name, module_title, module_object, context, import_name, definition.is_core, commit=commit
+            definition.name,
+            module_title,
+            module_object,
+            context,
+            import_name,
+            definition.is_core,
+            commit=commit
         )
 
     def load_module(self, bot: "IRCBot.Bot", definition: ModuleDefinition) -> LoadedModule:
@@ -355,7 +378,10 @@ class ModuleManager(object):
         return [definition_names[name] for name in definitions_ordered]
 
     def load_modules(
-        self, bot: "IRCBot.Bot", whitelist: typing.List[str] = [], blacklist: typing.List[str] = []
+        self,
+        bot: "IRCBot.Bot",
+        whitelist: typing.List[str] = [],
+        blacklist: typing.List[str] = []
     ) -> None:
         loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
 
@@ -405,12 +431,16 @@ class ModuleManager(object):
 
         log.debug(
             log,
-            "Module '%s' unloaded (%d reference%s)" % (loaded_module.name, references, "" if references == 1 else "s")
+            "Module '%s' unloaded (%d reference%s)" % (loaded_module.name,
+                                                       references,
+                                                       "" if references == 1 else "s")
         )
         if references > 0:
             log.debug(
-                log, "References left for '%s': %s" %
-                (loaded_module.name, ", ".join([str(referrer) for referrer in referrers]))
+                log,
+                "References left for '%s': %s" %
+                (loaded_module.name,
+                 ", ".join([str(referrer) for referrer in referrers]))
             )
 
     def try_reload_module(self, bot: "IRCBot.Bot", name: str):
@@ -453,7 +483,9 @@ class ModuleManager(object):
 
             definition, exception = failed
             return TryReloadResult(
-                False, "Failed to load %s (%s), rolling back reload" % (definition.name, str(exception))
+                False,
+                "Failed to load %s (%s), rolling back reload" % (definition.name,
+                                                                 str(exception))
             )
         else:
             for module in old_modules.values():
