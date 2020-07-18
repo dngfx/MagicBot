@@ -5,6 +5,13 @@ Python3 module driven IRC bot, with many custom modules.
 Please see https://git.io/bitbot
 This is a fork / slowly becoming a rewrite of the fantastic [BitBot](https://git.io/bitbot) by [Jesopo](https://github.com/jesopo)
 
+# VERY IMPORTANT NOTE!
+When starting the bot, make sure to use this command:
+
+`LOGURU_AUTOINIT=no ./bitbotd`
+
+You do _not_ want LOGURU_AUTOINIT enabled.
+
 ## Setup
 Setup is the same as BitBot, see below
 
