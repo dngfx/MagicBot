@@ -1,4 +1,4 @@
-import pydle, sys
+import sys
 from src import Database, utils
 from loguru import logger
 from logging import StreamHandler
