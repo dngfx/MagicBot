@@ -1,5 +1,6 @@
 from src import ModuleManager, utils
 from . import colors
+from src.Logging import Logger as log
 
 COMMIT_URL = "https://github.com/%s/commit/%s"
 COMMIT_RANGE_URL = "https://github.com/%s/compare/%s...%s"
@@ -148,7 +149,9 @@ class GitHub(object):
     def _short_url(self, url):
         log.debug(log, "git.io shortening: %s" % url)
         try:
-            page = utils.http.request("https://git.io", method="POST", post_data={"url": url})
+            page = utils.http.request("https://git.io",
+                                      method="POST",
+                                      post_data={"url": url})
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
             log.warn(log, "HTTPTimeoutException while waiting for github short URL")
@@ -211,12 +214,21 @@ class GitHub(object):
                 url = self._short_url(single_url % hash)
 
                 outputs.append(
-                    "%s %spushed %s to %s: %s - %s" % (author, forced_str, hash_colored, branch, message, url)
+                    "%s %spushed %s to %s: %s - %s" % (author,
+                                                       forced_str,
+                                                       hash_colored,
+                                                       branch,
+                                                       message,
+                                                       url)
                 )
         else:
             outputs.append(
                 "%s %spushed %d commits to %s - %s" %
-                (author, forced_str, len(commits), branch, self._short_url(range_url))
+                (author,
+                 forced_str,
+                 len(commits),
+                 branch,
+                 self._short_url(range_url))
             )
 
         return outputs
@@ -256,7 +268,10 @@ class GitHub(object):
         elif action == "closed":
             if data["pull_request"]["merged"]:
                 action_desc = "%s %s into %s" % (
-                    utils.irc.color("merged", colors.COLOR_POSITIVE), identifier, colored_branch
+                    utils.irc.color("merged",
+                                    colors.COLOR_POSITIVE),
+                    identifier,
+                    colored_branch
                 )
             else:
                 action_desc = "%s %s" % (utils.irc.color("closed", colors.COLOR_NEGATIVE), identifier)
@@ -436,7 +451,10 @@ class GitHub(object):
     def membership(self, organisation, data):
         return [
             "%s %s %s to team %s" %
-            (data["sender"]["login"], data["action"], data["member"]["login"], data["team"]["name"])
+            (data["sender"]["login"],
+             data["action"],
+             data["member"]["login"],
+             data["team"]["name"])
         ]
 
     def watch(self, data):

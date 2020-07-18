@@ -84,15 +84,23 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(response.get_data())
 
     def _key_settings(self, key):
-        return _bot.get_setting("api-key-%s" % key, {})
+        return _bot.get_setting("api-key-%s" % key,
+                                {})
 
     def _minify_setting(self):
         return _bot.get_setting("rest-api-minify", False)
 
     def _url_for(self, headers):
         return (
-            lambda route, endpoint, args=[], get_params={}: _module.
-            _url_for(route, endpoint, args, get_params, headers.get("Host", None))
+            lambda route,
+            endpoint,
+            args=[],
+            get_params={}: _module._url_for(route,
+                                            endpoint,
+                                            args,
+                                            get_params,
+                                            headers.get("Host",
+                                                        None))
         )
 
     def _handle(self, method, path, endpoint, args):
@@ -113,27 +121,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
             permissions = key_setting.get("permissions", [])
 
             if key_setting:
-                log.debug(log, "[HTTP] %s from API key %s (%s)" % (method, key, key_setting["comment"]))
+                log.debug(log, "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
 
-            if not authenticated or path in permissions or "*" in permissions:
-                if path.startswith("/api/"):
-                    event_response = None
-                    try:
-                        event_response = _events.on("api").on(method).on(endpoint).call_for_result_unsafe(
-                            params=params,
-                            args=args,
-                            data=data,
-                            headers=headers,
-                            response=response,
-                            url_for=self._url_for(headers)
-                        )
-                    except Exception as e:
-                        log.error(log, "failed to call API endpoint \"%s\"" % path)
-                        response.code = 500
+            if authenticated or path in permissions or "*" in permissions:
+                event_response = None
+                event_response = _events.on("api").on(method).on(endpoint).call_for_result_unsafe(
+                    params=params,
+                    args=args,
+                    data=data,
+                    headers=headers,
+                    response=response,
+                    url_for=self._url_for(headers)
+                )
+                """except Exception as e:
+                    log.error(log, "failed to call API endpoint \"%s\"" % (path))
+                    response.code = 500"""
 
-                    if not event_response == None:
-                        response.write_json(event_response)
-                        response.content_type = "application/json"
+            if event_response != None:
+                response.write_json(event_response)
+                response.content_type = "application/json"
             else:
                 response.code = 401
         return response
@@ -141,16 +147,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def _handle_wrap(self, method):
         path, endpoint, args = self._path_data()
         log.debug(
-            log, "[HTTP] starting _handle for %s from %s:%d: %s" %
-            (method, self.client_address[0], self.client_address[1], path)
+            log,
+            "[HTTP] starting _handle for %s from %s:%d: %s" %
+            (method,
+             self.client_address[0],
+             self.client_address[1],
+             path)
         )
 
         response = _bot.trigger(lambda: self._handle(method, path, endpoint, args))
         self._respond(response)
 
         log.debug(
-            log, "[HTTP] finishing _handle for %s from %s:%d (%d)" %
-            (method, self.client_address[0], self.client_address[1], response.code)
+            log,
+            "[HTTP] finishing _handle for %s from %s:%d (%d)" %
+            (method,
+             self.client_address[0],
+             self.client_address[1],
+             response.code)
         )
 
     def do_GET(self):
@@ -183,9 +197,6 @@ class Module(ModuleManager.BaseModule):
         global _events
         _events = self.events
 
-        global _log
-        _log = self.log
-
         self.httpd = None
         if self.bot.get_setting("rest-api", False):
             self._start_httpd()
@@ -198,11 +209,9 @@ class Module(ModuleManager.BaseModule):
         self.thread.daemon = True
         self.thread.start()
 
-    def _stop_httpd(self, event):
+    def _stop_httpd(self):
         if self.httpd:
             self.httpd.shutdown()
-            self.httpd.server_close()
-            self.thread.daemon = False
 
     def on_resume(self):
         self._start_httpd()
@@ -236,17 +245,20 @@ class Module(ModuleManager.BaseModule):
                 if not alias in aliases:
                     event["stderr"].write("API key '%s' not found" % alias)
                 event["stdout"].write(
-                    "API key %s ('%s') can access: %s" % (key, alias, " ".join(aliases[alias]["permissions"]))
+                    "API key %s ('%s') can access: %s" % (key,
+                                                          alias,
+                                                          " ".join(aliases[alias]["permissions"]))
                 )
             else:
                 event["stdout"].write("API keys: %s" % ", ".join(sorted(aliases.keys())))
         elif subcommand == "add":
             if found == None:
                 new_key = binascii.hexlify(os.urandom(16)).decode("ascii")
-                self.bot.set_setting("api-key-%s" % new_key, {
-                    "comment": alias,
-                    "permissions": event["spec"][2] or []
-                })
+                self.bot.set_setting("api-key-%s" % new_key,
+                                     {
+                                         "comment": alias,
+                                         "permissions": event["spec"][2] or []
+                                     })
                 event["stdout"].write("New API key '%s': %s" % (alias, new_key))
             else:
                 event["stderr"].write("API key alias '%s' already exists" % alias)
@@ -262,7 +274,12 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("Count not find API key '%s'" % alias)
 
     @utils.export("url-for")
-    def _url_for(self, route, endpoint, args=[], get_params={}, host_override=None):
+    def _url_for(self,
+                 route,
+                 endpoint,
+                 args=[],
+                 get_params={},
+                 host_override=None):
         host = host_override or self.bot.get_setting("rest-api-host", None)
 
         host, _, port = host.partition(":")
