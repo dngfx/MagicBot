@@ -4,6 +4,7 @@ import enum, re, shlex, string, traceback, typing
 from src import EventManager, IRCLine, ModuleManager, utils
 from . import outs
 from src.Logging import Logger as log
+import pprint
 
 COMMAND_METHOD = "command-method"
 COMMAND_METHODS = ["PRIVMSG", "NOTICE"]
@@ -167,7 +168,6 @@ class Module(ModuleManager.BaseModule):
 
     def command(self, server, target, target_str, is_channel, user, command, args_split, line, hook, **kwargs):
         module_name = (self._get_prefix(hook) or self.bot.modules.from_context(hook.context).title)
-
         stdout = outs.StdOut(module_name)
         stderr = outs.StdOut(module_name)
 
@@ -202,10 +202,10 @@ class Module(ModuleManager.BaseModule):
         eaten = False
 
         check_success, check_message = self._check("preprocess", event_kwargs)
+
         if check_success:
             event_kwargs.update(event_kwargs.pop("kwargs"))
             new_event = self.events.on(hook.event_name).make_event(**event_kwargs)
-            log.info(log, "calling command '%s': %s" % (command, new_event.kwargs))
 
             try:
                 hook.call(new_event)
@@ -392,6 +392,7 @@ class Module(ModuleManager.BaseModule):
                 hook, command, args_split = self._find_command_hook(
                     event["server"], event["user"], False, command, event["user"], args
                 )
+
             except BadContextException:
                 event["user"].send_message("That command is not valid in a PM")
                 return
