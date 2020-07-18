@@ -14,13 +14,15 @@ class Module(ModuleManager.BaseModule):
     _last_called = 0
 
     def _get_definition(self, word):
-        page = utils.http.request(URL_WORDNIK % word,
-                                  get_params={
-                                      "useCanonical": "true",
-                                      "limit": 1,
-                                      "sourceDictionaries": "wiktionary",
-                                      "api_key": self.bot.config["wordnik-api-key"]
-                                  })
+        page = utils.http.request(
+            URL_WORDNIK % word,
+            get_params={
+                "useCanonical": "true",
+                "limit": 1,
+                "sourceDictionaries": "wiktionary",
+                "api_key": self.bot.config["wordnik-api-key"]
+            }
+        )
 
         if page:
             if page.code == 200:
@@ -52,11 +54,13 @@ class Module(ModuleManager.BaseModule):
         if not self._last_called or (time.time() - self._last_called >= RANDOM_DELAY_SECONDS):
             self._last_called = time.time()
 
-            page = utils.http.request(URL_WORDNIK_RANDOM,
-                                      get_params={
-                                          "api_key": self.bot.config["wordnik-api-key"],
-                                          "min_dictionary_count": 1
-                                      }).json()
+            page = utils.http.request(
+                URL_WORDNIK_RANDOM,
+                get_params={
+                    "api_key": self.bot.config["wordnik-api-key"],
+                    "min_dictionary_count": 1
+                }
+            ).json()
             if page:
                 success, definition = self._get_definition(page["word"])
                 if not success:

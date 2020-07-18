@@ -34,10 +34,13 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.cointoss")
     def coin_toss(self, event):
         chosen_side = random.SystemRandom().choice(COIN_SIDES)
-        event["stdout"].write("%s tosses a coin and gets %s" % (utils.irc.bold(event["user"].nickname),
-                                                                utils.irc.bold(chosen_side)))
+        event["stdout"].write(
+            "%s tosses a coin and gets %s" % (utils.irc.bold(event["user"].nickname),
+                                              utils.irc.bold(chosen_side))
+        )
 
-    @utils.hook("received.command.uuid4")
+    @utils.hook("received.command.uuid4", alias_of="uuid")
+    @utils.hook("received.command.uuid")
     def uuid(self, event):
         """
         :help: Get a random uuid4

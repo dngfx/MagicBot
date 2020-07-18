@@ -17,23 +17,29 @@ class Module(ModuleManager.BaseModule):
         :help: Search for a given title on IMDb
         :usage: <movie/tv title>
         """
-        page = utils.http.request(URL_OMDB,
-                                  get_params={
-                                      "apikey": self.bot.config["omdbapi-api-key"],
-                                      "t": event["args"]
-                                  }).json()
+        page = utils.http.request(
+            URL_OMDB,
+            get_params={
+                "apikey": self.bot.config["omdbapi-api-key"],
+                "t": event["args"]
+            }
+        ).json()
         if page:
             if "Title" in page:
                 title = utils.irc.bold(page["Title"])
                 rating = "%s %s" % (utils.irc.bold("Rating:"), page["imdbRating"] + "/10.0")
 
-                event["stdout"].write("%s, %s (%s) — %s %s — %s — %s" % (title,
-                                                                         page["Year"],
-                                                                         utils.irc.bold(page["Runtime"]),
-                                                                         utils.irc.bold("Synopsis:"),
-                                                                         page["Plot"],
-                                                                         rating,
-                                                                         URL_IMDBTITLE % page["imdbID"]))
+                event["stdout"].write(
+                    "%s, %s (%s) — %s %s — %s — %s" % (
+                        title,
+                        page["Year"],
+                        utils.irc.bold(page["Runtime"]),
+                        utils.irc.bold("Synopsis:"),
+                        page["Plot"],
+                        rating,
+                        URL_IMDBTITLE % page["imdbID"]
+                    )
+                )
             else:
                 event["stderr"].write("Title not found")
         else:
