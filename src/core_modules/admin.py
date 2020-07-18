@@ -1,7 +1,7 @@
 #--depends-on commands
 #--depends-on permissions
 
-from src import IRCLine, ModuleManager, utils
+from src import IRCLine, ModuleManager, utils, IRCChannels
 
 
 class Module(ModuleManager.BaseModule):
@@ -12,6 +12,22 @@ class Module(ModuleManager.BaseModule):
     @utils.spec("!<nickname>word")
     def change_nickname(self, event):
         event["server"].send_nick(event["spec"][0])
+
+    @utils.hook("received.command.broadcast")
+    @utils.kwarg("help", "Send a message to every channel on the current server")
+    @utils.kwarg("permission", "administrator")
+    @utils.spec("!<message>string")
+    def broadcast_message(self, event):
+        broadcast_text = event["spec"][0]
+        server = event["server"]
+        message = "Broadcasting \"%s\" to all channels on %s" % (
+            utils.irc.bold(broadcast_text),
+            utils.irc.bold(server.alias)
+        )
+        event["stdout"].write(message)
+        for channel in server.get_channels():
+            chan = channel[0]
+            server.send_message(chan, broadcast_text)
 
     @utils.hook("received.command.raw")
     @utils.kwarg("help", "Send a line of raw IRC data")
@@ -139,15 +155,17 @@ class Module(ModuleManager.BaseModule):
         bindhost = hostmask.hostname or None
 
         try:
-            server_id = self.bot.database.servers.add(alias,
-                                                      hostname,
-                                                      port,
-                                                      "",
-                                                      tls,
-                                                      bindhost,
-                                                      nickname,
-                                                      username,
-                                                      realname)
+            server_id = self.bot.database.servers.add(
+                alias,
+                hostname,
+                port,
+                "",
+                tls,
+                bindhost,
+                nickname,
+                username,
+                realname
+            )
         except Exception as e:
             event["stderr"].write("Failed to add server")
             self.log.error("failed to add server \"%s\"", [alias], exc_info=True)

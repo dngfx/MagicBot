@@ -10,7 +10,11 @@ PING_INTERVAL_SECONDS = 30
 class Server(IRCObject.Object):
 
     def __init__(
-        self, bot: "IRCBot.Bot", events: EventManager.Events, id: int, alias: str,
+        self,
+        bot: "IRCBot.Bot",
+        events: EventManager.Events,
+        id: int,
+        alias: str,
         connection_params: utils.irc.IRCConnectionParameters
     ):
         self.bot = bot
@@ -57,7 +61,8 @@ class Server(IRCObject.Object):
         self.channel_types = ["#"]
         self.case_mapping = "rfc1459"
         self.statusmsg = []  # type: typing.List[str]
-        self.targmax: typing.Dict[str, int] = {}
+        self.targmax: typing.Dict[str,
+                                  int] = {}
 
         self.motd_lines = []  # type: typing.List[str]
         self.motd_done = False
@@ -80,15 +85,20 @@ class Server(IRCObject.Object):
     def connect(self):
         self.socket = IRCSocket.Socket(
             self.bot.log,
-            self.get_setting("encoding", "utf8"),
-            self.get_setting("fallback-encoding", "iso-8859-1"),
+            self.get_setting("encoding",
+                             "utf8"),
+            self.get_setting("fallback-encoding",
+                             "iso-8859-1"),
             self.connection_params.hostname,
             self.connection_params.port,
             self.connection_params.bindhost,
             self.connection_params.tls,
-            tls_verify=self.get_setting("ssl-verify", True),
-            cert=self.bot.config.get("tls-certificate", None),
-            key=self.bot.config.get("tls-key", None)
+            tls_verify=self.get_setting("ssl-verify",
+                                        True),
+            cert=self.bot.config.get("tls-certificate",
+                                     None),
+            key=self.bot.config.get("tls-key",
+                                    None)
         )
         self.events.on("preprocess.connect").call(server=self)
         self.socket.connect()
@@ -109,6 +119,9 @@ class Server(IRCObject.Object):
 
     def disconnect(self):
         self.socket.disconnect()
+
+    def get_channels(self):
+        return self.channels.items()
 
     def set_setting(self, setting: str, value: typing.Any):
         self.bot.database.server_settings.set(self.id, setting, value)
@@ -293,7 +306,9 @@ class Server(IRCObject.Object):
         line_events = self.events.new_root()
 
         self.events.on("preprocess.send").on(line_parsed.command
-                                             ).call_unsafe(server=self, line=line_parsed, events=line_events)
+                                             ).call_unsafe(server=self,
+                                                           line=line_parsed,
+                                                           events=line_events)
         self.events.on("preprocess.send").call_unsafe(server=self, line=line_parsed, events=line_events)
 
         if line_parsed.valid() or line_parsed.assured():
@@ -310,7 +325,10 @@ class Server(IRCObject.Object):
     def send_raw(self, line: str):
         return self.send(IRCLine.parse_line(line))
 
-    def _line(self, command: str, unfiltered_args: typing.Sequence[typing.Optional[str]], tags={}):
+    def _line(self,
+              command: str,
+              unfiltered_args: typing.Sequence[typing.Optional[str]],
+              tags={}):
         args: typing.List[str] = [a for a in unfiltered_args if not a is None]
         return IRCLine.ParsedLine(command, args, tags=tags)
 
@@ -391,10 +409,16 @@ class Server(IRCObject.Object):
     def send_quit(self, reason: str = "Leaving") -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("QUIT", [reason]))
 
-    def send_message(self, target: str, message: str, tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
+    def send_message(self,
+                     target: str,
+                     message: str,
+                     tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PRIVMSG", [target, message], tags=tags))
 
-    def send_notice(self, target: str, message: str, tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
+    def send_notice(self,
+                    target: str,
+                    message: str,
+                    tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("NOTICE", [target, message], tags=tags))
 
     def send_tagmsg(self, target: str, tags: dict):
