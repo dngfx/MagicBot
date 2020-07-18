@@ -18,7 +18,7 @@ log.set_logger(log)
 
 directory = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser("~")
-default_data = os.path.join(home, ".bitbot")
+default_data = os.path.join(home, ".magicbot")
 
 arg_parser = argparse.ArgumentParser(description="Python3 event-driven modular IRC bot")
 
@@ -58,7 +58,7 @@ if args.version:
 config = Config.Config("bot", args.config)
 config.load()
 
-DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.bitbot"))
+DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.magicbot"))
 LOG_DIR = config.get("log-directory", "{DATA}/logs/").format(DATA=DATA_DIR)
 DATABASE = config.get("database", "sqlite3:{DATA}/bot.db").format(DATA=DATA_DIR)
 LOCK_FILE = config.get("lock-file", "{DATA}/bot.lock").format(DATA=DATA_DIR)

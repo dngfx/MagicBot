@@ -33,7 +33,9 @@ class Module(ModuleManager.BaseModule):
     def handle_send(self, event):
         self.events.on("raw.send").on(
             event["line"].command
-        ).call_unsafe(server=event["server"], direction=utils.Direction.Send, line=event["line"])
+        ).call_unsafe(server=event["server"],
+                      direction=utils.Direction.Send,
+                      line=event["line"])
 
     # ping from the server
     @utils.hook("raw.received.ping")
@@ -53,7 +55,10 @@ class Module(ModuleManager.BaseModule):
 
         log.warn(log, "FAIL (%s %s) received on %s: %s" % (command, error_code, str(event["server"]), description))
         self.events.on("received.fail").on(command).call(
-            error_code=error_code, context=context, description=description, server=event["server"]
+            error_code=error_code,
+            context=context,
+            description=description,
+            server=event["server"]
         )
 
     # first numeric line the server sends
@@ -70,6 +75,11 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("raw.received.004")
     def handle_004(self, event):
         core.handle_004(event)
+
+    # RPL_WHOISREGNICK (On Bahamut, Unreal, Plexus)
+    @utils.hook("raw.received.307", default_event=True)
+    def handle_307(self, event):
+        user.handle_307(event)
 
     # whois respose (nickname, username, realname, hostname)
     @utils.hook("raw.received.311", default_event=True)

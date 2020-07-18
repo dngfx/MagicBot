@@ -7,9 +7,18 @@ import enum
 from src import ModuleManager, utils
 
 QUIET_METHODS = {
-    "qmode": ["q", "", "728", "729"],
-    "insp": ["b", "m:", "367", "368"],
-    "unreal": ["b", "~q:", "367", "368"]
+    "qmode": ["q",
+              "",
+              "728",
+              "729"],
+    "insp": ["b",
+             "m:",
+             "367",
+             "368"],
+    "unreal": ["b",
+               "~q:",
+               "367",
+               "368"]
 }
 ABAN_METHODS = {
     "chary": "$a:",
@@ -37,18 +46,24 @@ BAN_FORMATTING = "${n} = nick, ${u} = username, ${h} = hostname, ${a} = account"
 @utils.export(
     "channelset",
     utils.Setting(
-        "ban-format-account", "Set ban format for users with accounts (%s)" % BAN_FORMATTING, example="~a:${a}"
+        "ban-format-account",
+        "Set ban format for users with accounts (%s)" % BAN_FORMATTING,
+        example="~a:${a}"
     )
 )
 @utils.export("channelset", utils.BoolSetting("auto-voice", "Automatically voice users on join",))
 @utils.export(
     "serverset",
-    utils.OptionsSetting(list(QUIET_METHODS.keys()), "quiet-method", "Set this server's method of muting users")
+    utils.OptionsSetting(list(QUIET_METHODS.keys()),
+                         "quiet-method",
+                         "Set this server's method of muting users")
 )
 @utils.export(
     "serverset",
     utils.OptionsSetting(
-        list(ABAN_METHODS.keys()), "aban-method", "Set this server's method of banning users by account"
+        list(ABAN_METHODS.keys()),
+        "aban-method",
+        "Set this server's method of banning users by account"
     )
 )
 @utils.export("botset", KICK_REASON_SETTING)
@@ -76,7 +91,9 @@ class Module(ModuleManager.BaseModule):
     def _kick_reason(self, server, channel):
         return channel.get_setting(
             "default-kick-reason",
-            server.get_setting("default-kick-reason", self.bot.get_setting("default-kick-reson", KICK_REASON))
+            server.get_setting("default-kick-reason",
+                               self.bot.get_setting("default-kick-reson",
+                                                    KICK_REASON))
         )
 
     def _kick(self, server, channel, nicknames, reason):
@@ -341,7 +358,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.aban", require_access="high,ban", type="aban")
     @utils.hook("received.command.quiet", require_access="high,quiet", type="quiet")
     @utils.hook("received.command.invex", require_access="high,invex", type="invex")
-    @utils.kwarg("require_mode", "o")
+    @utils.kwarg("permission", "chanop")
     @utils.spec("!r~channel ?duration !<mask>cmask|<nickname>user|<mask>word")
     def mask_mode(self, event):
         self._mask_mode(event["server"], event["user"], event["spec"], event["hook"].get_kwarg("type"))
@@ -367,16 +384,14 @@ class Module(ModuleManager.BaseModule):
         self._kick(server, channel, [u.nickname for u in users], reason)
 
     @utils.hook("received.command.kick")
-    @utils.kwarg("require_access", "high,kick")
-    @utils.kwarg("require_mode", "o")
+    @utils.kwarg("permission", "chanop")
     @utils.spec("!r~channel !<mask>cmask|<nickname>cuser ?<reason>string")
     def kick(self, event):
         self._mask_kick(event["server"], event["spec"][0], event["spec"][1], event["spec"][2])
 
     @utils.hook("received.command.kickban", type="ban")
     @utils.hook("received.command.akickban", type="aban")
-    @utils.kwarg("require_access", "high,kickban")
-    @utils.kwarg("require_mode", "o")
+    @utils.kwarg("permission", "chanop")
     @utils.spec("!r~channel ?duration !<mask>cmask|<nickname>cuser ?<reason>string")
     def kickban(self, event):
         self._mask_mode(event["server"], event["user"], event["spec"], event["hook"].get_kwarg("type"))

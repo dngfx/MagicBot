@@ -19,6 +19,8 @@ class User(IRCObject.Object):
         self.bot = bot
         self.channels: typing.Set[IRCChannel.Channel] = set([])
 
+        self.whois_sent = False
+
         self.account = None
 
         self.away = False

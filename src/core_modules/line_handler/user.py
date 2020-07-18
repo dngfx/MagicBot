@@ -1,5 +1,36 @@
 from src import utils
+from src.core_modules import permissions
+from modules import channel_op
+import re
+import pprint
+PLEXUS_REGEX = re.compile("plexus\-\d")
 
+
+def handle_307(event):
+    version = event["server"].version
+    is_plexus = PLEXUS_REGEX.search(version) is not None
+    if not is_plexus:
+        return
+
+    line = event["line"]
+
+    ournick = line.args[0]
+    nickname = line.args[1]
+    idstring = line.args[2]
+
+    if event["server"].is_own_nickname(nickname) or nickname == "df":
+        return
+
+    idsplit = idstring.split("has identified for ")[1]
+    identified_for = nickname if idsplit == "this nick" else idsplit
+    user = event["server"].get_target(nickname)
+
+    _identified_304(event["server"], user, user.nickname, event)
+
+
+def _identified_304(server, user, account, event):
+    user._id_override = server.get_user_id(account)
+    user._account_override = account
 
 def handle_311(event):
     nickname = event["line"].args[1]
@@ -44,10 +75,11 @@ def nick(events, event):
     event["server"].change_user_nickname(old_nickname, new_nickname)
 
     if not event["server"].is_own_nickname(event["line"].source.nickname):
-        events.on("received.nick").call(new_nickname=new_nickname,
-                                        old_nickname=old_nickname,
-                                        user=user,
-                                        server=event["server"])
+        events.on("received.nick"
+                  ).call(new_nickname=new_nickname,
+                         old_nickname=old_nickname,
+                         user=user,
+                         server=event["server"])
     else:
         event["server"].set_own_nickname(new_nickname)
         events.on("self.nick").call(server=event["server"], new_nickname=new_nickname, old_nickname=old_nickname)
@@ -82,10 +114,11 @@ def chghost(events, event):
     target.username = username
     target.hostname = hostname
 
-    events.on("received.chghost").call(user=target,
-                                       server=event["server"],
-                                       old_username=old_username,
-                                       old_hostname=old_hostname)
+    events.on("received.chghost"
+              ).call(user=target,
+                     server=event["server"],
+                     old_username=old_username,
+                     old_hostname=old_hostname)
 
 
 def setname(event):

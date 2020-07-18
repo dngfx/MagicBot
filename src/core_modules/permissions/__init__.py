@@ -47,7 +47,7 @@ class Module(ModuleManager.BaseModule):
 
     def _has_identified(self, server, user, account):
         user._id_override = server.get_user_id(account)
-        self.events.on("internal.identified").call(server=server, user=user, accunt=account)
+        self.events.on("internal.identified").call(server=server, user=user, account=account)
 
     @utils.export("is-identified")
     def _is_identified(self, user):
@@ -83,6 +83,14 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("new.user")
     def new_user(self, event):
+        if event["server"].is_own_nickname(event["user"].nickname):
+            return
+
+        sent = event["user"].whois_sent
+        if sent == False and event["user"].nickname != "py-ctcp":
+            event["server"].send_whois(event["user"].nickname)
+            event["user"].whois_sent = True
+
         event["user"]._hostmask_account = None
         event["user"]._account_override = None
         event["user"]._master_admin = False
@@ -226,8 +234,10 @@ class Module(ModuleManager.BaseModule):
         target_user = event["spec"][1]
 
         if subcommand == "list":
-            event["stdout"].write("Permissions for %s: %s" % (target_user.nickname,
-                                                              ", ".join(self._get_permissions(target_user))))
+            event["stdout"].write(
+                "Permissions for %s: %s" % (target_user.nickname,
+                                            ", ".join(self._get_permissions(target_user)))
+            )
         elif subcommand == "clear":
             if not self._get_permissions(target_user):
                 raise utils.EventError("%s has no permissions" % target_user.nickname)

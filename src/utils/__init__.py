@@ -3,14 +3,16 @@ import threading, typing
 from . import cli, consts, datetime, decorators, io, irc, http, parse, security
 
 from .decorators import export, hook, kwarg, spec
-from .settings import (BoolSetting,
-                       FunctionSetting,
-                       IntRangeSetting,
-                       IntSetting,
-                       OptionsSetting,
-                       sensitive_format,
-                       SensitiveSetting,
-                       Setting)
+from .settings import (
+    BoolSetting,
+    FunctionSetting,
+    IntRangeSetting,
+    IntSetting,
+    OptionsSetting,
+    sensitive_format,
+    SensitiveSetting,
+    Setting
+)
 from .errors import (EventError, EventNotEnoughArgsError, EventResultsError, EventUsageError)
 
 
@@ -54,10 +56,12 @@ class Check(object):
 TOP_10_CALLABLE = typing.Callable[[typing.Any], typing.Any]
 
 
-def top_10(items: typing.Dict[typing.Any,
-                              typing.Any],
-           convert_key: TOP_10_CALLABLE = lambda x: x,
-           value_format: TOP_10_CALLABLE = lambda x: x):
+def top_10(
+    items: typing.Dict[typing.Any,
+                       typing.Any],
+    convert_key: TOP_10_CALLABLE = lambda x: x,
+    value_format: TOP_10_CALLABLE = lambda x: x
+):
     top_10 = sorted(items.keys())
     top_10 = sorted(top_10, key=items.get, reverse=True)[:10]
 
@@ -127,9 +131,11 @@ def deadline(seconds: int = 10):
 DeadlineProcessReturnType = typing.TypeVar("DeadlineProcessReturnType")
 
 
-def deadline_process(func: typing.Callable[[],
-                                           DeadlineProcessReturnType],
-                     seconds: int = 10) -> DeadlineProcessReturnType:
+def deadline_process(
+    func: typing.Callable[[],
+                          DeadlineProcessReturnType],
+    seconds: int = 10
+) -> DeadlineProcessReturnType:
     q: multiprocessing.Queue[typing.Tuple[bool, DeadlineProcessReturnType]] = multiprocessing.Queue()
 
     def _wrap(func, q):

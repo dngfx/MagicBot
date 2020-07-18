@@ -18,6 +18,8 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("permission", "administrator")
     @utils.spec("!<message>string")
     def broadcast_message(self, event):
+        print(event["server"].version)
+        return True
         broadcast_text = event["spec"][0]
         server = event["server"]
         message = "Broadcasting \"%s\" to all channels on %s" % (
