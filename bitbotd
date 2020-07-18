@@ -25,7 +25,11 @@ arg_parser = argparse.ArgumentParser(description="Python3 event-driven modular I
 arg_parser.add_argument("--version", "-v", action="store_true")
 
 arg_parser.add_argument(
-    "--config", "-c", help="Location of config file", default=os.path.join(default_data, "bot.conf")
+    "--config",
+    "-c",
+    help="Location of config file",
+    default=os.path.join(default_data,
+                         "bot.conf")
 )
 
 arg_parser.add_argument("--add-server", "-a", help="Add a new server", action="store_true")
@@ -37,7 +41,10 @@ arg_parser.add_argument("--no-logging", "-N", action="store_true")
 arg_parser.add_argument("--external", "-e", help="External modules directory")
 
 arg_parser.add_argument(
-    "--startup-disconnects", "-D", help="Tolerate failed connections on startup", action="store_true"
+    "--startup-disconnects",
+    "-D",
+    help="Tolerate failed connections on startup",
+    action="store_true"
 )
 
 arg_parser.add_argument("--remove-server", "-R", help="Remove a server by it's alias")
@@ -45,7 +52,7 @@ arg_parser.add_argument("--remove-server", "-R", help="Remove a server by it's a
 args = arg_parser.parse_args()
 
 if args.version:
-    print("BitBot %s" % IRCBot.VERSION)
+    print("MagicBot %s (Running on bitbot " % IRCBot.VERSION)
     sys.exit(0)
 
 config = Config.Config("bot", args.config)
@@ -68,7 +75,12 @@ log_level_files = config.get("log-levels", "TRACE,INFO,WARN").split(",")
 
 #log = log.info(not args.no_logging, log_level, LOG_DIR, log_level_files)
 
-startup_info = ("Starting BitBot %s (Python v%s, db %s)" % (IRCBot.VERSION, platform.python_version(), DATABASE))
+startup_info = (
+    "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %s)" %
+    (IRCBot.VERSION,
+     platform.python_version(),
+     DATABASE)
+)
 
 log.info(log, startup_info)
 
@@ -97,8 +109,15 @@ def _add_server():
     details = utils.cli.add_server()
 
     database.servers.add(
-        details.alias, details.hostname, details.port, details.password, details.tls, details.bindhost,
-        details.nickname, details.username, details.realname
+        details.alias,
+        details.hostname,
+        details.port,
+        details.password,
+        details.tls,
+        details.bindhost,
+        details.nickname,
+        details.username,
+        details.realname
     )
 
 

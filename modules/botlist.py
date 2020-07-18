@@ -1,7 +1,7 @@
 from src import ModuleManager, utils
 
 COMMANDS = ["!botlist", "!rollcall"]
-MESSAGE = "Hi! I'm BitBot (https://git.io/bitbot) "
+MESSAGE = "Hi! I'm MagicBot (https://git.io/magicirc) "
 
 
 @utils.export("botset", utils.BoolSetting("botlist", "Whether or not I should respond to !botlist commands"))

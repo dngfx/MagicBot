@@ -30,7 +30,7 @@ def url_sanitise(url: str):
     return url
 
 
-USERAGENT = "Mozilla/5.0 (compatible; BitBot/%s; +%s)" % (IRCBot.VERSION, IRCBot.URL)
+USERAGENT = "Mozilla/5.0 (compatible; MagicBot/%s; +%s)" % (IRCBot.VERSION, IRCBot.URL)
 
 RESPONSE_MAX = (1024*1024) * 100
 SOUP_CONTENT_TYPES = ["text/html", "text/xml", "application/xml"]
@@ -124,14 +124,16 @@ class Request(object):
 
 class Response(object):
 
-    def __init__(self,
-                 code: int,
-                 data: bytes,
-                 encoding: str,
-                 headers: typing.Dict[str,
-                                      str],
-                 cookies: typing.Dict[str,
-                                      str]):
+    def __init__(
+        self,
+        code: int,
+        data: bytes,
+        encoding: str,
+        headers: typing.Dict[str,
+                             str],
+        cookies: typing.Dict[str,
+                             str]
+    ):
         self.code = code
         self.data = data
         self.content_type = headers.get("Content-Type", "").split(";", 1)[0]
@@ -194,24 +196,28 @@ def _request(request_obj: Request) -> Response:
 
     def _wrap() -> Response:
         headers = request_obj.get_headers()
-        response = requests.request(request_obj.method,
-                                    request_obj.url,
-                                    headers=headers,
-                                    params=request_obj.get_params,
-                                    data=request_obj.get_body(),
-                                    allow_redirects=request_obj.allow_redirects,
-                                    stream=True,
-                                    cookies=request_obj.cookies)
+        response = requests.request(
+            request_obj.method,
+            request_obj.url,
+            headers=headers,
+            params=request_obj.get_params,
+            data=request_obj.get_body(),
+            allow_redirects=request_obj.allow_redirects,
+            stream=True,
+            cookies=request_obj.cookies
+        )
         response_content = response.raw.read(RESPONSE_MAX, decode_content=True)
         if not response.raw.read(1) == b"":
             raise ValueError("Response too large")
 
         headers = utils.CaseInsensitiveDict(dict(response.headers))
-        our_response = Response(response.status_code,
-                                response_content,
-                                encoding=response.encoding,
-                                headers=headers,
-                                cookies=response.cookies.get_dict())
+        our_response = Response(
+            response.status_code,
+            response_content,
+            encoding=response.encoding,
+            headers=headers,
+            cookies=response.cookies.get_dict()
+        )
         return our_response
 
     try:

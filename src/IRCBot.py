@@ -1,8 +1,8 @@
 VERSION: str = ""
 with open("VERSION", "r") as version_file:
     VERSION = "v%s" % version_file.read().strip()
-SOURCE: str = "https://git.io/dongbot"
-URL: str = "https://git.io/dongbot"
+SOURCE: str = "https://git.io/magicirc"
+URL: str = "https://git.io/magicirc"
 
 import enum, queue, os, queue, select, socket, sys, threading, time, traceback
 import typing, uuid

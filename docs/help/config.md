@@ -1,4 +1,4 @@
-## Setting up BitBot
+## Setting up MagicBot
 
 * Move `docs/bot.conf.example` to `~/.bitbot/bot.conf` and fill in the config options you care about. Ones blank or removed will disable relevant functionality.
 * Run `./bitbotd -a` to add a server.
@@ -18,7 +18,7 @@ Generate a TLS keypair and point `bot.conf`'s `tls-key` to the private key and `
 
 Configure the bot to use SASL to authenticate (usually used for `NickServ` identification)
 
-`EXTERNAL` usually mean client TLS certificate authentication; `USERPASS` is a BitBot-specific term that selects the strongest user/password algorithm.
+`EXTERNAL` usually mean client TLS certificate authentication; `USERPASS` is a MagicBot-specific term that selects the strongest user/password algorithm.
 
 > /msg &lt;bot> config server sasl userpass &lt;username>:&lt;password>
 
