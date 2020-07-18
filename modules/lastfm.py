@@ -37,14 +37,16 @@ class Module(ModuleManager.BaseModule):
             lastfm_username = user.get_setting("lastfm", user.nickname)
             shown_username = user.nickname
 
-        page = utils.http.request(URL_SCROBBLER,
-                                  get_params={
-                                      "method": "user.getrecenttracks",
-                                      "user": lastfm_username,
-                                      "api_key": self.bot.config["lastfm-api-key"],
-                                      "format": "json",
-                                      "limit": "1"
-                                  }).json()
+        page = utils.http.request(
+            URL_SCROBBLER,
+            get_params={
+                "method": "user.getrecenttracks",
+                "user": lastfm_username,
+                "api_key": self.bot.config["lastfm-api-key"],
+                "format": "json",
+                "limit": "1"
+            }
+        ).json()
         if page:
             if "recenttracks" in page and len(page["recenttracks"]["track"]):
                 now_playing = page["recenttracks"]["track"]
@@ -68,16 +70,18 @@ class Module(ModuleManager.BaseModule):
                 if yt_url:
                     yt_url_str = " - %s" % yt_url
 
-                info_page = utils.http.request(URL_SCROBBLER,
-                                               get_params={
-                                                   "method": "track.getInfo",
-                                                   "artist": artist,
-                                                   "track": track_name,
-                                                   "autocorrect": "1",
-                                                   "api_key": self.bot.config["lastfm-api-key"],
-                                                   "user": lastfm_username,
-                                                   "format": "json"
-                                               }).json()
+                info_page = utils.http.request(
+                    URL_SCROBBLER,
+                    get_params={
+                        "method": "track.getInfo",
+                        "artist": artist,
+                        "track": track_name,
+                        "autocorrect": "1",
+                        "api_key": self.bot.config["lastfm-api-key"],
+                        "user": lastfm_username,
+                        "format": "json"
+                    }
+                ).json()
 
                 track = info_page.get("track",
                                       {})
@@ -95,12 +99,15 @@ class Module(ModuleManager.BaseModule):
 
                 track_name = utils.irc.bold("%s - %s" % (artist, track_name))
 
-                event["stdout"].write("%s %s: %s%s%s%s" % (utils.irc.bold(shown_username),
-                                                           time_language,
-                                                           track_name,
-                                                           play_count_str,
-                                                           tags_str,
-                                                           yt_url_str))
+                event["stdout"].write(
+                    "%s %s: %s%s%s%s" %
+                    (utils.irc.bold(shown_username),
+                     time_language,
+                     track_name,
+                     play_count_str,
+                     tags_str,
+                     yt_url_str)
+                )
             else:
                 event["stderr"].write("The user '%s' has never scrobbled before" % (shown_username))
         else:
