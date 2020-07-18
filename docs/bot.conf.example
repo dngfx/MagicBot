@@ -6,8 +6,8 @@
 # configuration related to where/how bitbot accesses files and databases.
 # commented out values are the default values. {DATA} is replaced with data-directory
 
-#data-directory           = ~/.bitbot
-#log-directory            = /var/log/bitbot/
+#data-directory           = ~/.magicbot
+#log-directory            = /var/log/magicbot/
 #lock-file                = {DATA}/bot.lock
 #sock-file                = {DATA}/bot.sock
 
@@ -23,7 +23,7 @@ tls-certificate          =
 # localhost port used for REST API
 api-port                 =
 
-# the default channel BitBot automatically joins
+# the default channel MagicBot automatically joins
 bot-channel              =
 
 # module blacklist and whitelist. comma-separated. leave both empty to load all
@@ -59,9 +59,6 @@ lastfm-api-key           =
 
 # https://trakt.docs.apiary.io/#
 trakt-api-key            =
-
-# https://developers.soundcloud.com/docs/api/guide
-soundcloud-api-key       =
 
 # https://developer.twitter.com/en/docs.html
 twitter-api-key          =
