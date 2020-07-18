@@ -1,4 +1,4 @@
-# dongbot
+# MagicBot
 Python3 module driven IRC bot, with many custom modules.
 
 # Heritage / Source
@@ -21,8 +21,8 @@ Setup is the same as BitBot, see below
 ### Config
 See [docs/help/config.md](docs/help/config.md).
 
-## dongbot's networks
-dongbot is currently only on [Rizon](https://www.rizon.net/)
+## MagicBot's networks
+MagicBot is currently only on [Rizon](https://www.rizon.net/)
 
 ## Contact/Support
 If you need support with setting up this bot it might be an idea to use [BitBot](https://git.io/bitbot) instead, as more support is offered. I will help if I can.
