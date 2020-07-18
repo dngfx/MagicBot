@@ -1,6 +1,7 @@
 import enum
 from src import EventManager, IRCLine, ModuleManager, utils
 from . import channel, core, ircv3, message, user
+from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
@@ -30,9 +31,9 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.send")
     def handle_send(self, event):
-        self.events.on("raw.send").on(event["line"].command).call_unsafe(server=event["server"],
-                                                                         direction=utils.Direction.Send,
-                                                                         line=event["line"])
+        self.events.on("raw.send").on(
+            event["line"].command
+        ).call_unsafe(server=event["server"], direction=utils.Direction.Send, line=event["line"])
 
     # ping from the server
     @utils.hook("raw.received.ping")
@@ -41,7 +42,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.received.error")
     def error(self, event):
-        self.log.error("ERROR received from %s: %s", [str(event["server"]), event["line"].args[0]])
+        log.error(log, "ERROR received from %s: %s" % (str(event["server"]), event["line"].args[0]))
 
     @utils.hook("raw.received.fail")
     def fail(self, event):
@@ -50,11 +51,10 @@ class Module(ModuleManager.BaseModule):
         context = event["line"].args[2:-1]
         description = event["line"].args[-1]
 
-        self.log.warn("FAIL (%s %s) received on %s: %s", [command, error_code, str(event["server"]), description])
-        self.events.on("received.fail").on(command).call(error_code=error_code,
-                                                         context=context,
-                                                         description=description,
-                                                         server=event["server"])
+        log.warn(log, "FAIL (%s %s) received on %s: %s" % (command, error_code, str(event["server"]), description))
+        self.events.on("received.fail").on(command).call(
+            error_code=error_code, context=context, description=description, server=event["server"]
+        )
 
     # first numeric line the server sends
     @utils.hook("raw.received.001", default_event=True)
@@ -123,7 +123,7 @@ class Module(ModuleManager.BaseModule):
     # unknown command sent by us, oops!
     @utils.hook("raw.received.421", default_event=True)
     def handle_421(self, event):
-        self.bot.log.warn("We sent an unknown command to %s: %s", [str(event["server"]), event["line"].args[1]])
+        log.warn(log, "We sent an unknown command to %s: %s" % (str(event["server"]), event["line"].args[1]))
 
     # a user has disconnected!
     @utils.hook("raw.received.quit")

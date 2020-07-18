@@ -1,19 +1,16 @@
 import time, typing, uuid
-from src import Database, EventManager, Logging, PollHook
+from src import Database, EventManager, PollHook
+from src.Logging import Logger as log
 
 T_CALLBACK = typing.Callable[["Timer"], None]
 
 
 class Timer(object):
 
-    def __init__(self,
-                 id: str,
-                 context: typing.Optional[str],
-                 name: str,
-                 delay: float,
-                 next_due: typing.Optional[float],
-                 kwargs: dict,
-                 callback: T_CALLBACK):
+    def __init__(
+        self, id: str, context: typing.Optional[str], name: str, delay: float, next_due: typing.Optional[float],
+        kwargs: dict, callback: T_CALLBACK
+    ):
         self.id = id
         self.context = context
         self.name = name
@@ -51,7 +48,7 @@ class Timer(object):
 
 class Timers(PollHook.PollHook):
 
-    def __init__(self, database: Database.Database, events: EventManager.Events, log: Logging.Log):
+    def __init__(self, database: Database.Database, events: EventManager.Events, log: log):
         self.database = database
         self.events = events
         self.log = log
@@ -67,13 +64,14 @@ class Timers(PollHook.PollHook):
             self._add(None, timer["name"], timer["delay"], timer["next-due"], id, False, timer["kwargs"])
 
     def _persist(self, timer: Timer):
-        self.database.bot_settings.set("timer-%s" % timer.id,
-                                       {
-                                           "name": timer.name,
-                                           "delay": timer.delay,
-                                           "next-due": timer.next_due,
-                                           "kwargs": timer.kwargs
-                                       })
+        self.database.bot_settings.set(
+            "timer-%s" % timer.id, {
+                "name": timer.name,
+                "delay": timer.delay,
+                "next-due": timer.next_due,
+                "kwargs": timer.kwargs
+            }
+        )
 
     def _remove(self, timer: Timer):
         if timer.context:
@@ -90,15 +88,17 @@ class Timers(PollHook.PollHook):
     def add_persistent(self, name: str, delay: float, next_due: float = None, **kwargs) -> Timer:
         return self._add(None, name, delay, next_due, None, True, kwargs)
 
-    def _add(self,
-             context: typing.Optional[str],
-             name: str,
-             delay: float,
-             next_due: typing.Optional[float],
-             id: typing.Optional[str],
-             persist: bool,
-             kwargs: dict,
-             callback: T_CALLBACK = None) -> Timer:
+    def _add(
+        self,
+        context: typing.Optional[str],
+        name: str,
+        delay: float,
+        next_due: typing.Optional[float],
+        id: typing.Optional[str],
+        persist: bool,
+        kwargs: dict,
+        callback: T_CALLBACK = None
+    ) -> Timer:
         id = id or str(uuid.uuid4())
 
         if not callback:

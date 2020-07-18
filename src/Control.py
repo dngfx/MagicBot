@@ -1,5 +1,6 @@
 import json, os, socket, typing
-from src import IRCBot, Logging, PollSource
+from src import IRCBot, PollSource
+from src.Logging import Logger as log
 
 
 class ControlClient(object):
@@ -44,12 +45,11 @@ class Control(PollSource.PollSource):
 
     def __init__(self, bot: IRCBot.Bot, filename: str):
         self._bot = bot
-        self._bot.log.hook(self._on_log)
+        #self._bot.log.hook(self._on_log)
 
         self._filename = filename
         self._socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self._clients: typing.Dict[int,
-                                   ControlClient] = {}
+        self._clients: typing.Dict[int, ControlClient] = {}
 
     def _on_log(self, levelno: int, line: str):
         for client in self._clients.values():
@@ -69,7 +69,7 @@ class Control(PollSource.PollSource):
         if fileno == self._socket.fileno():
             client_s, address = self._socket.accept()
             self._clients[client_s.fileno()] = ControlClient(client_s)
-            self._bot.log.debug("New control socket connected")
+            log.debug(log, "New control socket connected")
         elif fileno in self._clients:
             client = self._clients[fileno]
             lines = client.read_lines()
@@ -95,12 +95,12 @@ class Control(PollSource.PollSource):
 
         if command == "version":
             client.version = int(data)
-        elif command == "log":
-            client.log_level = Logging.LEVELS[data.lower()]
+        #elif command == "log":
+        #client.log_level = Logging.LEVELS[data.lower()]
         elif command == "rehash":
-            self._bot.log.info("Reloading config file")
+            log.info(log, "Reloading config file")
             self._bot.config.load()
-            self._bot.log.info("Reloaded config file")
+            log.info(log, "Reloaded config file")
             keepalive = False
         elif command == "reload":
             result = self._bot.try_reload_modules()
@@ -119,11 +119,9 @@ class Control(PollSource.PollSource):
         if not keepalive:
             client.disconnect()
 
-    def _send_action(self,
-                     client: ControlClient,
-                     action: str,
-                     data: typing.Optional[str],
-                     id: typing.Optional[str] = None):
+    def _send_action(
+        self, client: ControlClient, action: str, data: typing.Optional[str], id: typing.Optional[str] = None
+    ):
         try:
             client.write_line(json.dumps({
                 "action": action,

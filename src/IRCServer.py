@@ -1,6 +1,7 @@
 import collections, datetime, sys, textwrap, time, typing
 from src import EventManager, IRCBot, IRCChannel, IRCChannels, IRCLine
 from src import IRCObject, IRCSocket, IRCUser, utils
+from src.Logging import Logger as log
 
 READ_TIMEOUT_SECONDS = 120
 PING_INTERVAL_SECONDS = 30
@@ -241,7 +242,7 @@ class Server(IRCObject.Object):
 
     def _post_read(self, lines: typing.List[str]):
         for line in lines:
-            self.bot.log.debug("%s (raw recv) | %s", [str(self), line])
+            log.debug(log, "%s (raw recv) | %s" % (str(self), line.replace("<", "\<")))
             self.events.on("raw.received").call_unsafe(server=self, line=IRCLine.parse_line(line))
             self.check_users()
 
@@ -277,7 +278,7 @@ class Server(IRCObject.Object):
     def _send(self) -> typing.List[IRCLine.SentLine]:
         lines = self.socket._send()
         for line in lines:
-            self.bot.log.debug("%s (raw send) | %s", [str(self), line.parsed_line.format()])
+            log.debug(log, "%s (raw send) | %s" % (str(self), line.parsed_line.format()))
         return lines
 
     def _post_send(self, lines: typing.List[IRCLine.SentLine]):

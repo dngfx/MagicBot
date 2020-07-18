@@ -10,6 +10,7 @@ import json, re, threading
 from src import ModuleManager, utils
 from . import format
 import tweepy
+from src.Logging import Logger as log
 
 _bot = None
 _events = None
@@ -29,7 +30,7 @@ class BitBotStreamListener(tweepy.StreamListener):
         _bot.trigger(lambda: self._on_status(status))
 
     def _on_status(self, status):
-        _log.debug("Got tweet from stream: %s", [status])
+        log.debug(log, "Got tweet from stream: %s", status)
         given_username = status.user.screen_name.lower()
 
         follows = []

@@ -3,10 +3,12 @@
 
 import datetime
 from src import EventManager, ModuleManager, utils
+from src.Logging import Logger as log
 
 
 @utils.export("botset", utils.BoolSetting("print-motd", "Set whether I print /motd"))
 @utils.export("botset", utils.BoolSetting("pretty-activity", "Whether or not to pretty print activity"))
+# Used to migrate word stats from prior to v1.19.0
 @utils.export("channelset", utils.BoolSetting("print", "Whether or not to print activity a channel to logs"))
 class Module(ModuleManager.BaseModule):
 
@@ -18,8 +20,8 @@ class Module(ModuleManager.BaseModule):
         if event["pretty"] and self.bot.get_setting("pretty-activity", False):
             line = event["pretty"]
 
-        context = (":%s" % event["context"]) if event["context"] else ""
-        self.bot.log.info("%s%s | %s", [str(event["server"]), context, utils.irc.parse_format(line)])
+        context = ("%s" % event["context"]) if event["context"] else ""
+        log.info(log, "%s - [%s] %s" % (str(event["server"]), context, utils.irc.parse_format(line).replace("<", "\<")))
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")

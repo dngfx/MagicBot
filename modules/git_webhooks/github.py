@@ -11,56 +11,31 @@ PR_COMMIT_URL = "https://github.com/%s/pull/%s/commits/%s"
 DEFAULT_EVENT_CATEGORIES = ["ping", "code", "pr", "issue", "repo"]
 EVENT_CATEGORIES = {
     "ping": [
-        "ping" # new webhook received
+        "ping"  # new webhook received
     ],
-    "code": [
-        "push", "commit_comment"
-    ],
-    "pr-minimal": [
-        "pull_request/opened", "pull_request/closed", "pull_request/reopened"
-    ],
+    "code": ["push", "commit_comment"],
+    "pr-minimal": ["pull_request/opened", "pull_request/closed", "pull_request/reopened"],
     "pr": [
-        "pull_request/opened", "pull_request/closed", "pull_request/reopened",
-        "pull_request/edited", "pull_request/assigned",
-        "pull_request/unassigned", "pull_request_review",
-        "pull_request/locked", "pull_request/unlocked",
-        "pull_request_review_comment"
+        "pull_request/opened", "pull_request/closed", "pull_request/reopened", "pull_request/edited",
+        "pull_request/assigned", "pull_request/unassigned", "pull_request_review", "pull_request/locked",
+        "pull_request/unlocked", "pull_request_review_comment"
     ],
-    "pr-all": [
-        "pull_request", "pull_request_review", "pull_request_review_comment"
-    ],
-    "pr-review-minimal": [
-        "pull_request_review/submitted", "pull_request_review/dismissed"
-    ],
-    "pr-review-comment-minimal": [
-        "pull_request_review_comment/created",
-        "pull_request_review_comment/deleted"
-    ],
-    "issue-minimal": [
-        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
-        "issues/transferred"
-    ],
+    "pr-all": ["pull_request", "pull_request_review", "pull_request_review_comment"],
+    "pr-review-minimal": ["pull_request_review/submitted", "pull_request_review/dismissed"],
+    "pr-review-comment-minimal": ["pull_request_review_comment/created", "pull_request_review_comment/deleted"],
+    "issue-minimal": ["issues/opened", "issues/closed", "issues/reopened", "issues/deleted", "issues/transferred"],
     "issue": [
-        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
-        "issues/edited", "issues/assigned", "issues/unassigned",
-        "issues/locked", "issues/unlocked", "issues/transferred",
-        "issue_comment",
+        "issues/opened", "issues/closed", "issues/reopened", "issues/deleted", "issues/edited", "issues/assigned",
+        "issues/unassigned", "issues/locked", "issues/unlocked", "issues/transferred", "issue_comment",
     ],
-    "issue-all": [
-        "issues", "issue_comment"
-    ],
-    "issue-comment-minimal": [
-        "issue_comment/created", "issue_comment/deleted"
-    ],
+    "issue-all": ["issues", "issue_comment"],
+    "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
     "repo": [
-        "create", # a repository, branch or tag has been created
-        "delete", # same as above but deleted
-        "release",
-        "fork"
+        "create",  # a repository, branch or tag has been created
+        "delete",  # same as above but deleted
+        "release", "fork"
     ],
-    "team": [
-        "membership"
-    ],
+    "team": ["membership"],
     "star": [
         # "watch" is a misleading name for this event so this add "star" as an
         # alias for "watch"
@@ -171,14 +146,12 @@ class GitHub(object):
         return list(zip(out, [None] * len(out)))
 
     def _short_url(self, url):
-        self.log.debug("git.io shortening: %s" % url)
+        log.debug(log, "git.io shortening: %s" % url)
         try:
-            page = utils.http.request("https://git.io",
-                                      method="POST",
-                                      post_data={"url": url})
+            page = utils.http.request("https://git.io", method="POST", post_data={"url": url})
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
-            self.log.warn("HTTPTimeoutException while waiting for github short URL", [])
+            log.warn(log, "HTTPTimeoutException while waiting for github short URL")
             return url
 
     def _iso8601(self, s):
@@ -237,18 +210,14 @@ class GitHub(object):
                 message = commit["message"].split("\n")[0].strip()
                 url = self._short_url(single_url % hash)
 
-                outputs.append("%s %spushed %s to %s: %s - %s" % (author,
-                                                                  forced_str,
-                                                                  hash_colored,
-                                                                  branch,
-                                                                  message,
-                                                                  url))
+                outputs.append(
+                    "%s %spushed %s to %s: %s - %s" % (author, forced_str, hash_colored, branch, message, url)
+                )
         else:
-            outputs.append("%s %spushed %d commits to %s - %s" % (author,
-                                                                  forced_str,
-                                                                  len(commits),
-                                                                  branch,
-                                                                  self._short_url(range_url)))
+            outputs.append(
+                "%s %spushed %d commits to %s - %s" %
+                (author, forced_str, len(commits), branch, self._short_url(range_url))
+            )
 
         return outputs
 
@@ -286,10 +255,9 @@ class GitHub(object):
             action_desc = "requested %s merge into %s" % (number, colored_branch)
         elif action == "closed":
             if data["pull_request"]["merged"]:
-                action_desc = "%s %s into %s" % (utils.irc.color("merged",
-                                                                 colors.COLOR_POSITIVE),
-                                                 identifier,
-                                                 colored_branch)
+                action_desc = "%s %s into %s" % (
+                    utils.irc.color("merged", colors.COLOR_POSITIVE), identifier, colored_branch
+                )
             else:
                 action_desc = "%s %s" % (utils.irc.color("closed", colors.COLOR_NEGATIVE), identifier)
         elif action == "ready_for_review":
@@ -467,10 +435,8 @@ class GitHub(object):
 
     def membership(self, organisation, data):
         return [
-            "%s %s %s to team %s" % (data["sender"]["login"],
-                                     data["action"],
-                                     data["member"]["login"],
-                                     data["team"]["name"])
+            "%s %s %s to team %s" %
+            (data["sender"]["login"], data["action"], data["member"]["login"], data["team"]["name"])
         ]
 
     def watch(self, data):

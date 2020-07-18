@@ -8,16 +8,7 @@ class Module(ModuleManager.BaseModule):
         return utils.irc.hash_colorize(nickname)
 
     @utils.export("format")
-    def _event(self,
-               type,
-               server,
-               line,
-               context,
-               minimal=None,
-               channel=None,
-               user=None,
-               formatting={},
-               **kwargs):
+    def _event(self, type, server, line, context, minimal=None, channel=None, user=None, formatting={}, **kwargs):
         pretty = line
         minimal = minimal or line
 
@@ -32,14 +23,16 @@ class Module(ModuleManager.BaseModule):
                 formatting[key] = self._color(value)
         pretty = pretty.format(**formatting)
 
-        self.events.on("formatted").on(type).call(server=server,
-                                                  context=context,
-                                                  line=line,
-                                                  channel=channel,
-                                                  user=user,
-                                                  minimal=minimal,
-                                                  pretty=pretty,
-                                                  **kwargs)
+        self.events.on("formatted").on(type).call(
+            server=server,
+            context=context,
+            line=line,
+            channel=channel,
+            user=user,
+            minimal=minimal,
+            pretty=pretty,
+            **kwargs
+        )
 
     def _mode_symbols(self, user, channel, server):
         modes = list(channel.get_user_modes(user))
@@ -59,40 +52,50 @@ class Module(ModuleManager.BaseModule):
         else:
             format = "<{SYM}{~NICK}> {MSG}"
 
-        return {"MSG": event["message"], "SYM": symbols}, format
+        return {
+            "MSG": event["message"],
+            "SYM": symbols
+        }, format
 
     @utils.hook("send.message.channel")
     @utils.hook("received.message.channel")
     def channel_message(self, event):
         formatting, line = self._privmsg(event, event["channel"], event["user"])
-
-        self._event("message.channel",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=event["user"],
-                    parsed_line=event["line"],
-                    formatting=formatting)
+        
+        self._event(
+            "message.channel",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=event["user"],
+            parsed_line=event["line"],
+            formatting=formatting
+        )
 
     def _on_notice(self, event, user, channel):
         symbols = ""
         if channel:
             symbols = self._mode_symbols(user, channel, event["server"])
 
-        return {"MSG": event["message"], "SYM": symbols}, "-{SYM}{~NICK}- {MSG}"
+        return {
+            "MSG": event["message"],
+            "SYM": symbols
+        }, "-{SYM}{~NICK}- {MSG}"
 
     def _channel_notice(self, event, user, channel):
         formatting, line = self._on_notice(event, user, channel)
 
-        self._event("notice.channel",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    parsed_line=event["line"],
-                    channel=channel,
-                    user=event["user"],
-                    formatting=formatting)
+        self._event(
+            "notice.channel",
+            event["server"],
+            line,
+            event["channel"].name,
+            parsed_line=event["line"],
+            channel=channel,
+            user=event["user"],
+            formatting=formatting
+        )
 
     @utils.hook("received.notice.channel")
     @utils.hook("send.notice.channel")
@@ -103,13 +106,15 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("send.notice.private")
     def private_notice(self, event):
         formatting, line = self._on_notice(event, event["user"], None)
-        self._event("notice.private",
-                    event["server"],
-                    line,
-                    event["target"].nickname,
-                    parsed_line=event["line"],
-                    user=event["user"],
-                    formatting=formatting)
+        self._event(
+            "notice.private",
+            event["server"],
+            line,
+            event["target"].nickname,
+            parsed_line=event["line"],
+            user=event["user"],
+            formatting=formatting
+        )
 
     def _on_join(self, event, user):
         channel_name = event["channel"].name
@@ -131,14 +136,16 @@ class Module(ModuleManager.BaseModule):
             "REAL": event["realname"]
         }
 
-        self._event("join",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=user,
-                    minimal=minimal,
-                    formatting=formatting)
+        self._event(
+            "join",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=user,
+            minimal=minimal,
+            formatting=formatting
+        )
 
     @utils.hook("received.join")
     def join(self, event):
@@ -156,16 +163,18 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} changed host to {USER}@{HOST}"
         line = "- %s" % minimal
 
-        self._event("chghost",
-                    event["server"],
-                    line,
-                    None,
-                    user=event["user"],
-                    minimal=minimal,
-                    formatting={
-                        "USER": username,
-                        "HOST": hostname
-                    })
+        self._event(
+            "chghost",
+            event["server"],
+            line,
+            None,
+            user=event["user"],
+            minimal=minimal,
+            formatting={
+                "USER": username,
+                "HOST": hostname
+            }
+        )
 
     @utils.hook("received.account.login")
     def account_login(self, event):
@@ -179,13 +188,15 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} logged %s as {ACC}" % action
         line = "- %s" % minimal
 
-        self._event("account",
-                    event["server"],
-                    line,
-                    None,
-                    user=event["user"],
-                    minimal=minimal,
-                    formatting={"ACC": event["account"]})
+        self._event(
+            "account",
+            event["server"],
+            line,
+            None,
+            user=event["user"],
+            minimal=minimal,
+            formatting={"ACC": event["account"]}
+        )
 
     def _on_part(self, event, user):
         channel_name = event["channel"].name
@@ -195,17 +206,19 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} left {CHAN}{REAS}"
         line = "- %s" % minimal
 
-        self._event("part",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=user,
-                    minimal=minimal,
-                    formatting={
-                        "CHAN": channel_name,
-                        "REAS": reason
-                    })
+        self._event(
+            "part",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=user,
+            minimal=minimal,
+            formatting={
+                "CHAN": channel_name,
+                "REAS": reason
+            }
+        )
 
     @utils.hook("received.part")
     def part(self, event):
@@ -244,13 +257,15 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} invited {~TNICK} to {CHAN}"
         line = "- %s" % minimal
 
-        self._event("invite",
-                    event["server"],
-                    line,
-                    event["target_channel"],
-                    user=event["user"],
-                    minimal=minimal,
-                    formatting=formatting)
+        self._event(
+            "invite",
+            event["server"],
+            line,
+            event["target_channel"],
+            user=event["user"],
+            minimal=minimal,
+            formatting=formatting
+        )
 
     @utils.hook("received.mode.channel")
     def mode(self, event):
@@ -262,17 +277,19 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} set mode {MODE}{ARGS}"
         line = "- %s" % minimal
 
-        self._event("mode.channel",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=event["user"],
-                    minimal=minimal,
-                    formatting={
-                        "MODE": modes,
-                        "ARGS": args
-                    })
+        self._event(
+            "mode.channel",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=event["user"],
+            minimal=minimal,
+            formatting={
+                "MODE": modes,
+                "ARGS": args
+            }
+        )
 
     def _on_topic(self, event, nickname, action, topic):
         formatting = {
@@ -283,15 +300,16 @@ class Module(ModuleManager.BaseModule):
         minimal = "topic {ACT} by {~TNICK}: {TOP}"
         line = "- %s" % minimal
 
-        self._event("topic",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=event.get("user",
-                                   None),
-                    minimal=minimal,
-                    formatting=formatting)
+        self._event(
+            "topic",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=event.get("user", None),
+            minimal=minimal,
+            formatting=formatting
+        )
 
     @utils.hook("received.topic")
     def on_topic(self, event):
@@ -304,14 +322,11 @@ class Module(ModuleManager.BaseModule):
         dt = utils.datetime.format.datetime_human(utils.datetime.timestamp(event["set_at"]))
 
         minimal = "topic set at %s" % dt
-        line = "- %s" % minimal
+        line = "%s" % minimal
 
-        self._event("topic-timestamp",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    minimal=minimal)
+        self._event(
+            "topic-timestamp", event["server"], line, event["channel"].name, channel=event["channel"], minimal=minimal
+        )
 
     def _on_kick(self, event, kicked_nickname):
         reason = ""
@@ -327,14 +342,16 @@ class Module(ModuleManager.BaseModule):
         minimal = "{~NICK} kicked {~KNICK} from {CHAN}{REAS}"
         line = "- %s" % minimal
 
-        self._event("kick",
-                    event["server"],
-                    line,
-                    event["channel"].name,
-                    channel=event["channel"],
-                    user=event["user"],
-                    minimal=minimal,
-                    formatting=formatting)
+        self._event(
+            "kick",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            user=event["user"],
+            minimal=minimal,
+            formatting=formatting
+        )
 
     @utils.hook("received.kick")
     def kick(self, event):
@@ -348,15 +365,17 @@ class Module(ModuleManager.BaseModule):
         reason = "" if not reason else " (%s)" % reason
 
         minimal = "{~NICK} quit{REAS}"
-        line = "- %s" % minimal
+        line = "%s" % minimal
 
-        self._event("quit",
-                    event["server"],
-                    line,
-                    None,
-                    user=user,
-                    minimal=minimal,
-                    formatting={"REAS": reason})
+        self._event(
+            "quit",
+            event["server"],
+            line,
+            event["target"].name,
+            user=user,
+            minimal=minimal,
+            formatting={"REAS": reason}
+        )
 
     @utils.hook("received.quit")
     def on_quit(self, event):
@@ -369,22 +388,20 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.rename")
     def rename(self, event):
         line = "{OLD} was renamed to {NEW}"
-        self._event("rename",
-                    event["server"],
-                    line,
-                    event["old_name"],
-                    channel=event["channel"],
-                    formatting={
-                        "OLD": event["old_name"],
-                        "NEW": event["new_name"]
-                    })
+        self._event(
+            "rename",
+            event["server"],
+            line,
+            event["old_name"],
+            channel=event["channel"],
+            formatting={
+                "OLD": event["old_name"],
+                "NEW": event["new_name"]
+            }
+        )
 
     @utils.hook("received.376")
     def motd_end(self, event):
         for motd_line in event["server"].motd_lines:
             line = "[MOTD] {LINE}"
-            self._event("motd",
-                        event["server"],
-                        line,
-                        None,
-                        formatting={"LINE": motd_line})
+            self._event("motd", event["server"], line, None, formatting={"LINE": motd_line})

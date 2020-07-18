@@ -79,9 +79,8 @@ def message(events, event):
                 else:
                     ctcp_action = "response"
                 events.on(direction).on("ctcp").on(ctcp_action).call(message=ctcp_message.message, **kwargs)
-                events.on(direction).on("ctcp").on(ctcp_action).on(ctcp_message.command).call(
-                    message=ctcp_message.message,
-                    **kwargs)
+                events.on(direction).on("ctcp").on(ctcp_action).on(ctcp_message.command
+                                                                   ).call(message=ctcp_message.message, **kwargs)
                 return
             else:
                 message = ctcp_message.message
@@ -101,12 +100,9 @@ def message(events, event):
 
     buffer_line = None
     if message:
-        buffer_line = IRCBuffer.BufferLine(user.nickname,
-                                           message,
-                                           action,
-                                           event["line"].tags,
-                                           from_self,
-                                           event["line"].command)
+        buffer_line = IRCBuffer.BufferLine(
+            user.nickname, message, action, event["line"].tags, from_self, event["line"].command
+        )
 
     buffer_obj = target_obj
     if is_channel:

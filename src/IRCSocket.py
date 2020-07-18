@@ -1,5 +1,6 @@
 import datetime, socket, ssl, time, threading, typing
-from src import IRCLine, Logging, IRCObject, utils
+from src import IRCLine, IRCObject, utils
+from src.Logging import Logger as log
 
 THROTTLE_LINES = 4
 THROTTLE_SECONDS = 1
@@ -8,17 +9,19 @@ UNTHROTTLED_MAX_LINES = 10
 
 class Socket(IRCObject.Object):
 
-    def __init__(self,
-                 log: Logging.Log,
-                 encoding: str,
-                 fallback_encoding: str,
-                 hostname: str,
-                 port: int,
-                 bindhost: str,
-                 tls: bool,
-                 tls_verify: bool = True,
-                 cert: str = None,
-                 key: str = None):
+    def __init__(
+        self,
+        log: log,
+        encoding: str,
+        fallback_encoding: str,
+        hostname: str,
+        port: int,
+        bindhost: str,
+        tls: bool,
+        tls_verify: bool = True,
+        cert: str = None,
+        key: str = None
+    ):
         self.log = log
 
         self._encoding = encoding
@@ -64,11 +67,9 @@ class Socket(IRCObject.Object):
         if not utils.is_ip(self._hostname):
             server_hostname = self._hostname
 
-        self._socket = utils.security.ssl_wrap(self._socket,
-                                               cert=self._cert,
-                                               key=self._key,
-                                               verify=self._tls_verify,
-                                               hostname=server_hostname)
+        self._socket = utils.security.ssl_wrap(
+            self._socket, cert=self._cert, key=self._key, verify=self._tls_verify, hostname=server_hostname
+        )
 
     def _make_socket(self, hostname, port, bindhost, timeout):
         return socket.create_connection((hostname, port), timeout, bindhost)
@@ -116,7 +117,7 @@ class Socket(IRCObject.Object):
         data_lines = [line.strip(b"\r") for line in data.split(b"\n")]
         if data_lines[-1]:
             self._read_buffer = data_lines[-1]
-            self.log.trace("recevied and buffered non-complete line: %s", [data_lines[-1]])
+            log.trace(log, "recevied and buffered non-complete line: %s" % data_lines[-1])
 
         data_lines.pop(-1)
         decoded_lines = []
@@ -125,7 +126,7 @@ class Socket(IRCObject.Object):
             try:
                 decoded_line = line.decode(self._encoding)
             except UnicodeDecodeError:
-                self.log.trace("can't decode line with '%s', falling back: %s", [self._encoding, line])
+                log.trace(log, "can't decode line with '%s', falling back: %s" % (self._encoding, line))
                 try:
                     decoded_line = line.decode(self._fallback_encoding)
                 except UnicodeDecodeError:

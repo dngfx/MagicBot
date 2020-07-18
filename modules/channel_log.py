@@ -3,6 +3,7 @@
 
 import datetime, os.path
 from src import ModuleManager, utils
+from src.Logging import Logger as log
 
 SETTING = utils.BoolSetting("channel-log", "Enable/disable channel logging")
 
@@ -25,8 +26,12 @@ class Module(ModuleManager.BaseModule):
         return self.data_directory("%s/%s.log" % (server_name, sanitised_name))
 
     def _write_line(self, channel, line):
-        channel._log_file.write("%s\n" % line)
-        channel._log_file.flush()
+        #channel._log_file.write("%s\n" % line)
+        #channel._log_file.flush()
+        #log.debug(log, "%s\n" % line)
+        #print("WRITE_LINE")
+        #log.info(log, "[%s] %s" % (channel, line))
+        return True
 
     def _write(self, channel, filename, key, line):
         if not hasattr(channel, "_log_file"):
@@ -68,8 +73,13 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("formatted.chghost")
     @utils.hook("formatted.account")
     def on_formatted(self, event):
+        #print(event["channel"], event["user"], event["line"], event["server"])
         if event["channel"]:
             self._log(event["server"], event["channel"], event["line"])
+            """log.info(
+                log, "%s - [%s] %s" % (event["server"].name, event["channel"].name, event["line"].replace("<", "\<"))
+            )"""
         elif event["user"]:
             for channel in event["user"].channels:
                 self._log(event["server"], channel, event["line"])
+            # log.info(log, "%s - [%s] - %s" % (event["server"].name, channel.name, event["line"].replace("<", "\<")))

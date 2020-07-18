@@ -3,6 +3,7 @@
 import base64, hashlib, hmac, typing, uuid
 from src import ModuleManager, utils
 from . import scram
+from src.Logging import Logger as log
 
 CAP = utils.irc.Capability("sasl")
 
@@ -29,12 +30,16 @@ SASL_TIMEOUT = 15  # 15 seconds
 HARDFAIL = utils.BoolSetting("sasl-hard-fail", "Set whether a SASL failure should cause a disconnect")
 
 
-@utils.export("serverset",
-              utils.FunctionSetting(_parse,
-                                    "sasl",
-                                    "Set the sasl username/password for this server",
-                                    example="PLAIN BitBot:hunter2",
-                                    format=utils.sensitive_format))
+@utils.export(
+    "serverset",
+    utils.FunctionSetting(
+        _parse,
+        "sasl",
+        "Set the sasl username/password for this server",
+        example="PLAIN BitBot:hunter2",
+        format=utils.sensitive_format
+    )
+)
 @utils.export("serverset", HARDFAIL)
 @utils.export("botset", HARDFAIL)
 class Module(ModuleManager.BaseModule):
@@ -171,7 +176,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.903")
     def sasl_success(self, event):
-        self.log.info("SASL authentication succeeded for %s", [str(event["server"])])
+        log.info(log, "SASL authentication succeeded for %s" % (str(event["server"])))
         self._end_sasl(event["server"])
 
     @utils.hook("received.904")
@@ -188,8 +193,8 @@ class Module(ModuleManager.BaseModule):
     def _panic(self, server, message):
         if server.get_setting("sasl-hard-fail", self.bot.get_setting("sasl-hard-fail", False)):
             message = "SASL panic for %s: %s" % (str(server), message)
-            self.log.error(message)
+            log.error(log, message)
             self.bot.disconnect(server)
         else:
-            self.log.warn("SASL failure for %s: %s" % (str(server), message))
+            log.warn(log, "SASL failure for %s: %s" % (str(server), message))
             self._end_sasl(server)

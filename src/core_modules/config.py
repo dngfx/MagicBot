@@ -116,11 +116,9 @@ class Module(ModuleManager.BaseModule):
                     else:
                         context = context[0]
 
-                    error = "Please set %s, e.g.: %sconfig %s %s %s" % (require_setting,
-                                                                        event["command_prefix"],
-                                                                        context,
-                                                                        require_setting,
-                                                                        example)
+                    error = "Please set %s, e.g.: %sconfig %s %s %s" % (
+                        require_setting, event["command_prefix"], context, require_setting, example
+                    )
                     return utils.consts.PERMISSION_ERROR, error
 
     def _get_export_setting(self, context):
@@ -179,11 +177,14 @@ class Module(ModuleManager.BaseModule):
                 value = " ".join(event["args_split"][2:])
 
         try:
-            target, context, name_override = self._to_context(event["server"],
-                event["target"], event["user"], context_desc)
+            target, context, name_override = self._to_context(
+                event["server"], event["target"], event["user"], context_desc
+            )
         except ValueError:
-            raise utils.EventError("Unknown context '%s'. Please provide "
-                                   "'user', 'channel', 'server' or 'bot'" % context_desc)
+            raise utils.EventError(
+                "Unknown context '%s'. Please provide "
+                "'user', 'channel', 'server' or 'bot'" % context_desc
+            )
 
         name = name_override or name
 
@@ -206,12 +207,10 @@ class Module(ModuleManager.BaseModule):
                     target = event["target"]
                 else:
                     raise utils.EventError("Cannot change config for current channel when in " "private message")
-            event["check_assert"](permission_check | utils.Check("channel-access",
-                                                                 target,
-                                                                 "high,config") |
-                                  utils.Check("channel-mode",
-                                              target,
-                                              "o"))
+            event["check_assert"](
+                permission_check | utils.Check("channel-access", target, "high,config") |
+                utils.Check("channel-mode", target, "o")
+            )
         elif context == "serverset" or context == "botset":
             event["check_assert"](permission_check)
 

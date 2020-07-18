@@ -40,11 +40,10 @@ class Module(ModuleManager.BaseModule):
         if module.commit:
             loaded_at = "%s (git @%s)" % (loaded_at, module.commit)
 
-        event["stdout"].write("%s: '%s' was loaded at %s and has handled %d %s" % (event["user"].nickname,
-                                                                                   module.name,
-                                                                                   loaded_at,
-                                                                                   event_calls,
-                                                                                   event_str))
+        event["stdout"].write(
+            "%s: '%s' was loaded at %s and has handled %d %s" %
+            (event["user"].nickname, module.name, loaded_at, event_calls, event_str)
+        )
 
     @utils.hook("received.command.loadmodule")
     @utils.kwarg("help", "Load a module")

@@ -4,24 +4,28 @@
 
 import hashlib, re, urllib.parse
 from src import EventManager, ModuleManager, utils
+from src.Logging import Logger as log
 
 RE_WORDSPLIT = re.compile("[\s/]")
 
 
-@utils.export("channelset",
-              utils.BoolSetting("auto-title",
-                                "Disable/Enable automatically getting info titles from URLs"))
-@utils.export("channelset",
-              utils.BoolSetting("title-shorten",
-                                "Enable/disable shortening URLs when getting their title"))
-@utils.export("channelset",
-              utils.BoolSetting("auto-title-first",
-                                "Enable/disable showing who first posted a URL that was auto-titled"))
-@utils.export("channelset",
-              utils.BoolSetting(
-                  "auto-title-difference",
-                  "Enable/disable checking if a <title> is different enough from the URL"
-                  " before showing it"))
+@utils.export(
+    "channelset", utils.BoolSetting("auto-title", "Disable/Enable automatically getting info titles from URLs")
+)
+@utils.export(
+    "channelset", utils.BoolSetting("title-shorten", "Enable/disable shortening URLs when getting their title")
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting("auto-title-first", "Enable/disable showing who first posted a URL that was auto-titled")
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "auto-title-difference", "Enable/disable checking if a <title> is different enough from the URL"
+        " before showing it"
+    )
+)
 class Module(ModuleManager.BaseModule):
 
     def _url_hash(self, url):
@@ -53,13 +57,13 @@ class Module(ModuleManager.BaseModule):
 
         hostname = urllib.parse.urlparse(url).hostname
         if not utils.http.host_permitted(hostname):
-            self.log.warn("Attempted to get forbidden host: %s", [url])
+            log.warn(log, "Attempted to get forbidden host: %s" % url)
             return -1, None
 
         try:
             page = utils.http.request(url)
         except Exception as e:
-            self.log.error("failed to get URL title for %s: %s", [url, str(e)])
+            log.error(log, "failed to get URL title for %s: %s" % (url, str(e)))
             return -1, None
 
         if not page.content_type in utils.http.SOUP_CONTENT_TYPES:
@@ -106,13 +110,13 @@ class Module(ModuleManager.BaseModule):
 
                         message = "%s (first posted by %s at %s)" % (title, first_nickname, timestamp_human)
                     else:
-                        event["target"].set_setting(setting,
-                                                    [event["user"].nickname,
-                                                     utils.datetime.format.iso8601_now(),
-                                                     url])
+                        event["target"].set_setting(
+                            setting,
+                            [event["user"].nickname, utils.datetime.format.iso8601_now(), url]
+                        )
                 event["stdout"].write(message)
             if code == -2:
-                self.log.debug("Not showing title for %s, too similar", [url])
+                log.debug(log, "Not showing title for %s, too similar" % url)
 
     @utils.hook("received.command.t", alias_of="title")
     @utils.hook("received.command.title", usage="[URL]")

@@ -1,5 +1,7 @@
 import itertools, time, traceback, typing
-from src import Logging, utils
+from src import utils
+from src.Logging import Logger as log
+from var_dump import var_dump
 
 PRIORITY_URGENT = 0
 PRIORITY_HIGH = 1
@@ -37,13 +39,10 @@ CALLBACK_TYPE = typing.Callable[[Event], typing.Any]
 
 class EventHook(object):
 
-    def __init__(self,
-                 event_name: str,
-                 func: CALLBACK_TYPE,
-                 context: typing.Optional[str],
-                 priority: int,
-                 kwargs: typing.List[typing.Tuple[str,
-                                                  typing.Any]]):
+    def __init__(
+        self, event_name: str, func: CALLBACK_TYPE, context: typing.Optional[str], priority: int,
+        kwargs: typing.List[typing.Tuple[str, typing.Any]]
+    ):
         self.event_name = event_name
         self.function = func
         self.context = context
@@ -51,10 +50,8 @@ class EventHook(object):
         self.docstring = utils.parse.docstring(func.__doc__ or "")
 
         self.call_count = 0
-        self._kwargs: typing.Dict[str,
-                                  typing.Any] = {}
-        self._multi_kwargs: typing.Dict[str,
-                                        typing.List[typing.Any]] = {}
+        self._kwargs: typing.Dict[str, typing.Any] = {}
+        self._multi_kwargs: typing.Dict[str, typing.List[typing.Any]] = {}
         for key, value in kwargs:
             if key in self._multi_kwargs:
                 self._multi_kwargs[key].append(value)
@@ -107,11 +104,12 @@ class Events(object):
     def hook(self, func: CALLBACK_TYPE, priority: int = DEFAULT_PRIORITY, **kwargs):
         self._hook(func, priority, list(kwargs.items()))
 
-    def _hook(self,
-              func: CALLBACK_TYPE,
-              priority: int = DEFAULT_PRIORITY,
-              kwargs: typing.List[typing.Tuple[str,
-                                               typing.Any]] = []):
+    def _hook(
+        self,
+        func: CALLBACK_TYPE,
+        priority: int = DEFAULT_PRIORITY,
+        kwargs: typing.List[typing.Tuple[str, typing.Any]] = []
+    ):
         for key, value in kwargs:
             if key == "priority":
                 priority = value
@@ -154,10 +152,9 @@ class Events(object):
 
 class EventRoot(object):
 
-    def __init__(self, log: Logging.Log):
+    def __init__(self, log: log):
         self.log = log
-        self._hooks: typing.Dict[str,
-                                 typing.List[EventHook]] = {}
+        self._hooks: typing.Dict[str, typing.List[EventHook]] = {}
 
     def _make_event(self, path: typing.List[str], kwargs: dict):
         return Event(self._path_str(path), kwargs)
@@ -175,13 +172,14 @@ class EventRoot(object):
         path_lower = [p.lower() for p in path]
         return DEFAULT_EVENT_DELIMITER.join(path_lower)
 
-    def _hook(self,
-              path: typing.List[str],
-              func: CALLBACK_TYPE,
-              context: typing.Optional[str],
-              priority: int,
-              kwargs: typing.List[typing.Tuple[str,
-                                               typing.Any]] = []) -> EventHook:
+    def _hook(
+        self,
+        path: typing.List[str],
+        func: CALLBACK_TYPE,
+        context: typing.Optional[str],
+        priority: int,
+        kwargs: typing.List[typing.Tuple[str, typing.Any]] = []
+    ) -> EventHook:
         path_str = self._path_str(path)
         new_hook = EventHook(path_str, func, context, priority, kwargs)
 
@@ -199,22 +197,20 @@ class EventRoot(object):
             hook_array.append(new_hook)
         return new_hook
 
-    def _call(self,
-              path: typing.List[str],
-              kwargs: dict,
-              safe: bool,
-              context: typing.Optional[str],
-              maximum: typing.Optional[int]) -> typing.List[typing.Any]:
+    def _call(
+        self, path: typing.List[str], kwargs: dict, safe: bool, context: typing.Optional[str],
+        maximum: typing.Optional[int]
+    ) -> typing.List[typing.Any]:
         if not utils.is_main_thread():
             raise RuntimeError("Can't call events outside of main thread")
 
         returns: typing.List[typing.Any] = []
         path_str = self._path_str(path)
         if not path_str in self._hooks:
-            self.log.trace("not calling non-hooked event \"%s\" (params: %s)", [path_str, str(kwargs)])
+            log.trace(log, "not calling non-hooked event \"%s\" (params: %s)" % (path_str, str(kwargs)))
             return returns
 
-        self.log.trace("calling event: \"%s\" (params: %s)", [path_str, str(kwargs)])
+        log.trace(log, "calling event: \"%s\" (params: %s)" % (path_str, str(kwargs)))
         start = time.monotonic()
 
         # .copy() hooks so we don't call new hooks in this loop
@@ -235,20 +231,19 @@ class EventRoot(object):
                 returned = hook.call(event)
             except Exception as e:
                 if safe:
-                    self.log.error("failed to call event \"%s\"", [path_str], exc_info=True)
+                    log.error(log, "failed to call event \"%s\"" % path_str)
                     continue
                 else:
                     raise
             returns.append(returned)
 
         total_milliseconds = (time.monotonic() - start) * 1000
-        self.log.trace("event \"%s\" called in %fms", [path_str, total_milliseconds])
+        log.trace(log, "event \"%s\" called in %fms" % (path_str, total_milliseconds))
 
         return returns
 
     def _purge_context(self, context: str):
-        context_hooks: typing.Dict[str,
-                                   typing.List[EventHook]] = {}
+        context_hooks: typing.Dict[str, typing.List[EventHook]] = {}
         for path in self._hooks.keys():
             for hook in self._hooks[path]:
                 if hook.context == context:

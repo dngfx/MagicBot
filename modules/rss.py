@@ -4,6 +4,7 @@
 import difflib, hashlib, time
 from src import ModuleManager, utils
 import feedparser
+from src.Logging import Logger as log
 
 RSS_INTERVAL = 60  # 1 minute
 
@@ -36,7 +37,7 @@ class Module(ModuleManager.BaseModule):
 
     def _timer(self, timer):
         start_time = time.monotonic()
-        self.log.trace("Polling RSS feeds")
+        log.trace(log, "Polling RSS feeds")
 
         timer.redo()
         hook_settings = self.bot.database.channel_settings.find_by_setting("rss-hooks")
@@ -67,7 +68,7 @@ class Module(ModuleManager.BaseModule):
             try:
                 data = pages[url].decode()
             except Exception as e:
-                self.log.error("Failed to decode rss URL %s", [url], exc_info=True)
+                log.error(log,"Failed to decode rss URL %s" % url)
                 continue
 
             feed = feedparser.parse(data)
@@ -97,7 +98,7 @@ class Module(ModuleManager.BaseModule):
                 channel.set_setting("rss-seen-ids-%s" % url, seen_ids)
 
         total_milliseconds = (time.monotonic() - start_time) * 1000
-        self.log.trace("Polled RSS feeds in %fms", [total_milliseconds])
+        log.trace(log,"Polled RSS feeds in %fms" % (total_milliseconds))
 
     def _get_id(self, entry):
         entry_id = entry.get("id", entry["link"])
@@ -108,7 +109,7 @@ class Module(ModuleManager.BaseModule):
         try:
             feed = feedparser.parse(utils.http.request(url).data)
         except Exception as e:
-            self.log.warn("failed to parse RSS %s", [url], exc_info=True)
+            log.warn("failed to parse RSS %s" % url)
             feed = None
         if not feed or not feed["feed"]:
             return None, None

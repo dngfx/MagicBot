@@ -1,5 +1,6 @@
 import signal, sys
 from src import Config, IRCLine, ModuleManager, utils
+from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
@@ -55,15 +56,15 @@ class Module(ModuleManager.BaseModule):
         self._reload_modules()
 
     def _reload_config(self):
-        self.bot.log.info("Reloading config file")
+        log.info(log, "Reloading config file")
         self.bot.config.load()
-        self.bot.log.info("Reloaded config file")
+        log.info(log, "Reloaded config file")
 
     def _reload_modules(self):
-        self.bot.log.info("Reloading modules")
+        log.info(log, "Reloading modules")
 
         result = self.bot.try_reload_modules()
         if result.success:
-            self.bot.log.info(result.message)
+            log.info(log, result.message)
         else:
-            self.bot.log.warn(result.message)
+            log.warn(log, result.message)
