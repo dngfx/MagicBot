@@ -21,7 +21,9 @@ class Module(ModuleManager.BaseModule):
             line = event["pretty"]
 
         context = ("%s" % event["context"]) if event["context"] else ""
-        log.info(log, "%s - [%s] %s" % (str(event["server"]), context, utils.irc.parse_format(line).replace("<", "\<")))
+        line = utils.irc.parse_format(line).replace("<", "\<").replace("\<3", "<3")
+
+        log.info(log, "[<m>%s</m>:<e>%s</e>] %s" % (str(event["server"]).capitalize(), context, line))
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")

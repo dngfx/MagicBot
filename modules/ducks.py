@@ -13,22 +13,45 @@ DUCK_GOLD_COLOR = utils.consts.GOLD
 DUCK_RED_COLOR = utils.consts.RED
 DUCK_METAL_COLOR = utils.consts.GREY
 
+COLORS = [
+    utils.consts.BLUE,
+    utils.consts.LIGHTBLUE,
+    utils.consts.CYAN,
+    utils.consts.LIGHTCYAN,
+    utils.consts.GREEN,
+    utils.consts.LIGHTGREEN,
+    utils.consts.YELLOW,
+    utils.consts.ORANGE,
+    utils.consts.BROWN,
+    utils.consts.RED,
+    utils.consts.PINK,
+    utils.consts.PURPLE
+]
+
 SPECIAL_DUCKS = [[{
     "type": "Gold",
     "color": DUCK_GOLD_COLOR,
     "lang": "Golden",
     "xpbonus": 5
-}], [{
-    "type": "Metal",
-    "color": DUCK_METAL_COLOR,
-    "lang": "Metal",
-    "xpbonus": 2
-}], [{
-    "type": "Red",
-    "color": DUCK_RED_COLOR,
-    "lang": "Rabid",
-    "xpbonus": 0.5
-}]]
+}],
+                 [{
+                     "type": "Metal",
+                     "color": DUCK_METAL_COLOR,
+                     "lang": "Metal",
+                     "xpbonus": 2
+                 }],
+                 [{
+                     "type": "Red",
+                     "color": DUCK_RED_COLOR,
+                     "lang": "Rabid",
+                     "xpbonus": 0.5
+                 },
+                  [{
+                      "type": "Rainbow",
+                      "color": COLORS,
+                      "lang": "Mythical",
+                      "xpbonus": 10
+                  }]]]
 
 DEFAULT_MIN_MESSAGES = 40
 DEFAULT_MISS_COOLDOWN = 5
@@ -42,24 +65,33 @@ DEFAULT_SPECIAL_ENABLED = False
 @utils.export("channelset", utils.BoolSetting("ducks-enabled", "Whether or not to spawn ducks"))
 @utils.export(
     "channelset",
-    utils.BoolSetting("ducks-print-missed-time", "Whether or not to show how long in seconds you missed a duck by")
+    utils.BoolSetting("ducks-print-missed-time",
+                      "Whether or not to show how long in seconds you missed a duck by")
 )
 @utils.export(
     "channelset",
     utils.IntRangeSetting(
-        10, 200, "ducks-min-messages", "Minimum messages between ducks spawning (Min 10, max 200, default 40)"
+        10,
+        200,
+        "ducks-min-messages",
+        "Minimum messages between ducks spawning (Min 10, max 200, default 40)"
     )
 )
 @utils.export(
     "channelset",
     utils.IntRangeSetting(
-        2, 20, "ducks-spawn-chance", "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
+        2,
+        20,
+        "ducks-spawn-chance",
+        "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
     )
 )
 @utils.export(
     "channelset",
     utils.IntRangeSetting(
-        2, 10, "ducks-miss-cooldown",
+        2,
+        10,
+        "ducks-miss-cooldown",
         "Minimum time in seconds between being able to go for a duck again (Min 2, max 10, default 5)"
     )
 )
@@ -67,12 +99,16 @@ DEFAULT_SPECIAL_ENABLED = False
 @utils.export(
     "channelset",
     utils.IntRangeSetting(
-        2, 5, "ducks-miss-chance-reduction", "Reduces chance to miss by this amount if you miss a duck (Default 2%"
+        2,
+        5,
+        "ducks-miss-chance-reduction",
+        "Reduces chance to miss by this amount if you miss a duck (Default 2%"
     )
 )
 @utils.export(
     "channelset",
-    utils.BoolSetting("ducks-kick", "Whether or not to kick someone attempting to catch/kill a non-existent duck")
+    utils.BoolSetting("ducks-kick",
+                      "Whether or not to kick someone attempting to catch/kill a non-existent duck")
 )
 @utils.export(
     "channelset",
@@ -84,12 +120,15 @@ DEFAULT_SPECIAL_ENABLED = False
 @utils.export(
     "channelset",
     utils.BoolSetting(
-        "ducks-enable-special", "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
+        "ducks-enable-special",
+        "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
     )
 )
 @utils.export(
     "channelset",
-    utils.IntSetting("ducks-special-chance", "Chance in percent a spawned duck will be special", example="2")
+    utils.IntSetting("ducks-special-chance",
+                     "Chance in percent a spawned duck will be special",
+                     example="2")
 )
 class Module(ModuleManager.BaseModule):
 
@@ -169,6 +208,15 @@ class Module(ModuleManager.BaseModule):
             return duck
 
         random_duck_type = random.randint(0, 2)
+
+        # 5% chance to generate a rainbow duck
+        if random.randint(0, 99) < 5:
+            random_duck_type = 3
+            channel.duck_is_special = True
+            channel.duck_special_type = random_duck_type
+            duck = self._generate_rainbow_duck(duck)
+            return duck
+
         random_duck_info = SPECIAL_DUCKS[random_duck_type][0]
         # 0 = gold, 1 = metal, 2 = red
 
@@ -178,6 +226,16 @@ class Module(ModuleManager.BaseModule):
         channel.duck_special_type = random_duck_type
 
         return duck
+
+    def _generate_rainbow_duck(self, duck):
+        args = utils.irc.strip_font(duck)
+
+        offset = random.randint(0, len(COLORS))
+        out = ""
+        for i, c in enumerate(args):
+            color = COLORS[(i+offset) % len(COLORS)]
+            out += utils.irc.color(c, color, terminate=False)
+        return utils.irc.bold(out)
 
     def _send_duck(self, timer):
         channel = timer.kwargs["channel"]
@@ -275,8 +333,15 @@ class Module(ModuleManager.BaseModule):
         channel.duck_is_special = False
 
         return "%s %s a %sduck in %s seconds! You've %s %s %s in %s!%s" % (
-            utils.irc.bold(user.nickname), action, duck_special_lang, utils.irc.bold(seconds), action,
-            utils.irc.bold(action_count), ducks_plural, utils.irc.bold(channel.name), xp_text
+            utils.irc.bold(user.nickname),
+            action,
+            duck_special_lang,
+            utils.irc.bold(seconds),
+            action,
+            utils.irc.bold(action_count),
+            ducks_plural,
+            utils.irc.bold(channel.name),
+            xp_text
         )
 
     def _no_duck(self, channel, user, stderr):
@@ -404,13 +469,17 @@ class Module(ModuleManager.BaseModule):
         current_str = ""
         if current:
             current_str = " (%s Befriended, %s Killed in %s)" % (
-                utils.irc.bold(current["bef"]), utils.irc.bold(current["trap"]), utils.irc.bold(event["target"].name),
+                utils.irc.bold(current["bef"]),
+                utils.irc.bold(current["trap"]),
+                utils.irc.bold(event["target"].name),
             )
 
         event["stdout"].write(
             "%s has befriended %s and killed %s ducks%s" % (
-                utils.irc.bold(target_user.nickname), utils.irc.bold(overall["bef"]), utils.irc.bold(overall["trap"]
-                                                                                                     ), current_str,
+                utils.irc.bold(target_user.nickname),
+                utils.irc.bold(overall["bef"]),
+                utils.irc.bold(overall["trap"]),
+                current_str,
             )
         )
 

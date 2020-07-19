@@ -1,4 +1,6 @@
 from src import ModuleManager, utils
+import pprint
+from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
@@ -42,9 +44,27 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.quit")
     def quit(self, event):
-        self._check(event["server"], event["user"].nickname)
+
+        #pp = pprint.PrettyPrinter(depth=10)
+        #pp.pprint(vars(event["user"]))
+
+        print("Checking in received.quit")
+        server = event["server"]
+        user = event["user"]
+        nickname = user.nickname_lower
+        reason = event["reason"]
+
+        user_exists = server.has_user(nickname)
+
+        if user_exists == True:
+            server.quit_user(user)
+
+        reason = "" if reason == "" else (" (%s)" % reason)
+        line = "%s quit%s" % (nickname, reason)
+        log.info(log, "[<m>%s</m>:<e>%s</e>] %s" % (str(event["server"]).capitalize(), nickname, line))
 
     def _check(self, server, nickname):
+
         target_nick = self._target(server)
         if (not self._regained(server, target_nick) and server.irc_equals(nickname, target_nick)):
             server.send_nick(target_nick)

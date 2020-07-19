@@ -3,6 +3,7 @@ from src.core_modules import permissions
 from modules import channel_op
 import re
 import pprint
+from src.Logging import Logger as log
 PLEXUS_REGEX = re.compile("plexus\-\d")
 
 
@@ -32,6 +33,7 @@ def _identified_304(server, user, account, event):
     user._id_override = server.get_user_id(account)
     user._account_override = account
 
+
 def handle_311(event):
     nickname = event["line"].args[1]
     username = event["line"].args[2]
@@ -50,21 +52,40 @@ def handle_311(event):
 
 
 def quit(events, event):
+    """{
+        'eaten': False,
+        'kwargs': {
+            'direction': 1, (Direction.Recv)
+            'line': ":dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com QUIT :Remote host closed the connection)",
+            'server': "IRCServer.Server(rizon)"
+        },
+        'name': 'raw.received.quit'
+    }
+    {
+        'hostmask': 'dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com',
+        'hostname': 'Rizon-8F8F51EE.dynamic.dsl.as9105.com',
+        'nickname': 'dongfix',
+        'username': '~dongfix'
+    }"""
+
     nickname = None
     if event["direction"] == utils.Direction.Recv:
         nickname = event["line"].source.nickname
-    reason = event["line"].args.get(0)
-
-    if event["direction"] == utils.Direction.Recv:
-        nickname = event["line"].source.nickname
+        reason = event["line"].args.get(0)
         if (not event["server"].is_own_nickname(nickname) and not event["line"].source.hostmask == "*"):
             user = event["server"].get_user(nickname)
+
             event["server"].quit_user(user)
             events.on("received.quit").call(reason=reason, user=user, server=event["server"])
+
+            return True
         else:
             event["server"].disconnect()
+            return True
     else:
+        reason = event["line"].args.get(0)
         events.on("send.quit").call(reason=reason, server=event["server"])
+        return True
 
 
 def nick(events, event):
@@ -75,11 +96,12 @@ def nick(events, event):
     event["server"].change_user_nickname(old_nickname, new_nickname)
 
     if not event["server"].is_own_nickname(event["line"].source.nickname):
-        events.on("received.nick"
-                  ).call(new_nickname=new_nickname,
-                         old_nickname=old_nickname,
-                         user=user,
-                         server=event["server"])
+        events.on("received.nick").call(
+            new_nickname=new_nickname,
+            old_nickname=old_nickname,
+            user=user,
+            server=event["server"]
+        )
     else:
         event["server"].set_own_nickname(new_nickname)
         events.on("self.nick").call(server=event["server"], new_nickname=new_nickname, old_nickname=old_nickname)
@@ -114,11 +136,12 @@ def chghost(events, event):
     target.username = username
     target.hostname = hostname
 
-    events.on("received.chghost"
-              ).call(user=target,
-                     server=event["server"],
-                     old_username=old_username,
-                     old_hostname=old_hostname)
+    events.on("received.chghost").call(
+        user=target,
+        server=event["server"],
+        old_username=old_username,
+        old_hostname=old_hostname
+    )
 
 
 def setname(event):

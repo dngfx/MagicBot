@@ -1,5 +1,6 @@
 import datetime
 from src import EventManager, ModuleManager, utils
+from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
@@ -8,7 +9,16 @@ class Module(ModuleManager.BaseModule):
         return utils.irc.hash_colorize(nickname)
 
     @utils.export("format")
-    def _event(self, type, server, line, context, minimal=None, channel=None, user=None, formatting={}, **kwargs):
+    def _event(self,
+               type,
+               server,
+               line,
+               context,
+               minimal=None,
+               channel=None,
+               user=None,
+               formatting={},
+               **kwargs):
         pretty = line
         minimal = minimal or line
 
@@ -61,7 +71,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.message.channel")
     def channel_message(self, event):
         formatting, line = self._privmsg(event, event["channel"], event["user"])
-        
+
         self._event(
             "message.channel",
             event["server"],
@@ -306,7 +316,8 @@ class Module(ModuleManager.BaseModule):
             line,
             event["channel"].name,
             channel=event["channel"],
-            user=event.get("user", None),
+            user=event.get("user",
+                           None),
             minimal=minimal,
             formatting=formatting
         )
@@ -325,7 +336,12 @@ class Module(ModuleManager.BaseModule):
         line = "%s" % minimal
 
         self._event(
-            "topic-timestamp", event["server"], line, event["channel"].name, channel=event["channel"], minimal=minimal
+            "topic-timestamp",
+            event["server"],
+            line,
+            event["channel"].name,
+            channel=event["channel"],
+            minimal=minimal
         )
 
     def _on_kick(self, event, kicked_nickname):
@@ -361,8 +377,17 @@ class Module(ModuleManager.BaseModule):
     def self_kick(self, event):
         self._on_kick(event, event["server"].nickname)
 
-    def _quit(self, event, user, reason):
-        reason = "" if not reason else " (%s)" % reason
+    def _quit(self, event):
+        server = event["server"]
+        user = event["user"]
+        nickname = user.nickname_lower
+        reason = event["reason"]
+        """log.info(
+            log,
+            "[<m>%s</m>:<e>%s</e>] User has quit%s" % (str(event["server"]).capitalize(),
+                                                       event["target"].name,
+                                                       reason)
+        )"""
 
         minimal = "{~NICK} quit{REAS}"
         line = "%s" % minimal
@@ -371,13 +396,12 @@ class Module(ModuleManager.BaseModule):
             "quit",
             event["server"],
             line,
-            event["target"].name,
+            nickname,
             user=user,
             minimal=minimal,
             formatting={"REAS": reason}
         )
 
-    @utils.hook("received.quit")
     def on_quit(self, event):
         self._quit(event, event["user"], event["reason"])
 
@@ -404,4 +428,10 @@ class Module(ModuleManager.BaseModule):
     def motd_end(self, event):
         for motd_line in event["server"].motd_lines:
             line = "[MOTD] {LINE}"
-            self._event("motd", event["server"], line, None, formatting={"LINE": motd_line})
+            self._event(
+                "motd",
+                event["server"],
+                line,
+                None,
+                formatting={"LINE": motd_line}
+            )

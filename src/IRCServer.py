@@ -305,10 +305,11 @@ class Server(IRCObject.Object):
 
         line_events = self.events.new_root()
 
-        self.events.on("preprocess.send").on(line_parsed.command
-                                             ).call_unsafe(server=self,
-                                                           line=line_parsed,
-                                                           events=line_events)
+        self.events.on("preprocess.send").on(line_parsed.command).call_unsafe(
+            server=self,
+            line=line_parsed,
+            events=line_events
+        )
         self.events.on("preprocess.send").call_unsafe(server=self, line=line_parsed, events=line_events)
 
         if line_parsed.valid() or line_parsed.assured():
