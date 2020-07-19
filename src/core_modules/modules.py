@@ -92,7 +92,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Reload all modules")
     @utils.kwarg("permission", "reloadallmodules")
     def reload_all(self, event):
-        result = self.bot.try_reload_modules(DO_NOT_RELOAD)
+        result = self.bot.try_reload_modules()
         if result.success:
             event["stdout"].write(result.message)
         else:

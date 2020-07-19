@@ -14,16 +14,20 @@ import pprint
 class Module(ModuleManager.BaseModule):
 
     def _print(self, event):
-        if True != True:  # (event["channel"] and not event["channel"].get_setting("print", True)):
+        if (event["channel"] and not event["channel"].get_setting("print", True)):
             return
 
         line = event["line"]
         if event["pretty"] and self.bot.get_setting("pretty-activity", False):
             line = event["pretty"]
 
-        server = event["server"].alias
+        server = event["server"]
+        server = server if isinstance(server, str) else server.alias
 
-        context = ("%s" % event["context"]) if (event["context"] not in ["*", ""]) else "Server"
+        context = (
+            "%s" % (event["context"]) if ((event["context"] not in ["*",
+                                                                    ""]) and event["context"] != None) else "Server"
+        )
 
         log.info(log, message=line, server=server, context=context, format=True)
 

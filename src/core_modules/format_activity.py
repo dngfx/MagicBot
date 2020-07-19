@@ -1,4 +1,4 @@
-import datetime
+import datetime, pprint
 from src import EventManager, ModuleManager, utils
 from src.Logging import Logger as log
 
@@ -32,6 +32,9 @@ class Module(ModuleManager.BaseModule):
             if key[0] == "~":
                 formatting[key] = self._color(value)
         pretty = pretty.format(**formatting)
+
+        #print(pretty, line, channel, server, user, context)
+        #<~12df> $reloadallmodules <~df> $reloadallmodules #premium-test rizon df #premium-test
 
         self.events.on("formatted").on(type).call(
             server=server,
@@ -71,6 +74,62 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.message.channel")
     def channel_message(self, event):
         formatting, line = self._privmsg(event, event["channel"], event["user"])
+
+        #print(formatting, line)
+
+        #pp = pprint.PrettyPrinter(depth=10)
+        #pp.pprint(vars(event))
+
+        """{
+            'eaten': False,
+            'kwargs': {
+                'action':
+                    False,
+                'buffer_line':
+                    BufferLine(
+                        sender='df',
+                        message='$reloadallmodules',
+                        action=False,
+                        tags={},
+                        from_self=False,
+                        method='PRIVMSG',
+                        deleted=False,
+                        notes={},
+                        id='096e8545-9ba3-4559-a3b3-2ec98a827889',
+                        timestamp=datetime.datetime(2020,
+                                                    7,
+                                                    19,
+                                                    10,
+                                                    44,
+                                                    16,
+                                                    114238,
+                                                    tzinfo=datetime.timezone.utc)
+                    ),
+                'channel':
+                    "IRCChannel.Channel(irc.rizon.club|#premium-test)",
+                'from_self':
+                    False,
+                'is_channel':
+                    True,
+                'line':
+                    "ParsedLine(:df!~dfx@Rizon-498A9DB9.dong.expert PRIVMSG #premium-test $reloadallmodules)",
+                'message':
+                    '$reloadallmodules',
+                'message_split': ['$reloadallmodules'],
+                'server':
+                    IRCServer.Server(rizon),
+                'statusmsg':
+                    '',
+                'tags': {},
+                'target':
+                    "IRCChannel.Channel(irc.rizon.club|#premium-test)",
+                'target_str':
+                    '#premium-test',
+                'user':
+                    "IRCUser.User(irc.rizon.club|df)"
+            },
+            'name': 'received.message.channel'
+        }"""
 
         self._event(
             "message.channel",
@@ -427,7 +486,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.376")
     def motd_end(self, event):
         for motd_line in event["server"].motd_lines:
-            line = "[MOTD] {LINE}"
+            line = "{LINE}"
             self._event(
                 "motd",
                 event["server"],

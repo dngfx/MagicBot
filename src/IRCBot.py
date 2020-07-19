@@ -185,9 +185,9 @@ class Bot(object):
         whitelist, blacklist = self._module_lists()
         return self.modules.load_modules(self, whitelist=whitelist, blacklist=blacklist)
 
-    def try_reload_modules(self, no_reload) -> ModuleManager.TryReloadResult:
+    def try_reload_modules(self) -> ModuleManager.TryReloadResult:
         whitelist, blacklist = self._module_lists()
-        return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist, do_not_reload=no_reload)
+        return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist)
 
     def add_server(
         self,

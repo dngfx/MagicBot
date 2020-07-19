@@ -10,7 +10,7 @@ class Logger(object):
         logger.add(
             StreamHandler(sys.stdout),
             colorize=True,
-            format="<green>[{time:HH:mm:ss!UTC}]</green> <level>[{level}]</level> — <level>{message}</level>",
+            format="<green>[{time:HH:mm:ss!UTC}]</green> <level>[{level}]</level> <level>{message}</level>",
             level="INFO",
             catch=True,
             enqueue=True
