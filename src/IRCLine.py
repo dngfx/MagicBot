@@ -70,12 +70,14 @@ def message_tag_unescape(s):
 
 class ParsedLine(object):
 
-    def __init__(self,
-                 command: str,
-                 args: typing.List[str],
-                 source: Hostmask = None,
-                 tags: typing.Dict[str,
-                                   str] = None):
+    def __init__(
+        self,
+        command: str,
+        args: typing.List[str],
+        source: Hostmask = None,
+        tags: typing.Dict[str,
+                          str] = None
+    ):
         self.id = str(uuid.uuid4())
         self.command = command
         self._args = args
@@ -257,13 +259,15 @@ class SentLine(IRCObject.Object):
 
 class IRCBatch(object):
 
-    def __init__(self,
-                 identifier: str,
-                 batch_type: str,
-                 args: typing.List[str],
-                 tags: typing.Dict[str,
-                                   str] = None,
-                 source: Hostmask = None):
+    def __init__(
+        self,
+        identifier: str,
+        batch_type: str,
+        args: typing.List[str],
+        tags: typing.Dict[str,
+                          str] = None,
+        source: Hostmask = None
+    ):
         self.identifier = identifier
         self.type = batch_type
         self.args = args

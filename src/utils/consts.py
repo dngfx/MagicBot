@@ -74,6 +74,25 @@ PERMISSION_HARD_FAIL = 0
 PERMISSION_FORCE_SUCCESS = 1
 PERMISSION_ERROR = 2
 
+LOG_LEVELS = {
+    "DEBUG": 10,
+    "INFO": 20,
+    "NOTICE": 30,
+    "WARNING": 40,
+    "ERROR": 50,
+    "CRITICAL": 60
+}
+
+
+def loglevel(event, level):
+    level = level.upper()
+
+    if level not in LOG_LEVELS:
+        event["stderr"].write("Log level %s not found" % level)
+        return LOG_LEVELS["EMERGENCY"]
+    else:
+        return LOG_LEVELS[level]
+
 
 class Exit(enum.Enum):
     WRONGVERSION = 1

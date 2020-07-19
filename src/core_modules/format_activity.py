@@ -63,7 +63,7 @@ class Module(ModuleManager.BaseModule):
         if event["action"]:
             format = "* {SYM}{~NICK} {MSG}"
         else:
-            format = "<{SYM}{~NICK}> {MSG}"
+            format = "\<{SYM}{~NICK}> {MSG}"
 
         return {
             "MSG": event["message"],
@@ -79,57 +79,6 @@ class Module(ModuleManager.BaseModule):
 
         #pp = pprint.PrettyPrinter(depth=10)
         #pp.pprint(vars(event))
-
-        """{
-            'eaten': False,
-            'kwargs': {
-                'action':
-                    False,
-                'buffer_line':
-                    BufferLine(
-                        sender='df',
-                        message='$reloadallmodules',
-                        action=False,
-                        tags={},
-                        from_self=False,
-                        method='PRIVMSG',
-                        deleted=False,
-                        notes={},
-                        id='096e8545-9ba3-4559-a3b3-2ec98a827889',
-                        timestamp=datetime.datetime(2020,
-                                                    7,
-                                                    19,
-                                                    10,
-                                                    44,
-                                                    16,
-                                                    114238,
-                                                    tzinfo=datetime.timezone.utc)
-                    ),
-                'channel':
-                    "IRCChannel.Channel(irc.rizon.club|#premium-test)",
-                'from_self':
-                    False,
-                'is_channel':
-                    True,
-                'line':
-                    "ParsedLine(:df!~dfx@Rizon-498A9DB9.dong.expert PRIVMSG #premium-test $reloadallmodules)",
-                'message':
-                    '$reloadallmodules',
-                'message_split': ['$reloadallmodules'],
-                'server':
-                    IRCServer.Server(rizon),
-                'statusmsg':
-                    '',
-                'tags': {},
-                'target':
-                    "IRCChannel.Channel(irc.rizon.club|#premium-test)",
-                'target_str':
-                    '#premium-test',
-                'user':
-                    "IRCUser.User(irc.rizon.club|df)"
-            },
-            'name': 'received.message.channel'
-        }"""
 
         self._event(
             "message.channel",
@@ -196,7 +145,7 @@ class Module(ModuleManager.BaseModule):
             realname = " ({REAL})"
 
         minimal = "{~NICK} joined {CHAN}"
-        line = "- {~NICK}%s%s ({UH}) joined {CHAN}" % (account, realname)
+        line = "{~NICK}%s%s ({UH}) joined [b]{CHAN}[/b]" % (account, realname)
 
         formatting = {
             "UH": user.userhost(),
@@ -230,7 +179,7 @@ class Module(ModuleManager.BaseModule):
         hostname = event["user"].hostname
 
         minimal = "{~NICK} changed host to {USER}@{HOST}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "chghost",
@@ -255,7 +204,7 @@ class Module(ModuleManager.BaseModule):
 
     def _account(self, event, action):
         minimal = "{~NICK} logged %s as {ACC}" % action
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "account",
@@ -273,7 +222,7 @@ class Module(ModuleManager.BaseModule):
         reason = "" if not reason else " (%s)" % reason
 
         minimal = "{~NICK} left {CHAN}{REAS}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "part",
@@ -304,7 +253,7 @@ class Module(ModuleManager.BaseModule):
         }
 
         minimal = "{~ONICK} changed nickname to {~NNICK}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event("nick", event["server"], line, None, user=user, minimal=minimal, formatting=formatting)
 
@@ -324,7 +273,7 @@ class Module(ModuleManager.BaseModule):
         }
 
         minimal = "{~NICK} invited {~TNICK} to {CHAN}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "invite",
@@ -344,7 +293,7 @@ class Module(ModuleManager.BaseModule):
             args = " %s" % args
 
         minimal = "{~NICK} set mode {MODE}{ARGS}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "mode.channel",
@@ -364,10 +313,11 @@ class Module(ModuleManager.BaseModule):
         formatting = {
             "ACT": action,
             "TOP": topic,
-            "~TNICK": nickname
+            "~TNICK": nickname,
+            "CHAN": event["channel"].name
         }
-        minimal = "topic {ACT} by {~TNICK}: {TOP}"
-        line = "- %s" % minimal
+        minimal = "Topic for {CHAN}: {TOP}"
+        line = minimal
 
         self._event(
             "topic",
@@ -391,8 +341,8 @@ class Module(ModuleManager.BaseModule):
 
         dt = utils.datetime.format.datetime_human(utils.datetime.timestamp(event["set_at"]))
 
-        minimal = "topic set at %s" % dt
-        line = "%s" % minimal
+        minimal = "Topic set by %s" % event["setter"].nickname
+        line = minimal
 
         self._event(
             "topic-timestamp",
@@ -415,7 +365,7 @@ class Module(ModuleManager.BaseModule):
         }
 
         minimal = "{~NICK} kicked {~KNICK} from {CHAN}{REAS}"
-        line = "- %s" % minimal
+        line = minimal
 
         self._event(
             "kick",
@@ -448,8 +398,8 @@ class Module(ModuleManager.BaseModule):
                                                        reason)
         )"""
 
-        minimal = "{~NICK} quit{REAS}"
-        line = "%s" % minimal
+        minimal = "{~NICK} has quit{REAS}"
+        line = minimal
 
         self._event(
             "quit",

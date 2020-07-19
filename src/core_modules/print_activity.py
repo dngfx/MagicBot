@@ -24,12 +24,9 @@ class Module(ModuleManager.BaseModule):
         server = event["server"]
         server = server if isinstance(server, str) else server.alias
 
-        context = (
-            "%s" % (event["context"]) if ((event["context"] not in ["*",
-                                                                    ""]) and event["context"] != None) else "Server"
-        )
+        context = event["context"] if (event["context"] not in ["*", ""]) and (event["context"] != None) else "Server"
 
-        log.info(log, message=line, server=server, context=context, format=True)
+        log.info(message=line, server=server, context=context, format=True)
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
