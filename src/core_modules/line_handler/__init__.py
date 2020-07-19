@@ -31,11 +31,11 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.send")
     def handle_send(self, event):
-        self.events.on("raw.send").on(
-            event["line"].command
-        ).call_unsafe(server=event["server"],
-                      direction=utils.Direction.Send,
-                      line=event["line"])
+        self.events.on("raw.send").on(event["line"].command).call_unsafe(
+            server=event["server"],
+            direction=utils.Direction.Send,
+            line=event["line"]
+        )
 
     # ping from the server
     @utils.hook("raw.received.ping")

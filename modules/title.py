@@ -10,19 +10,25 @@ RE_WORDSPLIT = re.compile("[\s/]")
 
 
 @utils.export(
-    "channelset", utils.BoolSetting("auto-title", "Disable/Enable automatically getting info titles from URLs")
-)
-@utils.export(
-    "channelset", utils.BoolSetting("title-shorten", "Enable/disable shortening URLs when getting their title")
+    "channelset",
+    utils.BoolSetting("auto-title",
+                      "Disable/Enable automatically getting info titles from URLs")
 )
 @utils.export(
     "channelset",
-    utils.BoolSetting("auto-title-first", "Enable/disable showing who first posted a URL that was auto-titled")
+    utils.BoolSetting("title-shorten",
+                      "Enable/disable shortening URLs when getting their title")
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting("auto-title-first",
+                      "Enable/disable showing who first posted a URL that was auto-titled")
 )
 @utils.export(
     "channelset",
     utils.BoolSetting(
-        "auto-title-difference", "Enable/disable checking if a <title> is different enough from the URL"
+        "auto-title-difference",
+        "Enable/disable checking if a <title> is different enough from the URL"
         " before showing it"
     )
 )
@@ -112,7 +118,9 @@ class Module(ModuleManager.BaseModule):
                     else:
                         event["target"].set_setting(
                             setting,
-                            [event["user"].nickname, utils.datetime.format.iso8601_now(), url]
+                            [event["user"].nickname,
+                             utils.datetime.format.iso8601_now(),
+                             url]
                         )
                 event["stdout"].write(message)
             if code == -2:

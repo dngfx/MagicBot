@@ -39,8 +39,13 @@ CALLBACK_TYPE = typing.Callable[[Event], typing.Any]
 class EventHook(object):
 
     def __init__(
-        self, event_name: str, func: CALLBACK_TYPE, context: typing.Optional[str], priority: int,
-        kwargs: typing.List[typing.Tuple[str, typing.Any]]
+        self,
+        event_name: str,
+        func: CALLBACK_TYPE,
+        context: typing.Optional[str],
+        priority: int,
+        kwargs: typing.List[typing.Tuple[str,
+                                         typing.Any]]
     ):
         self.event_name = event_name
         self.function = func
@@ -49,8 +54,10 @@ class EventHook(object):
         self.docstring = utils.parse.docstring(func.__doc__ or "")
 
         self.call_count = 0
-        self._kwargs: typing.Dict[str, typing.Any] = {}
-        self._multi_kwargs: typing.Dict[str, typing.List[typing.Any]] = {}
+        self._kwargs: typing.Dict[str,
+                                  typing.Any] = {}
+        self._multi_kwargs: typing.Dict[str,
+                                        typing.List[typing.Any]] = {}
         for key, value in kwargs:
             if key in self._multi_kwargs:
                 self._multi_kwargs[key].append(value)
@@ -107,7 +114,8 @@ class Events(object):
         self,
         func: CALLBACK_TYPE,
         priority: int = DEFAULT_PRIORITY,
-        kwargs: typing.List[typing.Tuple[str, typing.Any]] = []
+        kwargs: typing.List[typing.Tuple[str,
+                                         typing.Any]] = []
     ):
         for key, value in kwargs:
             if key == "priority":
@@ -153,7 +161,8 @@ class EventRoot(object):
 
     def __init__(self, log: log):
         self.log = log
-        self._hooks: typing.Dict[str, typing.List[EventHook]] = {}
+        self._hooks: typing.Dict[str,
+                                 typing.List[EventHook]] = {}
 
     def _make_event(self, path: typing.List[str], kwargs: dict):
         return Event(self._path_str(path), kwargs)
@@ -177,7 +186,8 @@ class EventRoot(object):
         func: CALLBACK_TYPE,
         context: typing.Optional[str],
         priority: int,
-        kwargs: typing.List[typing.Tuple[str, typing.Any]] = []
+        kwargs: typing.List[typing.Tuple[str,
+                                         typing.Any]] = []
     ) -> EventHook:
         path_str = self._path_str(path)
         new_hook = EventHook(path_str, func, context, priority, kwargs)
@@ -197,7 +207,11 @@ class EventRoot(object):
         return new_hook
 
     def _call(
-        self, path: typing.List[str], kwargs: dict, safe: bool, context: typing.Optional[str],
+        self,
+        path: typing.List[str],
+        kwargs: dict,
+        safe: bool,
+        context: typing.Optional[str],
         maximum: typing.Optional[int]
     ) -> typing.List[typing.Any]:
         if not utils.is_main_thread():
@@ -242,7 +256,8 @@ class EventRoot(object):
         return returns
 
     def _purge_context(self, context: str):
-        context_hooks: typing.Dict[str, typing.List[EventHook]] = {}
+        context_hooks: typing.Dict[str,
+                                   typing.List[EventHook]] = {}
         for path in self._hooks.keys():
             for hook in self._hooks[path]:
                 if hook.context == context:

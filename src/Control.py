@@ -49,7 +49,8 @@ class Control(PollSource.PollSource):
 
         self._filename = filename
         self._socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self._clients: typing.Dict[int, ControlClient] = {}
+        self._clients: typing.Dict[int,
+                                   ControlClient] = {}
 
     def _on_log(self, levelno: int, line: str):
         for client in self._clients.values():
@@ -120,7 +121,11 @@ class Control(PollSource.PollSource):
             client.disconnect()
 
     def _send_action(
-        self, client: ControlClient, action: str, data: typing.Optional[str], id: typing.Optional[str] = None
+        self,
+        client: ControlClient,
+        action: str,
+        data: typing.Optional[str],
+        id: typing.Optional[str] = None
     ):
         try:
             client.write_line(json.dumps({

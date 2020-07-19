@@ -37,7 +37,9 @@ class CommandEvent(object):
 
 
 SETTING_COMMANDMETHOD = utils.OptionsSetting(
-    COMMAND_METHODS, COMMAND_METHOD, "Set the method used to respond to commands"
+    COMMAND_METHODS,
+    COMMAND_METHOD,
+    "Set the method used to respond to commands"
 )
 
 
@@ -50,17 +52,19 @@ SETTING_COMMANDMETHOD = utils.OptionsSetting(
 @utils.export("channelset", utils.BoolSetting("hide-prefix", "Disable/enable hiding prefix in command reponses"))
 @utils.export("channelset", utils.BoolSetting("commands", "Disable/enable responding to commands in-channel"))
 @utils.export(
-    "channelset", utils.BoolSetting("prefixed-commands", "Disable/enable responding to prefixed commands in-channel")
+    "channelset",
+    utils.BoolSetting("prefixed-commands",
+                      "Disable/enable responding to prefixed commands in-channel")
 )
 class Module(ModuleManager.BaseModule):
 
-    @utils.hook("new.user")
+    """@utils.hook("new.user")
     @utils.hook("new.channel")
     def new(self, event):
         if "user" in event:
             target = event["user"]
         else:
-            target = event["channel"]
+            target = event["channel"]"""
 
     def has_command(self, command):
         return command.lower() in self.events.on("received").on("command").get_children()
@@ -76,14 +80,22 @@ class Module(ModuleManager.BaseModule):
         default = "PRIVMSG" if is_channel else "NOTICE"
 
         return target.get_setting(
-            COMMAND_METHOD, server.get_setting(COMMAND_METHOD, self.bot.get_setting(COMMAND_METHOD, default))
+            COMMAND_METHOD,
+            server.get_setting(COMMAND_METHOD,
+                               self.bot.get_setting(COMMAND_METHOD,
+                                                    default))
         ).upper()
 
     def _find_command_hook(self, server, target, is_channel, command, user, args):
         if not self.has_command(command):
             command_event = CommandEvent(command, args)
             self.events.on("get.command").call(
-                command=command_event, server=server, target=target, is_channel=is_channel, user=user, kwargs={}
+                command=command_event,
+                server=server,
+                target=target,
+                is_channel=is_channel,
+                user=user,
+                kwargs={}
             )
 
             command = command_event.command
@@ -101,7 +113,8 @@ class Module(ModuleManager.BaseModule):
                         potential_hook = self.get_hooks(alias_of)[0]
                     else:
                         raise ValueError(
-                            "'%s' is an alias of unknown command '%s'" % (command.lower(), alias_of.lower())
+                            "'%s' is an alias of unknown command '%s'" % (command.lower(),
+                                                                          alias_of.lower())
                         )
 
                 if not is_channel and potential_hook.get_kwarg("channel_only", False):
@@ -452,7 +465,13 @@ class Module(ModuleManager.BaseModule):
             stdout.prefix = None
 
         target_str = event.get("target_str", target.name)
-        self._out(event["server"], target, target_str, True, stdout, type, {})
+        self._out(event["server"],
+                  target,
+                  target_str,
+                  True,
+                  stdout,
+                  type,
+                  {})
 
     @utils.hook("check.command.self")
     def check_command_self(self, event):

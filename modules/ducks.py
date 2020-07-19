@@ -136,8 +136,10 @@ class Module(ModuleManager.BaseModule):
     def new_channel(self, event):
         self.bootstrap_channel(event["channel"], event["server"])
 
+        return True
+
     def bootstrap_channel(self, channel, server):
-        testing_enabled = server.is_testing_enabled()
+        testing_enabled = server.get_setting("testing-enabled", False)
         testing_channel = server.get_setting("testing-channel", "NO_CHANNEL")
 
         if not hasattr(channel, "duck_active"):

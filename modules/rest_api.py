@@ -240,7 +240,8 @@ class Module(ModuleManager.BaseModule):
                 found = key
 
         if subcommand == "list":
-            aliases = {v["comment"]: v for v in api_keys.values()}
+            aliases = {v["comment"]: v
+                       for v in api_keys.values()}
             if alias:
                 if not alias in aliases:
                     event["stderr"].write("API key '%s' not found" % alias)

@@ -7,8 +7,10 @@ SETTING_NAME = "inactive-channels"
 SETTING = utils.BoolSetting(SETTING_NAME, "Whether or not to leave inactive channels after 2 weeks")
 
 MODE_SETTING_NAME = "inactive-channel-modes"
-MODE_SETTING = utils.BoolSetting(MODE_SETTING_NAME,
-                                 "Whether or not we will leave inactive channels that we have a mode in")
+MODE_SETTING = utils.BoolSetting(
+    MODE_SETTING_NAME,
+    "Whether or not we will leave inactive channels that we have a mode in"
+)
 
 
 @utils.export("botset", SETTING)
@@ -31,6 +33,8 @@ class Module(ModuleManager.BaseModule):
     def new_channel(self, event):
         if self._get_timestamp(event["channel"]) == None:
             self._set_timestamp(event["channel"])
+
+        return True
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0")

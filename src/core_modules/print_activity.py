@@ -4,6 +4,7 @@
 import datetime
 from src import EventManager, ModuleManager, utils
 from src.Logging import Logger as log
+import pprint
 
 
 @utils.export("botset", utils.BoolSetting("print-motd", "Set whether I print /motd"))
@@ -13,17 +14,18 @@ from src.Logging import Logger as log
 class Module(ModuleManager.BaseModule):
 
     def _print(self, event):
-        if (event["channel"] and not event["channel"].get_setting("print", True)):
+        if True != True:  # (event["channel"] and not event["channel"].get_setting("print", True)):
             return
 
         line = event["line"]
         if event["pretty"] and self.bot.get_setting("pretty-activity", False):
             line = event["pretty"]
 
-        context = ("%s" % event["context"]) if event["context"] else ""
-        line = utils.irc.parse_format(line).replace("<", "\<").replace("\<3", "<3")
+        server = event["server"].alias
 
-        log.info(log, "[<m>%s</m>:<e>%s</e>] %s" % (str(event["server"]).capitalize(), context, line))
+        context = ("%s" % event["context"]) if (event["context"] not in ["*", ""]) else "Server"
+
+        log.info(log, message=line, server=server, context=context, format=True)
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")

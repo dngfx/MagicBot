@@ -68,7 +68,7 @@ class Module(ModuleManager.BaseModule):
             try:
                 data = pages[url].decode()
             except Exception as e:
-                log.error(log,"Failed to decode rss URL %s" % url)
+                log.error(log, "Failed to decode rss URL %s" % url)
                 continue
 
             feed = feedparser.parse(data)
@@ -98,7 +98,7 @@ class Module(ModuleManager.BaseModule):
                 channel.set_setting("rss-seen-ids-%s" % url, seen_ids)
 
         total_milliseconds = (time.monotonic() - start_time) * 1000
-        log.trace(log,"Polled RSS feeds in %fms" % (total_milliseconds))
+        log.trace(log, "Polled RSS feeds in %fms" % (total_milliseconds))
 
     def _get_id(self, entry):
         entry_id = entry.get("id", entry["link"])

@@ -68,7 +68,11 @@ class Socket(IRCObject.Object):
             server_hostname = self._hostname
 
         self._socket = utils.security.ssl_wrap(
-            self._socket, cert=self._cert, key=self._key, verify=self._tls_verify, hostname=server_hostname
+            self._socket,
+            cert=self._cert,
+            key=self._key,
+            verify=self._tls_verify,
+            hostname=server_hostname
         )
 
     def _make_socket(self, hostname, port, bindhost, timeout):

@@ -8,8 +8,14 @@ T_CALLBACK = typing.Callable[["Timer"], None]
 class Timer(object):
 
     def __init__(
-        self, id: str, context: typing.Optional[str], name: str, delay: float, next_due: typing.Optional[float],
-        kwargs: dict, callback: T_CALLBACK
+        self,
+        id: str,
+        context: typing.Optional[str],
+        name: str,
+        delay: float,
+        next_due: typing.Optional[float],
+        kwargs: dict,
+        callback: T_CALLBACK
     ):
         self.id = id
         self.context = context
@@ -65,7 +71,8 @@ class Timers(PollHook.PollHook):
 
     def _persist(self, timer: Timer):
         self.database.bot_settings.set(
-            "timer-%s" % timer.id, {
+            "timer-%s" % timer.id,
+            {
                 "name": timer.name,
                 "delay": timer.delay,
                 "next-due": timer.next_due,

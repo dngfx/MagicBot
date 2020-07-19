@@ -16,34 +16,55 @@ class Logger(object):
             enqueue=True
         )
 
-    def info(self, message):
-        logger.opt(colors=True).info(message)
-        return
+    def formatter(self, server, context, message):
+        message = utils.irc.parse_format(message).replace("<", "\<")
+        formatted_log = "[<m>%s</m>:<e>%s</e>] %s" % (server.capitalize(), context, message)
+        return formatted_log
 
-    def debug(self, message):
+    def info(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
+        logger.opt(colors=True).info(message)
+        return True
+
+    def debug(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).debug(message)
         return
 
-    def success(self, message):
+    def success(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).success(message)
         return
 
-    def warning(self, message):
+    def warning(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).warning(message)
         return
 
-    def warn(self, message):
+    def warn(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).warning(message)
         return
 
-    def error(self, message):
+    def error(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).error(message)
         return
 
-    def critical(self, message):
+    def critical(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).critical(message)
         return
 
-    def trace(self, message):
+    def trace(self, message="", server="", context="", format=False):
+        if format == True:
+            message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).trace(message)
         return

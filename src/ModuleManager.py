@@ -157,7 +157,8 @@ class ModuleManager(object):
         for directory_module in glob.glob(os.path.join(directory, "*", "__init__.py")):
             modules.append(self.define_module(ModuleType.DIRECTORY, directory_module, is_core))
 
-        return {definition.name: definition for definition in modules}
+        return {definition.name: definition
+                for definition in modules}
 
     def list_modules(self,
                      whitelist: typing.List[str],
@@ -335,8 +336,10 @@ class ModuleManager(object):
     def _dependency_sort(self, definitions: typing.List[ModuleDefinition]) -> typing.List[ModuleDefinition]:
         definitions_ordered = []
 
-        definition_names = {d.name: d for d in definitions}
-        definition_dependencies = {d.name: d.get_dependencies() for d in definitions}
+        definition_names = {d.name: d
+                            for d in definitions}
+        definition_dependencies = {d.name: d.get_dependencies()
+                                   for d in definitions}
 
         for name, deps in list(definition_dependencies.items())[:]:
             for dep in deps:

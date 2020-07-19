@@ -41,6 +41,8 @@ class Module(ModuleManager.BaseModule):
     def new_channel(self, event):
         self._parse_peak_users(event["target"])
 
+        return True
+
     @utils.hook("received.join")
     def on_join(self, event):
         channel = event["channel"]

@@ -48,7 +48,6 @@ class Module(ModuleManager.BaseModule):
         #pp = pprint.PrettyPrinter(depth=10)
         #pp.pprint(vars(event["user"]))
 
-        print("Checking in received.quit")
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
@@ -61,7 +60,7 @@ class Module(ModuleManager.BaseModule):
 
         reason = "" if reason == "" else (" (%s)" % reason)
         line = "%s quit%s" % (nickname, reason)
-        log.info(log, "[<m>%s</m>:<e>%s</e>] %s" % (str(event["server"]).capitalize(), nickname, line))
+        log.info(log, server=server, context=user, message=reason, format=True)
 
     def _check(self, server, nickname):
 
