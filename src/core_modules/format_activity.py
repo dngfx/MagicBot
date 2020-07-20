@@ -61,9 +61,9 @@ class Module(ModuleManager.BaseModule):
             symbols = self._mode_symbols(user, channel, event["server"])
 
         if event["action"]:
-            format = "* {SYM}{~NICK} {MSG}"
+            format = "* [b]{SYM}{~NICK}[/b] {MSG}"
         else:
-            format = "\<{SYM}{~NICK}> {MSG}"
+            format = "[b]\<{SYM}{~NICK}>[/b] {MSG}"
 
         return {
             "MSG": event["message"],

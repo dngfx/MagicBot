@@ -17,6 +17,7 @@ class Logger(object):
             colorize=True,
             format="<b><green>[{time:HH:mm:ss!UTC}]</green> <level>[{level}]</level></b> <level>{message}</level>",
             level="INFO",
+            catch=True,
             enqueue=True
         )
 
@@ -40,13 +41,13 @@ class Logger(object):
 
         for key in ("k", "e", "c", "g", "m", "r", "w", "y", "b", "u"):
             replace = "<" + key + ">%(value)s</" + key + ">"
-            self.parser.add_simple_formatter(key, replace)
+            self.parser.add_simple_formatter(key, replace, escape_html=False)
 
     def formatter(self, server, context, message):
         message = utils.irc.parse_format(message).replace("<", "\<")
-        message = Logger.parser.format(message)
+        message = self.parser.format(message).replace("\\<", "<")
 
-        formatted_log = "[<m>%s</m>:<e>%s</e>] %s" % (server.capitalize(), context, message)
+        formatted_log = "[<m><b>%s</b></m>:<e><b>%s</b></e>] %s" % (server.capitalize(), context, message)
         return formatted_log
 
     def info(self, message="", server="", context="", format=False):
