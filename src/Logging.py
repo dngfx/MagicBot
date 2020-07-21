@@ -1,11 +1,10 @@
-import sys, pprint, bbcode
+import sys, pprint
 from src import Database, utils
 from loguru import logger
 from logging import StreamHandler
 
 
 class Logger(object):
-    parser: None
     logger: None
 
     def __init__(self):
@@ -26,26 +25,8 @@ class Logger(object):
             color = CurrentLevel.color.replace("<bold>", "")
             logger.level(curlevel, color=color)
 
-        self.parser = bbcode.Parser(
-            newline="",
-            install_defaults=False,
-            escape_html=False,
-            replace_cosmetic=False,
-            replace_links=False,
-            tag_opener="[",
-            tag_closer="]",
-            linker=None,
-            linker_takes_context=False,
-            drop_unrecognized=False
-        )
-
-        for key in ("k", "e", "c", "g", "m", "r", "w", "y", "b", "u"):
-            replace = "<" + key + ">%(value)s</" + key + ">"
-            self.parser.add_simple_formatter(key, replace, escape_html=False)
-
     def formatter(self, server, context, message):
         message = utils.irc.parse_format(message).replace("<", "\<")
-        message = self.parser.format(message).replace("\\<", "<")
 
         formatted_log = "[<m><b>%s</b></m>:<e><b>%s</b></e>] %s" % (server.capitalize(), context, message)
         return formatted_log

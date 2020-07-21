@@ -61,9 +61,9 @@ class Module(ModuleManager.BaseModule):
             symbols = self._mode_symbols(user, channel, event["server"])
 
         if event["action"]:
-            format = "* [b]{SYM}{~NICK}[/b] {MSG}"
+            format = "* {SYM}{~NICK} {MSG}"
         else:
-            format = "[b]\<{SYM}{~NICK}>[/b] {MSG}"
+            format = "\<{SYM}{~NICK}> {MSG}"
 
         return {
             "MSG": event["message"],
@@ -145,7 +145,7 @@ class Module(ModuleManager.BaseModule):
             realname = " ({REAL})"
 
         minimal = "{~NICK} joined {CHAN}"
-        line = "{~NICK}%s%s ({UH}) joined [b]{CHAN}[/b]" % (account, realname)
+        line = "{~NICK}%s%s ({UH}) joined {CHAN}" % (account, realname)
 
         formatting = {
             "UH": user.userhost(),
