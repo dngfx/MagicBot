@@ -1,7 +1,7 @@
 [style]
 based_on_style: google
 indent_width: 4
-COALESCE_BRACKETS: true
+COALESCE_BRACKETS: false
 DEDENT_CLOSING_BRACKETS: true
 column_limit: 120
 DISABLE_ENDING_COMMA_HEURISTIC: true
