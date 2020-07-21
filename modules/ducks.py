@@ -28,30 +28,32 @@ COLORS = [
     utils.consts.PURPLE
 ]
 
-SPECIAL_DUCKS = [[{
-    "type": "Gold",
-    "color": DUCK_GOLD_COLOR,
-    "lang": "Golden",
-    "xpbonus": 5
-}],
-                 [{
-                     "type": "Metal",
-                     "color": DUCK_METAL_COLOR,
-                     "lang": "Metal",
-                     "xpbonus": 2
-                 }],
-                 [{
-                     "type": "Red",
-                     "color": DUCK_RED_COLOR,
-                     "lang": "Rabid",
-                     "xpbonus": 0.5
-                 },
-                  [{
-                      "type": "Rainbow",
-                      "color": COLORS,
-                      "lang": "Mythical",
-                      "xpbonus": 10
-                  }]]]
+SPECIAL_DUCKS = [
+    [{
+        "type": "Gold",
+        "color": DUCK_GOLD_COLOR,
+        "lang": "Golden",
+        "xpbonus": 5
+    }],
+    [{
+        "type": "Metal",
+        "color": DUCK_METAL_COLOR,
+        "lang": "Metal",
+        "xpbonus": 2
+    }],
+    [{
+        "type": "Red",
+        "color": DUCK_RED_COLOR,
+        "lang": "Rabid",
+        "xpbonus": 0.5
+    }],
+    [{
+        "type": "Rainbow",
+        "color": COLORS,
+        "lang": "Mythical",
+        "xpbonus": 10
+    }]
+]
 
 DEFAULT_MIN_MESSAGES = 40
 DEFAULT_MISS_COOLDOWN = 5
@@ -211,8 +213,13 @@ class Module(ModuleManager.BaseModule):
 
         random_duck_type = random.randint(0, 2)
 
+        rainbow_duck_chance = 5
+
+        if channel._ducks_debug == True:
+            rainbow_duck_chance = 33
+
         # 5% chance to generate a rainbow duck
-        if random.randint(0, 99) < 5:
+        if random.randint(0, 99) < rainbow_duck_chance:
             random_duck_type = 3
             channel.duck_is_special = True
             channel.duck_special_type = random_duck_type
