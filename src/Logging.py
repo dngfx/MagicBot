@@ -7,15 +7,15 @@ from logging import StreamHandler
 class Logger(object):
     logger: None
 
-    def __init__(self):
-        self.set_logger()
+    def __init__(self, log_level="INFO"):
+        self.set_logger(log_level)
 
-    def set_logger(self):
+    def set_logger(self, log_level):
         self.logger = logger.add(
             StreamHandler(sys.stdout),
             colorize=True,
             format="<b><green>[{time:HH:mm:ss!UTC}]</green> <level>[{level}]</level></b> <level>{message}</level>",
-            level="INFO",
+            level=log_level,
             catch=True,
             enqueue=True
         )
@@ -41,34 +41,34 @@ class Logger(object):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).debug(message)
-        return
+        return True
 
     def warning(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(log=True).warning(message)
-        return
+        return True
 
     def warn(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).warning(message)
-        return
+        return True
 
     def error(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).error(message)
-        return
+        return True
 
     def critical(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).critical(message)
-        return
+        return True
 
     def trace(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
         logger.opt(colors=True).trace(message)
-        return
+        return True

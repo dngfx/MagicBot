@@ -1,7 +1,9 @@
 #--depends-on commands
 #--depends-on permissions
 
+import sys
 from src import IRCLine, ModuleManager, utils, IRCChannels
+from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
@@ -123,10 +125,15 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("permission", "shutdown")
     @utils.spec("?<reason>string")
     def shutdown(self, event):
-        reason = event["spec"][0] or "Shutting down"
+        reason = event["spec"][0] if event["spec"][0] else "Shutting down"
         for server in self.bot.servers.values():
             line = server.send_quit(reason)
             line.events.on("send").hook(self._shutdown_hook(server))
+
+        self.quit_process()
+
+    def quit_process(self):
+        sys.exit()
 
     def _shutdown_hook(self, server):
 

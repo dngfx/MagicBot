@@ -73,7 +73,7 @@ class Module(ModuleManager.BaseModule):
             resume_channels.append(channel_name)
             event["server"].set_setting("resume-channels", resume_channels)
 
-    @utils.hook("preprocess.send.quit")
+    #@utils.hook("preprocess.send.quit")
     def preprocess_send(self, event):
         if event["line"].command == "QUIT" and event["server"].has_capability(CAP):
             event["line"].command = "BRB"

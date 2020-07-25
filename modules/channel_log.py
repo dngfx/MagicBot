@@ -76,9 +76,6 @@ class Module(ModuleManager.BaseModule):
         #print(event["channel"], event["user"], event["line"], event["server"])
         if event["channel"]:
             self._log(event["server"], event["channel"], event["line"])
-            """log.info(
-                log, "%s - [%s] %s" % (event["server"].name.capitalize(), event["channel"].name, event["line"].replace("<", "\<"))
-            )"""
         elif event["user"]:
             for channel in event["user"].channels:
                 self._log(event["server"], channel, event["line"])

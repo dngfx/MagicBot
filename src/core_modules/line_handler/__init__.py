@@ -1,4 +1,4 @@
-import enum
+import enum, pprint
 from src import EventManager, IRCLine, ModuleManager, utils
 from . import channel, core, ircv3, message, user
 from src.Logging import Logger as log
@@ -137,7 +137,6 @@ class Module(ModuleManager.BaseModule):
 
     # a user has disconnected!
     @utils.hook("raw.received.quit")
-    @utils.hook("raw.send.quit")
     def quit(self, event):
         user.quit(self.events, event)
 

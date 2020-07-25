@@ -60,15 +60,13 @@ def quit(events, event):
             user = event["server"].get_user(nickname)
 
             event["server"].quit_user(user)
-            events.on("received.quit").call(reason=reason, user=user, server=event["server"])
+            events.on("received.quit").call(event)
 
             return True
         else:
             event["server"].disconnect()
             return True
     else:
-        reason = event["line"].args.get(0)
-        events.on("send.quit").call(reason=reason, user=user, server=event["server"])
         return True
 
 

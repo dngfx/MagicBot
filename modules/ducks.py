@@ -152,7 +152,6 @@ class Module(ModuleManager.BaseModule):
             channel.duck_cooldowns = {}
             channel._ducks_debug = testing_enabled
             channel._testing_channel = testing_channel
-            # {"dfx": { "cooldown_time": time, "missed_times": 0 }}
         else:
             channel._ducks_debug = testing_enabled
             channel._testing_channel = testing_channel
