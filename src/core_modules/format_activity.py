@@ -387,11 +387,13 @@ class Module(ModuleManager.BaseModule):
     def self_kick(self, event):
         self._on_kick(event, event["server"].nickname)
 
-    def _quit(self, event, user=None, reason=None):
+    def _quit(self, event, user, reason):
+        pp = pprint.PrettyPrinter(depth=10)
+        pp.pprint(vars(event))
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
-        reason = reason if reason else event["reason"]
+        reason = event["reason"]
 
         minimal = "{~NICK} has quit ({REAS})"
         line = minimal

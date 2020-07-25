@@ -60,7 +60,7 @@ def quit(events, event):
             user = event["server"].get_user(nickname)
 
             event["server"].quit_user(user)
-            events.on("received.quit").call(event)
+            events.on("received.quit").call(reason=reason, user=user, server=event["server"])
 
             return True
         else:

@@ -42,24 +42,6 @@ class Module(ModuleManager.BaseModule):
     def nick(self, event):
         self._check(event["server"], event["old_nickname"])
 
-    @utils.hook("received.quit")
-    def quit(self, event):
-
-        server = event["server"]
-        user = event["user"]
-        nickname = user.nickname_lower
-        reason = event["reason"]
-
-        user_exists = server.has_user(nickname)
-
-        if user_exists == True:
-            server.quit_user(user)
-
-        reason = "" if reason == "" else (" (%s)" % reason)
-        line = "%s quit%s" % (nickname, reason)
-
-        #log.info(log, server=server, context=user, message=reason, format=True)
-
     def _check(self, server, nickname):
 
         target_nick = self._target(server)
