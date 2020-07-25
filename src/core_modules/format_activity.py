@@ -388,8 +388,6 @@ class Module(ModuleManager.BaseModule):
         self._on_kick(event, event["server"].nickname)
 
     def _quit(self, event, user, reason):
-        pp = pprint.PrettyPrinter(depth=10)
-        pp.pprint(vars(event))
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
