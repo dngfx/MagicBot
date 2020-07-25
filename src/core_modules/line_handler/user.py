@@ -52,22 +52,6 @@ def handle_311(event):
 
 
 def quit(events, event):
-    """{
-        'eaten': False,
-        'kwargs': {
-            'direction': 1, (Direction.Recv)
-            'line': ":dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com QUIT :Remote host closed the connection)",
-            'server': "IRCServer.Server(rizon)"
-        },
-        'name': 'raw.received.quit'
-    }
-    {
-        'hostmask': 'dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com',
-        'hostname': 'Rizon-8F8F51EE.dynamic.dsl.as9105.com',
-        'nickname': 'dongfix',
-        'username': '~dongfix'
-    }"""
-
     nickname = None
     if event["direction"] == utils.Direction.Recv:
         nickname = event["line"].source.nickname

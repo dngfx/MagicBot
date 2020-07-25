@@ -45,9 +45,6 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.quit")
     def quit(self, event):
 
-        #pp = pprint.PrettyPrinter(depth=10)
-        #pp.pprint(vars(event["user"]))
-
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
@@ -60,7 +57,8 @@ class Module(ModuleManager.BaseModule):
 
         reason = "" if reason == "" else (" (%s)" % reason)
         line = "%s quit%s" % (nickname, reason)
-        log.info(log, server=server, context=user, message=reason, format=True)
+
+        #log.info(log, server=server, context=user, message=reason, format=True)
 
     def _check(self, server, nickname):
 

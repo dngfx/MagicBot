@@ -26,7 +26,7 @@ class Logger(object):
             logger.level(curlevel, color=color)
 
     def formatter(self, server, context, message):
-        message = utils.irc.parse_format(message).replace("<", "\<")
+        message = utils.irc.parse_format(message)
 
         formatted_log = "[<m><b>%s</b></m>:<e><b>%s</b></e>] %s" % (server.capitalize(), context, message)
         return formatted_log

@@ -312,7 +312,8 @@ class Module(ModuleManager.BaseModule):
     def _on_topic(self, event, nickname, action, topic):
         formatting = {
             "ACT": action,
-            "TOP": topic,
+            "TOP": topic.replace("<",
+                                 "\<"),
             "~TNICK": nickname,
             "CHAN": event["channel"].name
         }
@@ -386,19 +387,13 @@ class Module(ModuleManager.BaseModule):
     def self_kick(self, event):
         self._on_kick(event, event["server"].nickname)
 
-    def _quit(self, event):
+    def _quit(self, event, reason):
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
         reason = event["reason"]
-        """log.info(
-            log,
-            "[<m>%s</m>:<e>%s</e>] User has quit%s" % (str(event["server"]).capitalize(),
-                                                       event["target"].name,
-                                                       reason)
-        )"""
 
-        minimal = "{~NICK} has quit{REAS}"
+        minimal = "{~NICK} has quit ({REAS})"
         line = minimal
 
         self._event(
@@ -411,12 +406,13 @@ class Module(ModuleManager.BaseModule):
             formatting={"REAS": reason}
         )
 
+    @utils.hook("received.quit")
     def on_quit(self, event):
-        self._quit(event, event["user"], event["reason"])
+        self._quit(event, event["reason"])
 
     @utils.hook("send.quit")
     def send_quit(self, event):
-        self._quit(event, event["server"].get_user(event["server"].nickname), event["reason"])
+        self._quit(event, event["reason"])
 
     @utils.hook("received.rename")
     def rename(self, event):
