@@ -18,15 +18,16 @@ class Module(ModuleManager.BaseModule):
             URL_WORDNIK % word,
             get_params={
                 "useCanonical": "true",
-                "limit": 1,
-                "sourceDictionaries": "wiktionary",
+                "sourceDictionaries": "all",
                 "api_key": self.bot.config["wordnik-api-key"]
             }
         )
 
         if page:
             if page.code == 200:
-                return True, page.json()[0]
+                for i in page.json():
+                    if "text" in i and i["text"]:
+                        return True, i
             else:
                 return True, None
         else:
@@ -42,7 +43,7 @@ class Module(ModuleManager.BaseModule):
         if success:
             if not definition == None:
                 text = utils.http.strip_html(definition["text"])
-                event["stdout"].write("%s: %s" % (definition["word"], text))
+                event["stdout"].write("%s: %s" % (utils.irc.bold(definition["word"].capitalize()), text))
             else:
                 event["stderr"].write("No definitions found")
         else:
