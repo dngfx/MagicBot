@@ -1,4 +1,4 @@
-import datetime
+import datetime, pprint
 from src import ModuleManager, utils
 
 PRUNE_TIMEDELTA = datetime.timedelta(weeks=2)
@@ -33,8 +33,6 @@ class Module(ModuleManager.BaseModule):
     def new_channel(self, event):
         if self._get_timestamp(event["channel"]) == None:
             self._set_timestamp(event["channel"])
-
-        return True
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0")

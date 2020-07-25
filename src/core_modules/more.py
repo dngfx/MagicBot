@@ -3,13 +3,12 @@ from src import EventManager, ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
-    """@utils.hook("new.user")
+    @utils.hook("new.user")
     @utils.hook("new.channel")
     def new(self, event):
-        return
         obj = event.get("user", event.get("channel", None))
         obj._last_stdout = None
-        obj._last_stderr = None"""
+        obj._last_stderr = None
 
     @utils.hook("postprocess.command")
     @utils.kwarg("priority", EventManager.PRIORITY_MONITOR)

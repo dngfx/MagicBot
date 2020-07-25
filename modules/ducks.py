@@ -1,7 +1,7 @@
 #--depends-on commands
 #--depends-on config
 
-import random, re, time
+import random, re, time, pprint
 from src import EventManager, ModuleManager, utils
 """ Licence: WTFPL """
 

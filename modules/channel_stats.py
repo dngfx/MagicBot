@@ -2,7 +2,7 @@
 #--depends-on config
 #--depends-on permissions
 
-import time, math
+import time, math, pprint
 from src import EventManager, ModuleManager, utils, IRCChannel
 
 
@@ -39,8 +39,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("new.channel")
     def new_channel(self, event):
-        self._parse_peak_users(event["target"])
-
+        self._parse_peak_users(event["channel"])
         return True
 
     @utils.hook("received.join")

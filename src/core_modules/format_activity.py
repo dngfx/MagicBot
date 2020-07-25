@@ -387,7 +387,7 @@ class Module(ModuleManager.BaseModule):
     def self_kick(self, event):
         self._on_kick(event, event["server"].nickname)
 
-    def _quit(self, event, reason):
+    def _quit(self, event, user, reason):
         server = event["server"]
         user = event["user"]
         nickname = user.nickname_lower
@@ -408,11 +408,11 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.quit")
     def on_quit(self, event):
-        self._quit(event, event["reason"])
+        self._quit(event, event["user"], event["reason"])
 
     @utils.hook("send.quit")
     def send_quit(self, event):
-        self._quit(event, event["reason"])
+        self._quit(event, event["server"].get_user(event["server"].nickname), event["reason"])
 
     @utils.hook("received.rename")
     def rename(self, event):

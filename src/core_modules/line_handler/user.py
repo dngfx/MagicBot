@@ -68,7 +68,7 @@ def quit(events, event):
             return True
     else:
         reason = event["line"].args.get(0)
-        events.on("send.quit").call(reason=reason, server=event["server"])
+        events.on("send.quit").call(reason=reason, user=user, server=event["server"])
         return True
 
 
