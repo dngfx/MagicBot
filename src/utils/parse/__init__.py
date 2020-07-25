@@ -114,6 +114,20 @@ def parse_number(s: str) -> str:
     return str(number)
 
 
+def _shorten_volume(volume):
+    volume = int(volume)
+    volume = f"{volume:,}"
+
+    parts = volume.split(",")
+    amount = len(parts) - 1
+
+    if amount == 0:
+        return volume
+
+    prefix = ["", "K", "M", "B"]
+    return "%s.%s%s" % (parts[0], parts[1][0], prefix[amount])
+
+
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:
     i = 0
     max = len(s) - 1

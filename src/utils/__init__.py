@@ -55,7 +55,6 @@ class Check(object):
 
 TOP_10_CALLABLE = typing.Callable[[typing.Any], typing.Any]
 
-
 def top_10(
     items: typing.Dict[typing.Any,
                        typing.Any],

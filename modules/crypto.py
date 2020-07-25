@@ -14,24 +14,18 @@ class Module(ModuleManager.BaseModule):
     _assets = {}
     _name = "Cryptocurrency"
 
-    def _shorten_volume(self, volume):
-        parts = volume.split(",")
-        amount = len(parts) - 1
-
-        if amount == 0:
-            return volume
-
-        prefix = ["", "", "M", "B"]
-        return "%s.%s%s" % (parts[0], parts[1][0], prefix[amount])
-
     @utils.hook("received.command.coinstats")
     @utils.kwarg("help", "Shows market information about the coin requested")
     @utils.spec("!<coin>lstring")
     def show_stats(self, event):
         coin = event["spec"][0]
-        page = utils.http.request(API_URL % "assets",
-                                  get_params={"search": coin,
-                                              "limit": 1}).json()
+        page = utils.http.request(
+            API_URL % "assets",
+            get_params={
+                "search": coin,
+                "limit": 1
+            }
+        ).json()
         data = page["data"]
 
         if not data:
@@ -48,7 +42,7 @@ class Module(ModuleManager.BaseModule):
         trade_vol = int(info["volumeUsd24Hr"].split(".")[0])
         trade_vol = f"{trade_vol:,}"
 
-        trade_vol_formatted = self._shorten_volume(trade_vol)
+        trade_vol_formatted = utils.parse._shorten_volume(trade_vol)
 
         chg_parts = info["changePercent24Hr"].split(".")
         chg_positive = float(info["changePercent24Hr"]) > 0
@@ -59,12 +53,15 @@ class Module(ModuleManager.BaseModule):
         avg_parts = info["vwap24Hr"].split(".")
         avg_price = "%s.%s" % (avg_parts[0], avg_parts[1][:2])
 
-        event["stdout"].write("%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s" %
-                              (info["name"],
-                               utils.irc.bold(info["symbol"]),
-                               utils.irc.bold("$" + trade_vol_formatted),
-                               utils.irc.bold("$" + avg_price),
-                               chg_text))
+        event["stdout"].write(
+            "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s" % (
+                info["name"],
+                utils.irc.bold(info["symbol"]),
+                utils.irc.bold("$" + trade_vol_formatted),
+                utils.irc.bold("$" + avg_price),
+                chg_text
+            )
+        )
 
     @utils.hook("received.command.curtocoin", alias_of="currencytocoin")
     @utils.hook("received.command.currencytocoin")
@@ -75,10 +72,14 @@ class Module(ModuleManager.BaseModule):
         amount = event["spec"][0]
         coin = event["spec"][2].upper()
 
-        page = utils.http.request(API_URL % "markets",
-                                  get_params={"baseSymbol": coin,
-                                              "quoteSymbol": currency,
-                                              "limit": 1}).json()
+        page = utils.http.request(
+            API_URL % "markets",
+            get_params={
+                "baseSymbol": coin,
+                "quoteSymbol": currency,
+                "limit": 1
+            }
+        ).json()
         data = page["data"]
 
         if not data:
@@ -89,11 +90,15 @@ class Module(ModuleManager.BaseModule):
         price = int(amount) / int(info["priceQuote"].split(".")[0])
         symbol = info["quoteSymbol"]
 
-        event["stdout"].write("Convert %s %s to %s: %s %s" % (utils.irc.bold(amount),
-                                                              utils.irc.bold(currency),
-                                                              utils.irc.bold(coin),
-                                                              utils.irc.bold(price),
-                                                              utils.irc.bold(coin)))
+        event["stdout"].write(
+            "Convert %s %s to %s: %s %s" % (
+                utils.irc.bold(amount),
+                utils.irc.bold(currency),
+                utils.irc.bold(coin),
+                utils.irc.bold(price),
+                utils.irc.bold(coin)
+            )
+        )
 
     @utils.hook("received.command.coinprice")
     @utils.kwarg("help", "Get the price of one coin in local currency")
@@ -102,10 +107,14 @@ class Module(ModuleManager.BaseModule):
         currency = event["spec"][1].upper()
         coin = event["spec"][0].upper()
 
-        page = utils.http.request(API_URL % "markets",
-                                  get_params={"baseSymbol": coin,
-                                              "quoteSymbol": currency,
-                                              "limit": 1}).json()
+        page = utils.http.request(
+            API_URL % "markets",
+            get_params={
+                "baseSymbol": coin,
+                "quoteSymbol": currency,
+                "limit": 1
+            }
+        ).json()
         data = page["data"]
 
         if not data:
@@ -117,8 +126,12 @@ class Module(ModuleManager.BaseModule):
         price = "%s.%s" % (price_parts[0], price_parts[1][:2])
         symbol = info["quoteSymbol"]
 
-        event["stdout"].write("%s to %s: 1 %s = %s %s" % (utils.irc.bold(coin),
-                                                          utils.irc.bold(currency),
-                                                          utils.irc.bold(coin),
-                                                          utils.irc.bold(price),
-                                                          utils.irc.bold(currency)))
+        event["stdout"].write(
+            "%s to %s: 1 %s = %s %s" % (
+                utils.irc.bold(coin),
+                utils.irc.bold(currency),
+                utils.irc.bold(coin),
+                utils.irc.bold(price),
+                utils.irc.bold(currency)
+            )
+        )

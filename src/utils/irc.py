@@ -205,19 +205,21 @@ OPT_STR = typing.Optional[str]
 
 class IRCConnectionParameters(object):
 
-    def __init__(self,
-                 id: int,
-                 alias: str,
-                 hostname: str,
-                 port: int,
-                 password: OPT_STR,
-                 tls: bool,
-                 bindhost: OPT_STR,
-                 nickname: str,
-                 username: OPT_STR,
-                 realname: OPT_STR,
-                 args: typing.Dict[str,
-                                   str] = {}):
+    def __init__(
+        self,
+        id: int,
+        alias: str,
+        hostname: str,
+        port: int,
+        password: OPT_STR,
+        tls: bool,
+        bindhost: OPT_STR,
+        nickname: str,
+        username: OPT_STR,
+        realname: OPT_STR,
+        args: typing.Dict[str,
+                          str] = {}
+    ):
         self.id = id
         self.alias = alias
         self.hostname = hostname
@@ -253,11 +255,13 @@ def parse_ctcp(s: str) -> typing.Optional[CTCPMessage]:
 
 class Capability(object):
 
-    def __init__(self,
-                 ratified_name: typing.Optional[str],
-                 draft_name: str = None,
-                 alias: str = None,
-                 depends_on: typing.List[str] = None):
+    def __init__(
+        self,
+        ratified_name: typing.Optional[str],
+        draft_name: str = None,
+        alias: str = None,
+        depends_on: typing.List[str] = None
+    ):
         self.alias = alias or ratified_name
         self._caps = set([ratified_name, draft_name])
         self.depends_on = depends_on or []
@@ -331,12 +335,7 @@ def hostmask_parse(hostmask: str):
     return HostmaskPattern(hostmask, re.compile(".".join(part1_out)))
 
 
-def hostmask_match_many(
-    hostmasks: typing.List[str],
-    pattern: HostmaskPattern,
-) -> typing.Generator[str,
-                      None,
-                      None]:
+def hostmask_match_many(hostmasks: typing.List[str], pattern: HostmaskPattern,) -> typing.Generator[str, None, None]:
     for hostmask in hostmasks:
         if pattern.match(hostmask):
             yield hostmask
