@@ -48,15 +48,22 @@ class Module(ModuleManager.BaseModule):
 
     def _from_id(self, tweet_id):
         api = self._api()
+        try:
+            status = api.get_status(tweet_id, tweet_mode="extended")
+        except:
+            return False
 
-        status = api.get_status(tweet_id, count=1, tweet_mode="extended")
         return status
 
     def _get_profile(self, profile_name):
         api = self._api()
 
-        profile = api.user_timeline(screen_name=profile_name, count=1, tweet_mode="extended")[0]
-        return profile
+        try:
+            profile = api.user_timeline(screen_name=profile_name, count=1, tweet_mode="extended")
+        except:
+            return False
+
+        return profile[0]
 
     @utils.hook("received.command.tw", alias_of="tweet")
     @utils.hook("received.command.tweet")
@@ -91,9 +98,12 @@ class Module(ModuleManager.BaseModule):
         event.eat()
         tweet_id = status if status else event["match"].group(1)
         tweet = self._from_id(tweet_id)
+
         if tweet:
             tweet_str = format._tweet(self.exports, event["server"], tweet, from_url=True)
             event["stdout"].write(tweet_str)
+        else:
+            event["stderr"].write("Could not find tweet")
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -108,5 +118,9 @@ class Module(ModuleManager.BaseModule):
         twitter_profile = profile if profile else event["match"].group(1)
 
         profile = self._get_profile(twitter_profile)
-        profile = format._profile(self.exports, event, profile, from_url=True)
-        event["stdout"].write(profile)
+
+        if profile:
+            profile = format._profile(self.exports, event, profile, from_url=True)
+            event["stdout"].write(profile)
+        else:
+            event["stderr"].write("Could not find profile")
