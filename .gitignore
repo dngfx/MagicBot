@@ -31,3 +31,4 @@ bot.key
 
 # vscode folder
 .vscode/*
+modules/steam_reference.py

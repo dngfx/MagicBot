@@ -19,3 +19,4 @@ pydig              ==0.3.0
 emoji-country-flag ==1.2.1
 hurry.filesize     ==0.9
 loguru             ==0.5.1
+steam              ==1.0.2
