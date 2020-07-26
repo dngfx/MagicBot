@@ -127,6 +127,8 @@ def _shorten_volume(volume):
     prefix = ["", "K", "M", "B"]
     return "%s.%s%s" % (parts[0], parts[1][0], prefix[amount])
 
+def _comma_format(number):
+    return f"{number:,}"
 
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:
     i = 0

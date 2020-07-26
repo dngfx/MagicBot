@@ -19,7 +19,7 @@ class Module(ModuleManager.BaseModule):
         except ModuleManager.ModuleWarning as warning:
             raise utils.EventError("Module '%s' not loaded: %s" % (name, str(warning)))
         except Exception as e:
-            raise utils.EventError("Failed to reload module '%s': %s" % (name, str(e)))
+            raise utils.EventError(("Failed to reload module '%s'" % (name)))
 
     @utils.hook("received.command.modinfo")
     @utils.spec("!<module>word")

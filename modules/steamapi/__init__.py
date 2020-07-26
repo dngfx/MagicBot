@@ -3,7 +3,7 @@
 #--depends-on permissions
 #--require-config steam-api-key
 
-import time, math, pprint, datetime, pprint
+import time, math, pprint, datetime, pprint, urllib.parse, operator
 from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
@@ -17,6 +17,8 @@ _events = None
 _exports = None
 _log = None
 
+SERVICEWORKER_URL = "https://api.steampowered.com/%s/%s/v%s/"
+
 
 @utils.export("set", utils.Setting("steamid", "Set your steam id", example="103582791429521412"))
 class Module(ModuleManager.BaseModule):
@@ -27,8 +29,8 @@ class Module(ModuleManager.BaseModule):
     stderr = None
 
     def connect(self):
-        api_key = self.bot.config["steam-api-key"]
-        self.api = WebAPI(api_key, format="json")
+        self.api_key = self.bot.config["steam-api-key"]
+        self.api = WebAPI(self.api_key, format="json")
 
     def get_api(self) -> WebAPI:
         if not self.api_loaded:
@@ -72,10 +74,14 @@ class Module(ModuleManager.BaseModule):
 
         display_name = summary["realname"] if "realname" in summary else steam_name
 
+        total_games = self.get_total_games(steam_id.as_64)["game_count"]
+        total_games = " — Games Owned: %s" % utils.irc.bold(total_games)
+
         if "lastlogoff" in summary:
             pretty_time = utils.datetime.format.to_pretty_time(
                 (datetime.datetime.now() - datetime.datetime.fromtimestamp(summary["lastlogoff"])).total_seconds()
             )
+
             last_seen = " — Last Seen: %s ago" % utils.irc.bold(pretty_time)
 
         currently_playing = ""
@@ -83,17 +89,99 @@ class Module(ModuleManager.BaseModule):
         if "gameextrainfo" in summary:
             currently_playing = " — Currently Playing: %s" % utils.irc.bold(summary["gameextrainfo"])
 
-        message = "%s (%s): Status: %s — Visibility: %s%s%s — Profile: %s" % (
+        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s — Profile: %s" % (
             steam_name,
             utils.irc.bold(display_name),
             utils.irc.bold(status),
             utils.irc.bold(visibility),
+            total_games,
             last_seen,
             currently_playing,
             utils.irc.bold(summary["profileurl"])
         )
 
         event["stdout"].write(message)
+
+    @utils.hook("received.command.topgames", channel_only=True)
+    @utils.kwarg("help", "Get users steam summary")
+    @utils.spec("?<nick>string")
+    def game_summary(self, event):
+        user = event["user"]
+        nick = user.nickname if event["spec"][0] == None else event["spec"][0]
+        steam_id = SteamUser.get_id_from_nick(event, nick)
+
+        summary = self.get_total_games(steam_id)
+
+        gamelist = summary["games"]
+        #print(gamelist)
+
+        games = list()
+
+        for game in gamelist:
+            #print(game)
+            #print(game["name"], game["playtime_forever"])
+            total_playtime = game["playtime_forever"] * 60
+            #print("Played %s for %s" % (game["name"], pretty_time))
+            games.append([total_playtime, game["name"]])
+
+        games.sort(reverse=True)
+        games = games[0:5]
+
+        summary = self.get_player_summary(steam_id)
+        summary = summary["players"][0]
+
+        games_parsed = list()
+        for game in games:
+            #print(game)
+            pretty_time = utils.datetime.format.to_pretty_time(game[0])
+            games_parsed.append([pretty_time, game[1]])
+
+        lang = list()
+
+        i = 1
+        for time, name in games_parsed:
+            parsed = "#%s) %s — Played: %s" % (utils.irc.bold(i), utils.irc.bold(name), utils.irc.bold(time))
+            lang.append(parsed)
+            i = i + 1
+
+        print(lang)
+
+        event["stdout"].write("Top 5 Games for %s: %s" % (summary["personaname"], " — ".join(lang)))
+
+    """ {
+    'appid': 440,
+    'name': 'Team Fortress 2',
+    'playtime_forever': 27787,
+    'img_icon_url': 'e3f595a92552da3d664ad00277fad2107345f743',
+    'img_logo_url': '07385eb55b5ba974aebbe74d3c99626bda7920b8',
+    'has_community_visible_stats': True,
+    'playtime_windows_forever': 126,
+    'playtime_mac_forever': 0,
+    'playtime_linux_forever': 0
+    } """
+
+    def get_total_games(self, id):
+        api_key = self.api_key
+
+        json = {
+            "steamid": id,
+            "include_appinfo": True,
+            "include_played_free_games": True,
+            "key": api_key
+        }
+
+        page = self.get_service_worker("IPlayerService.GetOwnedGames", json)
+        return page
+
+        #return self.get_api().call("IPlayerService.GetOwnedGames", steamid=id, input_json=json_format)
+
+    def get_service_worker(self, method, json):
+        version = "0001"
+        interface, method = method.split(".")
+
+        page = utils.http.request(SERVICEWORKER_URL % (interface, method, version), get_params=json).json()
+
+        return page["response"]
 
     def get_player_summary(self, id):
         return self.call("ISteamUser.GetPlayerSummaries", steamids=id)

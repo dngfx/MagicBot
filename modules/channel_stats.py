@@ -67,13 +67,16 @@ class Module(ModuleManager.BaseModule):
         wordiest_id, wordiest_count = wordcount[0]
         runnerup_id, runnerup_count = wordcount[1]
 
+        wordiest_count = utils.parse._comma_format(wordiest_count)
+        runnerup_count = utils.parse._comma_format(runnerup_count)
+
         wordiest_nick = self._get_nick_from_id(wordiest_id, server_id)
         runnerup_nick = self._get_nick_from_id(runnerup_id, server_id)
 
         event["stdout"].write(
-            "%s: Users (Current: %s, Peak: %s) - Wordiest User (Nick: %s, Words: %s) - Second Place (Nick %s, Words: %s)"
+            "Stats for %s: Users (Current: %s, Peak: %s) — Wordiest User (%s with %s words) — Second Place (%s with %s words)"
             % (
-                channel.name + " Stats",
+                utils.irc.bold(channel.name),
                 utils.irc.bold(current_users),
                 utils.irc.bold(peak_users),
                 utils.irc.bold(utils.prevent_highlight(wordiest_nick)),
