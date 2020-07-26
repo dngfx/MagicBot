@@ -64,4 +64,6 @@ def get_id_from_nick(event, nick):
         event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
         return False
 
+    set_user(event["server"], nick, steam_id)
+
     return get_id(event, steam_id)

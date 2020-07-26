@@ -3,7 +3,7 @@
 #--depends-on permissions
 #--require-config steam-api-key
 
-import time, math, pprint, datetime
+import time, math, pprint, datetime, pprint
 from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
@@ -51,11 +51,7 @@ class Module(ModuleManager.BaseModule):
         nick = user.nickname if event["spec"][0] == None else event["spec"][0]
         steam_id = SteamUser.get_id_from_nick(event, nick)
 
-        SteamUser.set_user(event["server"], nick, steam_id)
-
         summary = self.get_player_summary(steam_id)
-
-        print(summary)
 
         if not summary["players"]:
             event["stderr"].write("Could not find that user")
