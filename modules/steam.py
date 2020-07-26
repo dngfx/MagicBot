@@ -5,12 +5,61 @@
 
 import time, math, pprint
 from steam import webapi, steamid
-from steam.steamid import steam64_from_url
+from steam.steamid import steam64_from_url, SteamID
+from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
+
+API = {
+    "personastate":
+        {
+            0: "Offline",
+            1: "Online",
+            2: "Busy",
+            3: "Away",
+            4: "Snooze",
+            5: "Looking to trade",
+            6: "Looking to play"
+        }
+}
 
 
 @utils.export("set", utils.Setting("steamid", "Set your steam id", example="103582791429521412"))
 class Module(ModuleManager.BaseModule):
+
+    def on_load(self):
+        api_key = self.bot.config["steam-api-key"]
+        self._api = WebAPI(api_key, format="json", raw=False)
+
+    def api(self) -> WebAPI:
+        return self._api
+
+    def _steam_id(self, event, id):
+        sid = SteamID(id)
+        if not self._is_valid(sid):
+            # Try Resolving a vanity url
+            sid = self._get_id_from_url(id)
+            if sid == False:
+                event["syserr"].write("Could not resolve steam id")
+                return False
+
+            sid = SteamID(sid)
+            if not self._is_valid(sid):
+                event["syserr"].write("Could not resolve steam id")
+                return False
+
+        print(sid)
+        return sid
+
+    def _get_id_from_url(self, url):
+        id = self.api().call('ISteamUser.ResolveVanityURL', vanityurl=url)["response"]
+
+        if id["success"] != 1:
+            return False
+
+        return id["steamid"]
+
+    def _is_valid(self, id: SteamID):
+        return id.is_valid()
 
     def _account_from_nick(self, event, nick):
         if not event["server"].has_user_id(nick):
@@ -23,10 +72,57 @@ class Module(ModuleManager.BaseModule):
             event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
             return False
 
+        return self._steam_id(event, steam_id)
+
+    def _get_player_summary(self, id):
+        return self.api().call("ISteamUser.GetPlayerSummaries", steamids=id)["response"]["players"][0]
+
     @utils.hook("received.command.steamstats", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
-    @utils.spec("!<nick>lstring")
+    @utils.spec("?<nick>string")
     def user_summary(self, event):
-        nick = event["spec"][0]
+        user = event["user"]
+        nick = user.nickname if event["spec"][0] == None else event["spec"][0]
 
-        self._account_from_nick(event, nick)
+        print(nick)
+
+        steam_id = self._account_from_nick(event, nick)
+
+        summary = self._get_player_summary(steam_id)
+
+        status = API["personastate"][summary["personastate"]]
+        steam_name = summary["personaname"]
+
+        message = "User Summary (%s): Status: %s" % (utils.irc.bold(steam_name), utils.irc.bold(status))
+
+        event["stdout"].write(message)
+
+
+""" {
+    'steamid':
+        '76561198002971551',
+    'communityvisibilitystate':
+        3,
+    'profilestate':
+        1,
+    'personaname':
+        'dongfix',
+    'profileurl':
+        'https://steamcommunity.com/profiles/76561198002971551/',
+    'avatar':
+        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb.jpg',
+    'avatarmedium':
+        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg',
+    'avatarfull':
+        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg',
+    'avatarhash':
+        'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb',
+    'personastate':
+        0,
+    'primaryclanid':
+        '103582791429521408',
+    'timecreated':
+        1227153609,
+    'personastateflags':
+        0
+} """
