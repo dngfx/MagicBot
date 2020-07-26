@@ -7,7 +7,7 @@ from datetime import timezone
 # @elonmusk - Elon Musk 😎 ✓ - Created Jun 2009 - 11.7K Tweets - 47.M Followers, Following 96
 
 VERIFIED_TICK = utils.irc.color(" ✅", utils.consts.LIGHTBLUE)
-FORMAT_PROFILE_PAGE = "%s — %s%s — Created %s — %s Tweets — %s Followers, Following %s%s"
+FORMAT_PROFILE_PAGE = "%s — %s%s — Created %s — %s Tweets — %s Followers, Following %s — %s: %s — %s"
 
 
 def _timestamp(dt):
@@ -74,15 +74,7 @@ def _profile(exports, event, profile, from_url):
                                       '%a %b %d %H:%M:%S %z %Y').replace(tzinfo=timezone.utc
                                                                          ).astimezone(tz=None).strftime('%b %Y')
 
-    shorturl = ""
-    get_shorturl = " — %s" % exports.get_one("shorturl")(
-        event["server"],
-        ("https://twitter.com/%s" % profile_username),
-        context=event["target"]
-    )
-
-    if get_shorturl:
-        shorturl = get_shorturl
+    latest_tweet = _normalise(profile["full_text"])
 
     return FORMAT_PROFILE_PAGE % (
         utils.irc.bold(profile_username),
@@ -92,5 +84,7 @@ def _profile(exports, event, profile, from_url):
         utils.irc.bold(total_tweets),
         utils.irc.bold(followers),
         utils.irc.bold(following),
-        utils.irc.bold(shorturl)
+        utils.irc.bold("Latest Tweet"),
+        latest_tweet,
+        utils.irc.bold(("https://twitter.com/%s" % user["screen_name"]))
     )
