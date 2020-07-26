@@ -5,7 +5,6 @@ from logging import StreamHandler
 
 
 class Logger(object):
-    logger: None
 
     def __init__(self, log_level="INFO"):
         self.set_logger(log_level)
@@ -61,10 +60,8 @@ class Logger(object):
         logger.opt(colors=True).error(message)
         return True
 
-    def critical(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).critical(message)
+    def critical(self, message="", server="", context="", format=False, **kwargs):
+        logger.opt(colors=False).critical(message, **kwargs)
         return True
 
     def trace(self, message="", server="", context="", format=False):

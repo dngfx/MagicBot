@@ -278,6 +278,7 @@ class Module(ModuleManager.BaseModule):
         line = IRCLine.parse_line(valid)
         if obj._assured:
             line.assure()
+
         server.send(line)
 
     @utils.hook("preprocess.command")
@@ -287,7 +288,7 @@ class Module(ModuleManager.BaseModule):
             usage = self._get_usage(event["hook"], event["command"], event["command_prefix"])
             error = None
             if usage:
-                error = "Not enough arguments, usage: %s" % usage
+                error = "Not enough arguments, usage: %s" % usage.replace("<", "\<")
             else:
                 error = "Not enough arguments (minimum: %d)" % min_args
             return utils.consts.PERMISSION_HARD_FAIL, error

@@ -117,13 +117,18 @@ class Module(ModuleManager.BaseModule):
                         context = context[0]
 
                     error = "Please set %s, e.g.: %sconfig %s %s %s" % (
-                        require_setting, event["command_prefix"], context, require_setting, example
+                        require_setting,
+                        event["command_prefix"],
+                        context,
+                        require_setting,
+                        example
                     )
                     return utils.consts.PERMISSION_ERROR, error
 
     def _get_export_setting(self, context):
         settings = self.exports.get_all(context)
-        return {setting.name.lower(): setting for setting in settings}
+        return {setting.name.lower(): setting
+                for setting in settings}
 
     def _config(self, export_settings, target, setting, value=None):
         if not value == None:
@@ -164,9 +169,10 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.config")
     @utils.kwarg("min_args", 1)
     @utils.kwarg("help", "Change config options")
-    @utils.kwarg("usage", "<context>[:name] [-][setting [value]]")
+    @utils.kwarg("usage", "[context][:name] [-][setting [value]]")
     def config(self, event):
         arg_count = len(event["args_split"])
+
         context_desc, _, name = event["args_split"][0].partition(":")
 
         setting = None
@@ -208,8 +214,11 @@ class Module(ModuleManager.BaseModule):
                 else:
                     raise utils.EventError("Cannot change config for current channel when in " "private message")
             event["check_assert"](
-                permission_check | utils.Check("channel-access", target, "high,config") |
-                utils.Check("channel-mode", target, "o")
+                permission_check | utils.Check("channel-access",
+                                               target,
+                                               "high,config") | utils.Check("channel-mode",
+                                                                            target,
+                                                                            "o")
             )
         elif context == "serverset" or context == "botset":
             event["check_assert"](permission_check)

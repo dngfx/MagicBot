@@ -66,16 +66,18 @@ class Buffer(object):
             for line in self._lines:
                 yield line
 
-    def find_all(self,
-                 pattern: typing.Union[str,
-                                       typing.Pattern[str]],
-                 not_pattern: typing.Union[str,
-                                           typing.Pattern[str]] = None,
-                 from_self=True,
-                 for_user: str = None,
-                 deleted=False) -> typing.Generator[BufferLineMatch,
-                                                    None,
-                                                    None]:
+    def find_all(
+        self,
+        pattern: typing.Union[str,
+                              typing.Pattern[str]],
+        not_pattern: typing.Union[str,
+                                  typing.Pattern[str]] = None,
+        from_self=True,
+        for_user: str = None,
+        deleted=False
+    ) -> typing.Generator[BufferLineMatch,
+                          None,
+                          None]:
         if for_user:
             for_user = self.server.irc_lower(for_user)
 
