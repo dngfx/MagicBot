@@ -32,3 +32,4 @@ bot.key
 # vscode folder
 .vscode/*
 modules/steam_reference.py
+modules/steam_reference.py.butt

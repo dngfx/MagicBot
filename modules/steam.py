@@ -47,7 +47,6 @@ class Module(ModuleManager.BaseModule):
                 event["syserr"].write("Could not resolve steam id")
                 return False
 
-        print(sid)
         return sid
 
     def _get_id_from_url(self, url):
@@ -60,6 +59,10 @@ class Module(ModuleManager.BaseModule):
 
     def _is_valid(self, id: SteamID):
         return id.is_valid()
+
+    def _set_steamid(self, event, nick, steamid):
+        user = event["server"].get_user(nick)
+        user.set_setting("steamid", steamid)
 
     def _account_from_nick(self, event, nick):
         if not event["server"].has_user_id(nick):
@@ -84,11 +87,11 @@ class Module(ModuleManager.BaseModule):
         user = event["user"]
         nick = user.nickname if event["spec"][0] == None else event["spec"][0]
 
-        print(nick)
-
         steam_id = self._account_from_nick(event, nick)
+        self._set_steamid(event, nick, steam_id)
 
         summary = self._get_player_summary(steam_id)
+        print(summary)
 
         status = API["personastate"][summary["personastate"]]
         steam_name = summary["personaname"]
@@ -98,31 +101,42 @@ class Module(ModuleManager.BaseModule):
         event["stdout"].write(message)
 
 
-""" {
-    'steamid':
-        '76561198002971551',
-    'communityvisibilitystate':
-        3,
-    'profilestate':
-        1,
-    'personaname':
-        'dongfix',
-    'profileurl':
-        'https://steamcommunity.com/profiles/76561198002971551/',
-    'avatar':
-        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb.jpg',
-    'avatarmedium':
-        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg',
-    'avatarfull':
-        'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg',
-    'avatarhash':
-        'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb',
-    'personastate':
-        0,
-    'primaryclanid':
-        '103582791429521408',
-    'timecreated':
-        1227153609,
-    'personastateflags':
-        0
-} """
+    """ 
+    {
+        'steamid':
+            '76561198028248833',
+        'communityvisibilitystate':
+            3,
+        'profilestate':
+            1,
+        'personaname':
+            'erica',
+        'profileurl':
+            'https://steamcommunity.com/id/ericathesnark/',
+        'avatar':
+            'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/5f/5f8655f3e24f3c1a27b2e38ffd2c968d8f28a594.jpg',
+        'avatarmedium':
+            'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/5f/5f8655f3e24f3c1a27b2e38ffd2c968d8f28a594_medium.jpg',
+        'avatarfull':
+            'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/5f/5f8655f3e24f3c1a27b2e38ffd2c968d8f28a594_full.jpg',
+        'avatarhash':
+            '5f8655f3e24f3c1a27b2e38ffd2c968d8f28a594',
+        'lastlogoff':
+            1595735237,
+        'personastate':
+            1,
+        'realname':
+            'Erica',
+        'primaryclanid':
+            '103582791464854615',
+        'timecreated':
+            1280276956,
+        'personastateflags':
+            0,
+        'gameextrainfo':
+            'Fall Guys: Technical Beta',
+        'gameid':
+            '1265940',
+        'loccountrycode':
+            'MX'
+    } """
