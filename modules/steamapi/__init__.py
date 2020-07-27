@@ -20,7 +20,12 @@ _log = None
 SERVICEWORKER_URL = "https://api.steampowered.com/%s/%s/v%s/"
 
 
-@utils.export("set", utils.Setting("steamid", "Set your steam id", example="103582791429521412"))
+@utils.export(
+    "set",
+    utils.Setting("steamid",
+                  "Set your steam id",
+                  example="1234567, https://steamcommunity.com/id/user")
+)
 class Module(ModuleManager.BaseModule):
     _name = "Steam"
     api_loaded = False

@@ -55,15 +55,17 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No help for %s" % command)
         else:
             modules_command = utils.irc.bold("%smodules" % event["command_prefix"])
-            commands_command = utils.irc.bold("%scommands <module>" % event["command_prefix"])
-            help_command = utils.irc.bold("%shelp <command>" % event["command_prefix"])
+            commands_command = utils.irc.bold("%scommands \<module>" % event["command_prefix"])
+            help_command = utils.irc.bold("%shelp \<command>" % event["command_prefix"])
 
-            event["stdout"].write("I'm %s. use '%s' to list modules, "
-                                  "'%s' to list commands and "
-                                  "'%s' to see help text for a command" % (IRCBot.URL,
-                                                                           modules_command,
-                                                                           commands_command,
-                                                                           help_command))
+            event["stdout"].write(
+                "I'm %s. use '%s' to list modules, "
+                "'%s' to list commands and "
+                "'%s' to see help text for a command" % (IRCBot.URL,
+                                                         modules_command,
+                                                         commands_command,
+                                                         help_command)
+            )
 
     def _all_command_hooks(self):
         all_hooks = {}
@@ -110,10 +112,12 @@ class Module(ModuleManager.BaseModule):
 
         hook = hooks[0]
         module = self.bot.modules.from_context(hook.context)
-        event["stdout"].write("%s%s is provided by %s.%s" % (event["command_prefix"],
-                                                             command,
-                                                             module.name,
-                                                             hook.function.__name__))
+        event["stdout"].write(
+            "%s%s is provided by %s.%s" % (event["command_prefix"],
+                                           command,
+                                           module.name,
+                                           hook.function.__name__)
+        )
 
     @utils.hook("received.command.apropos")
     @utils.kwarg("min_args", 1)
