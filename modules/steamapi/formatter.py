@@ -82,7 +82,6 @@ def extended_user_summary(event, **kwargs):
         profile_url
     )
 
-    print(message)
     return message
 
 
