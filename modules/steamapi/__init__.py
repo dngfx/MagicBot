@@ -45,6 +45,13 @@ class Module(ModuleManager.BaseModule):
         call = self.get_api().call(method, **kwargs)
         return call["response"]
 
+    def get_service_worker(self, method, json, version="0001"):
+        interface, method = method.split(".")
+
+        page = utils.http.request(SERVICEWORKER_URL % (interface, method, version), get_params=json).json()
+
+        return page["response"]
+
     @utils.hook("received.command.steamstats", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
     @utils.spec("?<nick>string")
@@ -87,15 +94,18 @@ class Module(ModuleManager.BaseModule):
 
         total_games = ""
         top_game = ""
+        total_time_played = ""
 
         if game_count > 0:
             total_games = " — Games Owned: %s" % utils.irc.bold(game_count)
-
+            total_time_played = self.get_total_playtime(total_games_list["games"])
             top_game_time, top_game_name = self.get_top_game(steam_id.as_64, total_games_list)
             top_game = (
                 " — Top Game: %s with %s played" % (utils.irc.bold(top_game_name),
                                                     utils.irc.bold(top_game_time))
             )
+
+            total_time_played = " — Total Time Played: %s" % utils.irc.bold(total_time_played)
 
         if "lastlogoff" in summary:
             pretty_time = utils.datetime.format.to_pretty_time(
@@ -109,13 +119,14 @@ class Module(ModuleManager.BaseModule):
         if "gameextrainfo" in summary:
             currently_playing = " — Currently Playing: %s" % utils.irc.bold(summary["gameextrainfo"])
 
-        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s%s — Profile: %s" % (
+        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s%s%s — Profile: %s" % (
             steam_name,
             utils.irc.bold(display_name),
             utils.irc.bold(status),
             utils.irc.bold(visibility),
             total_games,
             top_game,
+            total_time_played,
             last_seen,
             currently_playing,
             utils.irc.bold(summary["profileurl"])
@@ -137,8 +148,11 @@ class Module(ModuleManager.BaseModule):
         gamelist = summary["games"]
         games = list()
 
+        total_user_playtime = 0
+
         for game in gamelist:
             total_playtime = game["playtime_forever"] * 60
+            total_user_playtime = total_user_playtime + total_playtime
             games.append([total_playtime, game["name"]])
 
         games.sort(reverse=True)
@@ -153,6 +167,8 @@ class Module(ModuleManager.BaseModule):
             games_parsed.append([pretty_time, game[1]])
 
         lang = list()
+
+        total_user_playtime_parsed = utils.datetime.format.to_pretty_time(total_user_playtime)
 
         i = 1
         for time, name in games_parsed:
@@ -175,6 +191,15 @@ class Module(ModuleManager.BaseModule):
         page = self.get_service_worker("IPlayerService.GetOwnedGames", json)
         return page
 
+    def get_total_playtime(self, gamelist):
+        total = 0
+        for game in gamelist:
+            total = total + (game["playtime_forever"] * 60)
+
+        total = utils.datetime.format.to_pretty_time(total)
+
+        return total
+
     def get_top_game(self, id, games_list=None):
         gamelist = games_list if games_list != None else self.get_owned_games(id)
 
@@ -192,14 +217,6 @@ class Module(ModuleManager.BaseModule):
         pretty_time = utils.datetime.format.to_pretty_time(games[0])
 
         return [pretty_time, games[1]]
-
-    def get_service_worker(self, method, json):
-        version = "0001"
-        interface, method = method.split(".")
-
-        page = utils.http.request(SERVICEWORKER_URL % (interface, method, version), get_params=json).json()
-
-        return page["response"]
 
     def get_player_summary(self, id):
         return self.call("ISteamUser.GetPlayerSummaries", steamids=id)

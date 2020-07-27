@@ -46,7 +46,7 @@ def is_valid(id: SteamID):
 def get_id_from_url(url, api):
     steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
 
-    if steam_id["success"] != 1:
+    if steam_id["success"] == 42:
         return SteamConsts.NO_STEAMID
 
     return steam_id["steamid"]
