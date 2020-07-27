@@ -2,12 +2,16 @@ from src.utils.parse import SpecTypeError
 from src.utils.irc import hostmask_match, hostmask_parse
 
 TYPES = {}
+
+
 def _type(func):
     TYPES[func.__name__] = func
+
 
 def _assert_args(args, type):
     if not args:
         raise SpecTypeError("No %s provided" % type)
+
 
 @_type
 def rchannel(server, channel, user, args):
@@ -21,6 +25,7 @@ def rchannel(server, channel, user, args):
     else:
         raise SpecTypeError("No channel provided")
 
+
 @_type
 def channel(server, channel, user, args):
     _assert_args(args, "channel")
@@ -28,6 +33,7 @@ def channel(server, channel, user, args):
         return server.channels.get(args[0]), 1
     else:
         raise SpecTypeError("No such channel")
+
 
 @_type
 def cuser(server, channel, user, args):
@@ -37,6 +43,7 @@ def cuser(server, channel, user, args):
         return target_user, 1
     else:
         raise SpecTypeError("That user is not in this channel")
+
 
 @_type
 def ruser(server, channel, user, args):
@@ -49,6 +56,7 @@ def ruser(server, channel, user, args):
     else:
         return user, 0
 
+
 @_type
 def user(server, channel, user, args):
     _assert_args(args, "user")
@@ -58,6 +66,7 @@ def user(server, channel, user, args):
     else:
         raise SpecTypeError("No such user")
 
+
 @_type
 def ouser(server, channel, user, args):
     _assert_args(args, "user")
@@ -66,10 +75,12 @@ def ouser(server, channel, user, args):
     else:
         raise SpecTypeError("No such user")
 
+
 @_type
 def nuser(server, channel, user, args):
     _assert_args(args, "user")
     return server.get_user(args[0], create=True), 1
+
 
 @_type
 def cmask(server, channel, user, args):
@@ -84,6 +95,7 @@ def cmask(server, channel, user, args):
     else:
         raise SpecTypeError("No users found")
 
+
 @_type
 def lstring(server, channel, user, args):
     if args:
@@ -95,12 +107,15 @@ def lstring(server, channel, user, args):
         else:
             raise SpecTypeError("No message found")
 
+
 @_type
 def channelonly(server, channel, user, args):
     if channel:
         return True, 0
     else:
         raise SpecTypeError("Command not valid in PM")
+
+
 @_type
 def privateonly(server, channel, user, args):
     if not channel:

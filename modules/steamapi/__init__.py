@@ -150,10 +150,16 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.command.topgames", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
-    @utils.spec("?<nick>string")
+    @utils.spec("?<nick>word ?<amount>word")
     def game_summary(self, event):
-        user = event["user"]
-        nick = user.nickname if event["spec"][0] == None else event["spec"][0]
+        nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
+        amount = event["spec"][1] if event["spec"][1] != None else 5
+        amount = amount if str(event["spec"][1]).isdigit() == False else int(event["spec"][1])
+        user = nick
+
+        max_amount = 8
+        amount = max_amount if amount > max_amount else amount
+
         steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
         if steam_id == SteamConsts.NO_STEAMID:
             return SteamConsts.NO_STEAMID
@@ -170,14 +176,14 @@ class Module(ModuleManager.BaseModule):
             games.append([total_playtime, game["name"]])
 
         games.sort(reverse=True)
-        games = games[0:5]
+        games = games[0:amount]
 
         summary = self.get_player_summary(steam_id)
         summary = summary["players"][0]
 
         games_parsed = list()
         for game in games:
-            pretty_time = utils.datetime.format.to_pretty_time(game[0])
+            pretty_time = utils.datetime.format.to_pretty_time(game[0], max_units=2)
             games_parsed.append([pretty_time, game[1]])
 
         lang = list()
@@ -186,11 +192,16 @@ class Module(ModuleManager.BaseModule):
 
         i = 1
         for time, name in games_parsed:
-            parsed = "#%s) %s — Played: %s" % (utils.irc.bold(i), utils.irc.bold(name), utils.irc.bold(time))
+            parsed = "%s. %s (%s)" % (
+                utils.irc.bold(i),
+                utils.irc.color(utils.irc.bold(name),
+                                utils.consts.GREEN),
+                time
+            )
             lang.append(parsed)
             i = i + 1
 
-        event["stdout"].write("Top 5 Games for %s: %s" % (summary["personaname"], " — ".join(lang)))
+        event["stdout"].write("%s's top %d games: %s" % (summary["personaname"], amount, "  —  ".join(lang)))
 
     def get_owned_games(self, id):
         api_key = self.api_key
