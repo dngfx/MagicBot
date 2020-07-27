@@ -3,13 +3,24 @@
 #--depends-on permissions
 #--require-config steam-api-key
 
-import time, math, pprint
+import time, math, pprint, re
 from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
 from . import consts as SteamConsts
 from . import api as SteamAPI
+"""
+https://steamcommunity.com/gid/[g:1:4]
+https://steamcommunity.com/gid/103582791429521412
+https://steamcommunity.com/groups/Valve
+https://steamcommunity.com/profiles/[U:1:12]
+https://steamcommunity.com/profiles/76561197960265740
+https://steamcommunity.com/id/johnc
+https://steamcommunity.com/user/cv-dgb/
+"""
+
+PROFILE_REGEX = re.compile("https?://(?:www\.)?steamcommunity.com/\w+/([^/]+)", re.I)
 
 
 # Logic to figure out where the steam id is
@@ -44,6 +55,11 @@ def is_valid(id: SteamID):
 
 
 def get_id_from_url(url, api):
+    url_match = PROFILE_REGEX.match(url)
+    if url_match != None:
+        steam_id = steam64_from_url(url=url)
+        return steam_id
+
     steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
 
     if steam_id["success"] == 42:
