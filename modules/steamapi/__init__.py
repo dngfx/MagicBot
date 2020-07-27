@@ -8,7 +8,7 @@ from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
-from . import consts, api, user
+from . import consts, api, user, formatter
 
 _bot = None
 _events = None
@@ -65,89 +65,74 @@ class Module(ModuleManager.BaseModule):
         if steam_id == consts.NO_STEAMID:
             return consts.NO_STEAMID
 
+        steam_id = steam_id.as_64
+
         summary = self.get_player_summary(steam_id)
 
         if summary["players"] == "":
             event["stderr"].write("Could not find that user")
             return consts.NO_STEAMID
-
-        summary = summary["players"][0]
+        else:
+            summary = summary["players"][0]
 
         status = consts.user_state(summary["personastate"])
         steam_name = summary["personaname"]
-
-        visibility = summary["communityvisibilitystate"]
-        if visibility == 1:
-            visibility = "Private"
-        elif visibility == 3:
-            visibility = "Public"
-        else:
-            visibility = "Unknown"
-
-        last_seen = ""
-
         display_name = steam_name if "realname" not in summary else summary["realname"]
+        currently_playing = False if "gameextrainfo" not in summary else summary["gameextrainfo"]
 
         if short == True:
-            message = "Shortened summary for %s (%s): Status: %s — Profile: %s" % (
-                steam_name,
-                utils.irc.bold(display_name),
-                utils.irc.bold(status),
-                utils.irc.bold(summary["profileurl"])
+            message = formatter.short_user_summary(
+                event,
+                sname=steam_name,
+                name=display_name,
+                status=status,
+                url=summary["profileurl"]
             )
 
             event["stdout"].write(message)
             return True
 
-        total_games_list = self.get_owned_games(steam_id.as_64)
-        game_count = total_games_list["game_count"]
+        visibility = formatter.visibility(event, summary["communityvisibilitystate"])
+        owned_games = self.get_owned_games(steam_id)
+        lastlogoff = "" if "lastlogoff" not in summary else summary["lastlogoff"]
 
-        total_games = ""
-        top_game = ""
-        total_time_played = ""
+        # If we have no games, fail silently
+        game_count = owned_games["game_count"]
 
-        if game_count > 0:
-            total_games = " — Games Owned: %s" % utils.irc.bold(game_count)
-            total_time_played = self.get_total_playtime(total_games_list["games"])
-            top_game_time, top_game_name = self.get_top_game(steam_id.as_64, total_games_list)
-            top_game = (
-                " — Top Game: %s with %s played" % (utils.irc.bold(top_game_name),
-                                                    utils.irc.bold(top_game_time))
-            )
+        if game_count < 1:
+            return False
 
-            total_time_played = " — Total Time Played: %s" % utils.irc.bold(total_time_played)
+        total_playtime = self.get_total_playtime(owned_games["games"])
+        top_game_time, top_game_name = self.get_top_game(steam_id, owned_games)
 
-        if "lastlogoff" in summary:
-            pretty_time = utils.datetime.format.to_pretty_time(
-                (datetime.datetime.now() - datetime.datetime.fromtimestamp(summary["lastlogoff"])).total_seconds()
-            )
+        last_seen = "" if (lastlogoff == "") else lastlogoff
 
-            last_seen = " — Last Seen: %s ago" % utils.irc.bold(pretty_time)
-
-        currently_playing = ""
-
-        if "gameextrainfo" in summary:
-            currently_playing = " — Currently Playing: %s" % utils.irc.bold(summary["gameextrainfo"])
-
-        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s%s%s — Profile: %s" % (
-            steam_name,
-            utils.irc.bold(display_name),
-            utils.irc.bold(status),
-            utils.irc.bold(visibility),
-            total_games,
-            top_game,
-            total_time_played,
-            last_seen,
-            currently_playing,
-            utils.irc.bold(summary["profileurl"])
+        message = formatter.extended_user_summary(
+            event,
+            names={
+                "steam": steam_name,
+                "display": display_name
+            },
+            status=status,
+            visibility=visibility,
+            game_count=game_count,
+            top_game={
+                "name": top_game_name,
+                "time": top_game_time
+            },
+            total_playtime=total_playtime,
+            last_seen=last_seen,
+            currently_playing=currently_playing,
+            url=summary["profileurl"]
         )
 
         event["stdout"].write(message)
+        return True
 
     @utils.hook("received.command.topgames", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
     @utils.spec("?<nick>word ?<amount>word")
-    def game_summary(self, event):
+    def top_games(self, event):
         nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
         amount = event["spec"][1] if event["spec"][1] != None else 5
         amount = amount if str(event["spec"][1]).isdigit() == False else int(event["spec"][1])

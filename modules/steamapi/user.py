@@ -57,7 +57,8 @@ def get_id_from_url(url, api):
     url_match = PROFILE_REGEX.match(url)
     if url_match != None:
         steam_id = steam64_from_url(url=url)
-        return steam_id
+
+        return SteamID(steam_id)
 
     steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
 
