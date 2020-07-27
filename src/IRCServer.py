@@ -181,6 +181,13 @@ class Server(IRCObject.Object):
     def has_user(self, nickname: str) -> bool:
         return self.irc_lower(nickname) in self.users
 
+    def fetch_user(self, nickname: str) -> IRCUser.User:
+        if self.has_user(nickname):
+            return self.users[self.irc_lower(nickname)]
+        
+        return False
+
+
     def get_user(self,
                  nickname: str,
                  username: typing.Optional[str] = None,

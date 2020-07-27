@@ -9,6 +9,7 @@ ACCOUNT_TAG = utils.irc.MessageTag("account")
 
 
 class Module(ModuleManager.BaseModule):
+    whois_nicks = []
 
     @utils.hook("new.server")
     def new_server(self, event):
@@ -83,17 +84,20 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("new.user")
     def new_user(self, event):
-        if event["server"].is_own_nickname(event["user"].nickname):
+        nick = event["user"].nickname_lower
+        if event["server"].is_own_nickname(nick) or nick == "py-ctcp":
             return
 
-        sent = event["user"].whois_sent
-        if sent == False and event["user"].nickname != "py-ctcp":
-            event["server"].send_whois(event["user"].nickname)
-            event["user"].whois_sent = True
+        user = event["server"].fetch_user(event["user"].nickname_lower)
 
-        event["user"]._hostmask_account = None
-        event["user"]._account_override = None
-        event["user"]._master_admin = False
+        sent = nick in self.whois_nicks
+        if sent == False:
+            self.whois_nicks.append(nick)
+            event["server"].send_whois(user.nickname_lower)
+
+        user._hostmask_account = None
+        user._account_override = None
+        user._master_admin = False
 
     def _set_hostmask(self, server, user):
         account = self._find_hostmask(server, user)

@@ -19,7 +19,7 @@ class User(IRCObject.Object):
         self.bot = bot
         self.channels: typing.Set[IRCChannel.Channel] = set([])
 
-        self.whois_sent = False
+        self._whois_sent = False
 
         self.account = None
 
@@ -96,3 +96,6 @@ class User(IRCObject.Object):
 
     def send_tagmsg(self, tags: dict):
         self.server.send_tagmsg(self.nickname, tags)
+
+    def whois_send(self, nick):
+        self.whois_sent = True

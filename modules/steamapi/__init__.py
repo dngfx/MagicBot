@@ -59,13 +59,11 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.command.steamstats", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
-    @utils.spec("?<nick>string")
+    @utils.spec("?<nick>word ?<short>word")
     def user_summary(self, event):
-        spec = event["spec"][0]
-        nick = event["user"].nickname
-
-        if spec is not None:
-            nick = spec
+        nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
+        short = event["spec"][1] == "short"
+        user = nick
 
         steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
         if steam_id == SteamConsts.NO_STEAMID:
@@ -93,6 +91,17 @@ class Module(ModuleManager.BaseModule):
         last_seen = ""
 
         display_name = steam_name if "realname" not in summary else summary["realname"]
+
+        if short == True:
+            message = "Shortened summary for %s (%s): Status: %s — Profile: %s" % (
+                steam_name,
+                utils.irc.bold(display_name),
+                utils.irc.bold(status),
+                utils.irc.bold(summary["profileurl"])
+            )
+
+            event["stdout"].write(message)
+            return True
 
         total_games_list = self.get_owned_games(steam_id.as_64)
         game_count = total_games_list["game_count"]

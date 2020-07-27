@@ -70,7 +70,9 @@ def get_id_from_url(url, api):
 
 def get_id_from_nick(event, nick, api):
     server = event["server"]
-    if not server.has_user_id(nick):
+    has_user = server.has_user_id(nick)
+
+    if has_user == False:
         event["stderr"].write("Nick not found on server")
         return SteamConsts.NO_STEAMID
 
