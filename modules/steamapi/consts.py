@@ -10,7 +10,9 @@ from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
 from src.core_modules import commands
 from src.core_modules.commands import outs
-from . import api
+from . import api as SteamAPI
+from . import user as SteamUser
+from . import utils as SteamUtils
 
 NO_STEAMID = 69
 SUCCESS = 1

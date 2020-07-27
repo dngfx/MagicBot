@@ -8,8 +8,7 @@ from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
-from . import consts as SteamConsts
-from . import api as SteamAPI
+from . import consts, api, user
 """
 https://steamcommunity.com/gid/[g:1:4]
 https://steamcommunity.com/gid/103582791429521412
@@ -33,13 +32,13 @@ def get_id(event, id, nick):
 
         if parsed_id_url == False:
             event["stderr"].write("Could not resolve Steam ID")
-            return SteamConsts.NO_STEAMID
+            return consts.NO_STEAMID
 
         parsed_id = SteamID(parsed_id_url)
 
         if not is_valid(parsed_id):
             event["stderr"].write("Could not resolve Steam ID")
-            return SteamConsts.NO_STEAMID
+            return consts.NO_STEAMID
 
     # return the valid id
     return parsed_id
@@ -63,7 +62,7 @@ def get_id_from_url(url, api):
     steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
 
     if steam_id["success"] == 42:
-        return SteamConsts.NO_STEAMID
+        return consts.NO_STEAMID
 
     return steam_id["steamid"]
 
@@ -74,20 +73,20 @@ def get_id_from_nick(event, nick, api):
 
     if has_user == False:
         event["stderr"].write("Nick not found on server")
-        return SteamConsts.NO_STEAMID
+        return consts.NO_STEAMID
 
     user = server.get_user(nick)
     steam_id = user.get_setting("steamid", None)
 
     if steam_id == None:
         event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
-        return SteamConsts.NO_STEAMID
+        return consts.NO_STEAMID
 
     check = str(steam_id)
     if check.isdigit() == False:
         steam_id = get_id_from_url(check, api)
-        if steam_id == SteamConsts.NO_STEAMID:
-            return SteamConsts.NO_STEAMID
+        if steam_id == consts.NO_STEAMID:
+            return consts.NO_STEAMID
 
     set_user(event["server"], nick, steam_id)
 

@@ -8,9 +8,7 @@ from steam import webapi, steamid
 from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
 from src import EventManager, ModuleManager, utils, IRCChannel
-from . import consts as SteamConsts
-from . import api as SteamAPI
-from . import user as SteamUser
+from . import consts, api, user
 
 _bot = None
 _events = None
@@ -54,7 +52,6 @@ class Module(ModuleManager.BaseModule):
         interface, method = method.split(".")
 
         page = utils.http.request(SERVICEWORKER_URL % (interface, method, version), get_params=json).json()
-
         return page["response"]
 
     @utils.hook("received.command.steamstats", channel_only=True)
@@ -63,21 +60,20 @@ class Module(ModuleManager.BaseModule):
     def user_summary(self, event):
         nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
         short = event["spec"][1] == "short"
-        user = nick
 
-        steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
-        if steam_id == SteamConsts.NO_STEAMID:
-            return SteamConsts.NO_STEAMID
+        steam_id = user.get_id_from_nick(event, nick, self.api)
+        if steam_id == consts.NO_STEAMID:
+            return consts.NO_STEAMID
 
         summary = self.get_player_summary(steam_id)
 
         if summary["players"] == "":
             event["stderr"].write("Could not find that user")
-            return SteamConsts.NO_STEAMID
+            return consts.NO_STEAMID
 
         summary = summary["players"][0]
 
-        status = SteamConsts.user_state(summary["personastate"])
+        status = consts.user_state(summary["personastate"])
         steam_name = summary["personaname"]
 
         visibility = summary["communityvisibilitystate"]
@@ -155,14 +151,13 @@ class Module(ModuleManager.BaseModule):
         nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
         amount = event["spec"][1] if event["spec"][1] != None else 5
         amount = amount if str(event["spec"][1]).isdigit() == False else int(event["spec"][1])
-        user = nick
 
         max_amount = 8
         amount = max_amount if amount > max_amount else amount
 
-        steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
-        if steam_id == SteamConsts.NO_STEAMID:
-            return SteamConsts.NO_STEAMID
+        steam_id = user.get_id_from_nick(event, nick, self.api)
+        if steam_id == consts.NO_STEAMID:
+            return consts.NO_STEAMID
 
         summary = self.get_owned_games(steam_id)
         gamelist = summary["games"]
@@ -202,6 +197,45 @@ class Module(ModuleManager.BaseModule):
             i = i + 1
 
         event["stdout"].write("%s's top %d games: %s" % (summary["personaname"], amount, "  —  ".join(lang)))
+
+    @utils.hook("received.command.recentgames", channel_only=True)
+    @utils.kwarg("help", "Get users recent game history")
+    @utils.spec("?<nick>word")
+    def game_summary(self, event):
+        nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
+
+        steam_id = user.get_id_from_nick(event, nick, self.api)
+        if steam_id == consts.NO_STEAMID:
+            return consts.NO_STEAMID
+
+        summary = self.get_player_summary(steam_id)
+        summary = summary["players"][0]
+        steam_name = summary["personaname"]
+        display_name = steam_name if "realname" not in summary else summary["realname"]
+
+        page = self.get_recent_games(steam_id)
+        total_count = page["total_count"]
+        recent_games = page["games"]
+
+        fgames = list()
+
+        for i in range(total_count):
+            game = recent_games[i]
+
+            appid = game["appid"]
+            playtime = (game["playtime_2weeks"] * 60)
+            playtime_parsed = utils.datetime.format.to_pretty_time(playtime)
+            name = ("Unknown Game (ID: %d)" % appid) if "name" not in game else game["name"]
+
+            fgames.append([playtime_parsed, name])
+
+        lang = list()
+        for time, name in fgames:
+            parsed = "%s (%s)" % (utils.irc.color(utils.irc.bold(name), utils.consts.GREEN), time)
+            lang.append(parsed)
+
+        formatted_string = "%s %s" % (utils.irc.bold(display_name + "'s 2wk activity:"), "  —  ".join(lang))
+        event["stdout"].write(formatted_string)
 
     def get_owned_games(self, id):
         api_key = self.api_key
@@ -245,6 +279,17 @@ class Module(ModuleManager.BaseModule):
 
     def get_player_summary(self, id):
         return self.call("ISteamUser.GetPlayerSummaries", steamids=id)
+
+    def get_recent_games(self, id):
+        api_key = self.api_key
+
+        json = {
+            "steamid": id,
+            "key": api_key
+        }
+
+        page = self.get_service_worker("IPlayerService.GetRecentlyPlayedGames", json)
+        return page
 
 
 """ {
