@@ -56,6 +56,8 @@ class Module(ModuleManager.BaseModule):
             nick = spec
 
         steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
+        if steam_id == SteamConsts.NO_STEAMID:
+            return
 
         summary = self.get_player_summary(steam_id)
 
@@ -127,7 +129,9 @@ class Module(ModuleManager.BaseModule):
     def game_summary(self, event):
         user = event["user"]
         nick = user.nickname if event["spec"][0] == None else event["spec"][0]
-        steam_id = SteamUser.get_id_from_nick(event, nick)
+        steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
+        if steam_id == SteamConsts.NO_STEAMID:
+            return
 
         summary = self.get_total_games(steam_id)
 

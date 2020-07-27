@@ -61,9 +61,9 @@ def get_id_from_nick(event, nick, api):
     user = server.get_user(nick)
     steam_id = user.get_setting("steamid", None)
 
-    if not steam_id:
+    if steam_id == None:
         event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
-        return False
+        return SteamConsts.NO_STEAMID
 
     check = str(steam_id)
     if check.isdigit() == False:

@@ -12,6 +12,7 @@ from src.core_modules import commands
 from src.core_modules.commands import outs
 from . import api
 
+NO_STEAMID = 69
 SUCCESS = 1
 ERROR_CODES = {
     1: "Success.",
