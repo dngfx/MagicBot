@@ -49,13 +49,17 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Get users steam summary")
     @utils.spec("?<nick>string")
     def user_summary(self, event):
-        user = event["user"]
-        nick = user.nickname if event["spec"][0] == None else event["spec"][0]
-        steam_id = SteamUser.get_id_from_nick(event, nick)
+        spec = event["spec"][0]
+        nick = event["user"].nickname
+
+        if spec is not None:
+            nick = spec
+
+        steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
 
         summary = self.get_player_summary(steam_id)
 
-        if not summary["players"]:
+        if summary["players"] == "":
             event["stderr"].write("Could not find that user")
             return
 
@@ -69,13 +73,27 @@ class Module(ModuleManager.BaseModule):
             visibility = "Private"
         elif visibility == 3:
             visibility = "Public"
+        else:
+            visibility = "Unknown"
 
         last_seen = ""
 
-        display_name = summary["realname"] if "realname" in summary else steam_name
+        display_name = steam_name if "realname" not in summary else summary["realname"]
 
-        total_games = self.get_total_games(steam_id.as_64)["game_count"]
-        total_games = " — Games Owned: %s" % utils.irc.bold(total_games)
+        total_games_list = self.get_total_games(steam_id.as_64)
+        game_count = total_games_list["game_count"]
+
+        total_games = ""
+        top_game = ""
+
+        if game_count > 0:
+            total_games = " — Games Owned: %s" % utils.irc.bold(game_count)
+
+            top_game_time, top_game_name = self.get_top_game(steam_id.as_64, total_games_list)
+            top_game = (
+                " — Top Game: %s with %s played" % (utils.irc.bold(top_game_name),
+                                                    utils.irc.bold(top_game_time))
+            )
 
         if "lastlogoff" in summary:
             pretty_time = utils.datetime.format.to_pretty_time(
@@ -89,12 +107,13 @@ class Module(ModuleManager.BaseModule):
         if "gameextrainfo" in summary:
             currently_playing = " — Currently Playing: %s" % utils.irc.bold(summary["gameextrainfo"])
 
-        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s — Profile: %s" % (
+        message = "Summary for %s (%s): Status: %s — Visibility: %s%s%s%s%s — Profile: %s" % (
             steam_name,
             utils.irc.bold(display_name),
             utils.irc.bold(status),
             utils.irc.bold(visibility),
             total_games,
+            top_game,
             last_seen,
             currently_playing,
             utils.irc.bold(summary["profileurl"])
@@ -144,21 +163,7 @@ class Module(ModuleManager.BaseModule):
             lang.append(parsed)
             i = i + 1
 
-        print(lang)
-
         event["stdout"].write("Top 5 Games for %s: %s" % (summary["personaname"], " — ".join(lang)))
-
-    """ {
-    'appid': 440,
-    'name': 'Team Fortress 2',
-    'playtime_forever': 27787,
-    'img_icon_url': 'e3f595a92552da3d664ad00277fad2107345f743',
-    'img_logo_url': '07385eb55b5ba974aebbe74d3c99626bda7920b8',
-    'has_community_visible_stats': True,
-    'playtime_windows_forever': 126,
-    'playtime_mac_forever': 0,
-    'playtime_linux_forever': 0
-    } """
 
     def get_total_games(self, id):
         api_key = self.api_key
@@ -173,7 +178,23 @@ class Module(ModuleManager.BaseModule):
         page = self.get_service_worker("IPlayerService.GetOwnedGames", json)
         return page
 
-        #return self.get_api().call("IPlayerService.GetOwnedGames", steamid=id, input_json=json_format)
+    def get_top_game(self, id, games_list=None):
+        gamelist = games_list if games_list != None else self.get_total_games(id)
+
+        if "games" in gamelist:
+            gamelist = gamelist["games"]
+
+        games = list()
+
+        for game in gamelist:
+            games.append([game["playtime_forever"], game["name"]])
+
+        games.sort(reverse=True)
+        games = games[0]
+
+        pretty_time = utils.datetime.format.to_pretty_time(games[0])
+
+        return [pretty_time, games[1]]
 
     def get_service_worker(self, method, json):
         version = "0001"

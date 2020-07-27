@@ -13,7 +13,7 @@ from . import api as SteamAPI
 
 
 # Logic to figure out where the steam id is
-def get_id(event, id):
+def get_id(event, id, nick):
     parsed_id = SteamID(id)
 
     # If the steamid passed isn't valid, see if it's a vanity url
@@ -43,15 +43,16 @@ def is_valid(id: SteamID):
     return id.is_valid()
 
 
-def get_id_from_url(url):
-    steam_id = SteamAPI.call("ISteamUser.ResolveVanityURL", vanityurl=url)
+def get_id_from_url(url, api):
+    steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
+
     if steam_id["success"] != 1:
         return False
 
     return steam_id["steamid"]
 
 
-def get_id_from_nick(event, nick):
+def get_id_from_nick(event, nick, api):
     server = event["server"]
     if not server.has_user_id(nick):
         event["stderr"].write("Nick not found on server")
@@ -64,6 +65,12 @@ def get_id_from_nick(event, nick):
         event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
         return False
 
+    check = str(steam_id)
+    if check.isdigit() == False:
+        steam_id = get_id_from_url(check, api)
+
+    print(steam_id)
+
     set_user(event["server"], nick, steam_id)
 
-    return get_id(event, steam_id)
+    return get_id(event, steam_id, nick)
