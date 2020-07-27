@@ -57,13 +57,13 @@ class Module(ModuleManager.BaseModule):
 
         steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
         if steam_id == SteamConsts.NO_STEAMID:
-            return
+            return SteamConsts.NO_STEAMID
 
         summary = self.get_player_summary(steam_id)
 
         if summary["players"] == "":
             event["stderr"].write("Could not find that user")
-            return
+            return SteamConsts.NO_STEAMID
 
         summary = summary["players"][0]
 
@@ -82,7 +82,7 @@ class Module(ModuleManager.BaseModule):
 
         display_name = steam_name if "realname" not in summary else summary["realname"]
 
-        total_games_list = self.get_total_games(steam_id.as_64)
+        total_games_list = self.get_owned_games(steam_id.as_64)
         game_count = total_games_list["game_count"]
 
         total_games = ""
@@ -131,20 +131,14 @@ class Module(ModuleManager.BaseModule):
         nick = user.nickname if event["spec"][0] == None else event["spec"][0]
         steam_id = SteamUser.get_id_from_nick(event, nick, self.api)
         if steam_id == SteamConsts.NO_STEAMID:
-            return
+            return SteamConsts.NO_STEAMID
 
-        summary = self.get_total_games(steam_id)
-
+        summary = self.get_owned_games(steam_id)
         gamelist = summary["games"]
-        #print(gamelist)
-
         games = list()
 
         for game in gamelist:
-            #print(game)
-            #print(game["name"], game["playtime_forever"])
             total_playtime = game["playtime_forever"] * 60
-            #print("Played %s for %s" % (game["name"], pretty_time))
             games.append([total_playtime, game["name"]])
 
         games.sort(reverse=True)
@@ -155,7 +149,6 @@ class Module(ModuleManager.BaseModule):
 
         games_parsed = list()
         for game in games:
-            #print(game)
             pretty_time = utils.datetime.format.to_pretty_time(game[0])
             games_parsed.append([pretty_time, game[1]])
 
@@ -169,7 +162,7 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write("Top 5 Games for %s: %s" % (summary["personaname"], " — ".join(lang)))
 
-    def get_total_games(self, id):
+    def get_owned_games(self, id):
         api_key = self.api_key
 
         json = {
@@ -183,7 +176,7 @@ class Module(ModuleManager.BaseModule):
         return page
 
     def get_top_game(self, id, games_list=None):
-        gamelist = games_list if games_list != None else self.get_total_games(id)
+        gamelist = games_list if games_list != None else self.get_owned_games(id)
 
         if "games" in gamelist:
             gamelist = gamelist["games"]

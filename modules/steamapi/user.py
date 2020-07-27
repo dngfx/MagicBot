@@ -22,13 +22,13 @@ def get_id(event, id, nick):
 
         if parsed_id_url == False:
             event["stderr"].write("Could not resolve Steam ID")
-            return false
+            return SteamConsts.NO_STEAMID
 
         parsed_id = SteamID(parsed_id_url)
 
         if not is_valid(parsed_id):
             event["stderr"].write("Could not resolve Steam ID")
-            return false
+            return SteamConsts.NO_STEAMID
 
     # return the valid id
     return parsed_id
@@ -47,7 +47,7 @@ def get_id_from_url(url, api):
     steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
 
     if steam_id["success"] != 1:
-        return False
+        return SteamConsts.NO_STEAMID
 
     return steam_id["steamid"]
 
@@ -56,7 +56,7 @@ def get_id_from_nick(event, nick, api):
     server = event["server"]
     if not server.has_user_id(nick):
         event["stderr"].write("Nick not found on server")
-        return False
+        return SteamConsts.NO_STEAMID
 
     user = server.get_user(nick)
     steam_id = user.get_setting("steamid", None)
@@ -68,8 +68,8 @@ def get_id_from_nick(event, nick, api):
     check = str(steam_id)
     if check.isdigit() == False:
         steam_id = get_id_from_url(check, api)
-
-    print(steam_id)
+        if steam_id == SteamConsts.NO_STEAMID:
+            return SteamConsts.NO_STEAMID
 
     set_user(event["server"], nick, steam_id)
 
