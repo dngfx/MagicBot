@@ -193,6 +193,8 @@ class Module(ModuleManager.BaseModule):
         if steam_id == consts.NO_STEAMID:
             return consts.NO_STEAMID
 
+        steam_id = steam_id.as_64
+
         summary = self.get_player_summary(steam_id)
         summary = summary["players"][0]
         steam_name = summary["personaname"]
@@ -200,10 +202,14 @@ class Module(ModuleManager.BaseModule):
 
         page = self.get_recent_games(steam_id)
         total_count = page["total_count"]
+
+        if total_count == 0:
+            event["stderr"].write("No games played by %s in the last 2 weeks" % steam_name)
+            return False
+
         recent_games = page["games"]
-
+        print(page)
         fgames = list()
-
         for i in range(total_count):
             game = recent_games[i]
 
