@@ -41,14 +41,14 @@ def extended_user_summary(event, **kwargs):
     fmt = kwargs
 
     names = fmt["names"]
-    steam_name = names["steam"]
+    steam_name = bold(names["steam"])
     display_name = names["display"]
     status_kwarg = fmt["status"]
     status = ("Status: %s" % bold(status_kwarg))
     visibility_kwarg = fmt["visibility"]
     visibility = ("Visibility: %s" % bold(visibility_kwarg))
     game_count_kwarg = fmt["game_count"]
-    game_count = ("Games Owned: %d" % game_count_kwarg)
+    game_count = ("Games Owned: %s" % bold(game_count_kwarg))
     top_game_args = fmt["top_game"]
     top_game = ("Top Game: %s with %s played" % (bold(top_game_args["name"]), bold(top_game_args["time"])))
     total_playtime_kwarg = fmt["total_playtime"]
@@ -68,8 +68,8 @@ def extended_user_summary(event, **kwargs):
     if currently_playing != False:
         playing = " — Currently Playing: %s" % bold(currently_playing)
 
-    profile_url = fmt["url"]
-    message = "Summary for %s (%s): %s — %s — %s — %s — %s%s%s — %s" % (
+    profile_url = bold(fmt["url"])
+    message = "%s (%s): %s — %s — %s — %s — %s%s%s — %s" % (
         steam_name,
         display_name,
         status,

@@ -13,7 +13,8 @@ class Logger(object):
         self.logger = logger.add(
             StreamHandler(sys.stdout),
             colorize=True,
-            format="<b><green>[{time:HH:mm:ss!UTC}]</green> <level>[{level}]</level></b> <level>{message}</level>",
+            format=
+            "<b><green>[{time:HH:mm:ss!UTC}]</green> {function} <level>[{level}]</level></b> <level>{message}</level>",
             level=log_level,
             catch=True,
             enqueue=True
@@ -33,13 +34,13 @@ class Logger(object):
     def info(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).info(message)
+        logger.opt(colors=True, depth=1).info(message)
         return True
 
     def debug(self, message="", server="", context="", format=False):
         if format == True:
             message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).debug(message)
+        logger.opt(colors=True, depth=1).debug(message)
         return True
 
     def warning(self, message="", server="", context="", format=False):
