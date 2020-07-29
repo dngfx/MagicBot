@@ -14,7 +14,6 @@ import pprint
 class Module(ModuleManager.BaseModule):
 
     def _print(self, event):
-
         if (event["channel"] and not event["channel"].get_setting("print", True)):
             return
 

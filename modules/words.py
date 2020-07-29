@@ -95,11 +95,9 @@ class Module(ModuleManager.BaseModule):
         if not event["channel"].get_setting("word-tracking", True) or not user.get_setting("word-tracking", True):
             return
 
-        if event["channel"].get_setting(
-            "word-tracking-registered",
-            event["server"].get_setting("word-tracking-registered",
-                                        False)
-        ):
+        if event["channel"].get_setting("word-tracking-registered",
+                                        event["server"].get_setting("word-tracking-registered",
+                                                                    False)):
             if not self.exports.get_one("is-identified")(event["user"]):
                 return
 

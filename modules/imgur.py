@@ -45,6 +45,7 @@ class Module(ModuleManager.BaseModule):
 
             self._parse_image(event, event["match"].group(1))
             event.eat()
+            return True
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -192,7 +193,7 @@ class Module(ModuleManager.BaseModule):
             width,
             height,
             utils.irc.bold(views),
-            view_plural,
+            views_plural,
             utils.irc.bold(time),
             bracket_right
         )

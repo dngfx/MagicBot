@@ -15,9 +15,7 @@ class Logger(object):
             colorize=True,
             format=
             "<b><green>[{time:HH:mm:ss!UTC}]</green> {function} <level>[{level}]</level></b> <level>{message}</level>",
-            level=log_level,
-            catch=True,
-            enqueue=True
+            level=log_level
         )
 
         for curlevel in ("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"):
