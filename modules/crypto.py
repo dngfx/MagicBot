@@ -16,16 +16,14 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.command.coinstats")
     @utils.kwarg("help", "Shows market information about the coin requested")
-    @utils.spec("!<coin>lstring")
+    @utils.spec("!<coin>word")
     def show_stats(self, event):
         coin = event["spec"][0]
-        page = utils.http.request(
-            API_URL % "assets",
-            get_params={
-                "search": coin,
-                "limit": 1
-            }
-        ).json()
+        page = utils.http.request((API_URL % "assets"),
+                                  get_params={
+                                      "search": coin,
+                                      "limit": 1
+                                  }).json()
         data = page["data"]
 
         if not data:
@@ -40,8 +38,6 @@ class Module(ModuleManager.BaseModule):
         # —=
 
         trade_vol = int(info["volumeUsd24Hr"].split(".")[0])
-        trade_vol = f"{trade_vol:,}"
-
         trade_vol_formatted = utils.parse._shorten_volume(trade_vol)
 
         chg_parts = info["changePercent24Hr"].split(".")
