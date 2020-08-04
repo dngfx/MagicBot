@@ -2,8 +2,8 @@
 import time
 from src import ModuleManager, utils
 
-SECONDS_MAX = utils.datetime.SECONDS_WEEKS * 8
-SECONDS_MAX_DESCRIPTION = "8 weeks"
+SECONDS_MAX = utils.datetime.SECONDS_WEEKS * 920
+SECONDS_MAX_DESCRIPTION = "920 weeks"
 
 
 class Module(ModuleManager.BaseModule):
@@ -19,13 +19,15 @@ class Module(ModuleManager.BaseModule):
             if seconds <= SECONDS_MAX:
                 due_time = int(time.time()) + seconds
 
-                self.timers.add_persistent("in",
-                                           seconds,
-                                           due_time=due_time,
-                                           target=event["target"].name,
-                                           server_id=event["server"].id,
-                                           nickname=event["user"].nickname,
-                                           message=message)
+                self.timers.add_persistent(
+                    "in",
+                    seconds,
+                    due_time=due_time,
+                    target=event["target"].name,
+                    server_id=event["server"].id,
+                    nickname=event["user"].nickname,
+                    message=message
+                )
                 event["stdout"].write("Saved")
             else:
                 event["stderr"].write("The given time is above the max (%s)" % (SECONDS_MAX_DESCRIPTION))
