@@ -1,12 +1,15 @@
 #--depends-on commands
 
-import random, time
-from src import ModuleManager, utils
+import random, time, pprint, re
+from src import EventManager, ModuleManager, utils
 
 
-@utils.export("channelset",
-              utils.BoolSetting("channel-quotes",
-                                "Whether or not quotes added from this channel are kept in this channel"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting("channel-quotes",
+                      "Whether or not quotes added from this channel are kept in this channel")
+)
+@utils.export("channelset", utils.BoolSetting("phil-ken-sebben", "HA HA HA!"))
 class Module(ModuleManager.BaseModule):
 
     def category_and_quote(self, s):
@@ -82,6 +85,24 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(message % category)
         else:
             event["stderr"].write("Quote not found")
+
+    @utils.hook("command.regex")
+    @utils.kwarg("expect_output", True)
+    @utils.kwarg("ignore_action", True)
+    @utils.kwarg("command", "philkensebben")
+    @utils.kwarg("pattern", re.compile(".+"))
+    def channel_message(self, event):
+        if not event["target"].get_setting("phil-ken-sebben", False):
+            return
+        category = "phil ken sebben"
+        quotes = event["server"].get_setting("quotes-%s" % category, [])
+        if quotes and (random.randint(0, 99) < 3):
+            index = random.randint(0, len(quotes) - 1)
+            nickname, time_added, quote = quotes[index]
+
+            event["stdout"].prefix = None
+            event["stdout"].write("%s %s" % (utils.irc.bold("<PHIL KEN SEBBEN>"), quote))
+            event.eat()
 
     @utils.hook("received.command.q", alias_of="quote")
     @utils.hook("received.command.quote", min_args=1)
