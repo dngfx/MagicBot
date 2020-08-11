@@ -461,9 +461,10 @@ class Module(ModuleManager.BaseModule):
     def _send_out(self, event, type):
         target = event["target"]
         stdout = outs.StdOut(event["module_name"])
-        stdout.write(event["message"])
+
         if event.get("hide_prefix", False):
             stdout.prefix = None
+        stdout.write(event["message"])
 
         target_str = event.get("target_str", target.name)
         self._out(event["server"],
