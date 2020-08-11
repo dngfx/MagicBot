@@ -255,6 +255,9 @@ class Module(ModuleManager.BaseModule):
         else:
             color = utils.consts.RED
 
+        if is_channel and target.get_setting("hide-prefix", False):
+            obj.prefix = None
+
         line_str = obj.pop()
         if obj.prefix:
             line_str = "[%s] %s" % (utils.irc.color(obj.prefix, color), line_str)
@@ -460,10 +463,8 @@ class Module(ModuleManager.BaseModule):
 
     def _send_out(self, event, type):
         target = event["target"]
-        stdout = outs.StdOut(event["module_name"])
 
-        if event.get("hide_prefix", False):
-            stdout.prefix = None
+        stdout = outs.StdOut(event["module_name"])
         stdout.write(event["message"])
 
         target_str = event.get("target_str", target.name)
