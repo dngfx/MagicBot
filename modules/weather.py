@@ -13,7 +13,7 @@ class Module(ModuleManager.BaseModule):
 
     def _user_location(self, user):
         user_location = user.get_setting("location", None)
-        if not user_location == None:
+        if user_location is not None:
             name = user_location.get("name", None)
             return [user_location["lat"], user_location["lon"], name]
 
@@ -37,12 +37,12 @@ class Module(ModuleManager.BaseModule):
             if len(event["args_split"]) == 1 and event["server"].has_user_id(event["args_split"][0]):
                 target_user = event["server"].get_user(event["args_split"][0])
                 location = self._user_location(target_user)
-                if not location == None:
+                if location is not None:
                     nickname = target_user.nickname
         else:
             location = self._user_location(event["user"])
             nickname = event["user"].nickname
-            if location == None:
+            if location is not None:
                 raise utils.EventError("You don't have a location set")
 
         args = {
@@ -50,11 +50,11 @@ class Module(ModuleManager.BaseModule):
             "APPID": api_key
         }
 
-        if location == None and query:
+        if location is not None and query:
             location_info = self.exports.get_one("get-location")(query)
-            if not location_info == None:
+            if location_info is not None:
                 location = [location_info["lat"], location_info["lon"], location_info.get("name", None)]
-        if location == None:
+        if location is not None:
             raise utils.EventError("Unknown location")
 
         lat, lon, location_name = location
@@ -87,7 +87,7 @@ class Module(ModuleManager.BaseModule):
                 wind_speed_k = "%sKMh" % round(wind_speed, 1)
                 wind_speed_m = "%sMPh" % round(0.6214 * wind_speed, 1)
 
-                if not nickname == None:
+                if nickname is not None:
                     location_str = "(%s) %s" % (nickname, location_str)
 
                 event["stdout"].write("%s | %s/%s | %s | Humidity: %s | Wind: %s/%s" % (location_str,
