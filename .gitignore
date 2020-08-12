@@ -32,7 +32,6 @@ bot.key
 # vscode folder
 .vscode/*
 modules/steam_reference.py
-modules/steam_reference.py.butt
 .idea/*
 .prettierrc.json
 info.html
