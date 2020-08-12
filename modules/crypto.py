@@ -1,8 +1,7 @@
 #--depends-on commands
 
-import hashlib, re, urllib.parse, datetime, time, math
-from src import EventManager, ModuleManager, utils
-from decimal import *
+from src import ModuleManager, utils
+
 
 API_URL = "https://api.coincap.io/v2/%s"
 MIN_TIME = 900
@@ -83,8 +82,8 @@ class Module(ModuleManager.BaseModule):
             return
 
         info = data[0]
-        price = int(amount) / int(info["priceQuote"].split(".")[0])
-        symbol = info["quoteSymbol"]
+        price = str(int(amount) / int(info["priceQuote"].split(".")[0]))
+        #symbol = info["quoteSymbol"]
 
         event["stdout"].write(
             "Convert %s %s to %s: %s %s" % (
@@ -120,7 +119,7 @@ class Module(ModuleManager.BaseModule):
         info = data[0]
         price_parts = info["priceQuote"].split(".")
         price = "%s.%s" % (price_parts[0], price_parts[1][:2])
-        symbol = info["quoteSymbol"]
+        #symbol = info["quoteSymbol"]
 
         event["stdout"].write(
             "%s to %s: 1 %s = %s %s" % (
