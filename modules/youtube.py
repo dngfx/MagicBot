@@ -172,6 +172,7 @@ class Module(ModuleManager.BaseModule):
                     "safeSearch": safe
                 }
             ).json()
+
             if search_page:
                 if search_page["pageInfo"]["totalResults"] > 0:
                     url = URL_VIDEO % search_page["items"][0]["id"]["videoId"]
@@ -182,7 +183,7 @@ class Module(ModuleManager.BaseModule):
 
         if url:
             out = self._from_url(url)
-            if not out is not None:
+            if out is not None:
                 out, short_url = out
                 if not from_url:
                     out = "%s %s" % (out, short_url)
