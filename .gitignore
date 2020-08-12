@@ -33,3 +33,13 @@ bot.key
 .vscode/*
 modules/steam_reference.py
 modules/steam_reference.py.butt
+.idea/*
+.prettierrc.json
+info.html
+info.json
+js/
+modules/steam.py.bak
+package.json
+requirements.new
+test.py
+trash.py

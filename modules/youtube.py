@@ -39,7 +39,7 @@ class Module(ModuleManager.BaseModule):
             }
         ).json()
 
-    def _number(self, n):
+    def _number(self, n: str) -> str:
         if n:
             return "{:,}".format(int(n))
 
@@ -119,7 +119,6 @@ class Module(ModuleManager.BaseModule):
 
     @utils.export("search-youtube")
     def _search_youtube(self, query):
-        video_id = ""
 
         search_page = utils.http.request(
             URL_YOUTUBESEARCH,
@@ -157,7 +156,7 @@ class Module(ModuleManager.BaseModule):
             url = event["target"].buffer.find(REGEX_YOUTUBE)
             url = utils.http.url_sanitise(url.match) if url else None
 
-        from_url = not url == None
+        from_url = url is not None
 
         if not url:
             safe_setting = event["target"].get_setting("youtube-safesearch", True)
@@ -183,7 +182,7 @@ class Module(ModuleManager.BaseModule):
 
         if url:
             out = self._from_url(url)
-            if not out == None:
+            if not out is not None:
                 out, short_url = out
                 if not from_url:
                     out = "%s %s" % (out, short_url)
@@ -201,7 +200,7 @@ class Module(ModuleManager.BaseModule):
         if event["target"].get_setting("auto-youtube", False):
             url = utils.http.url_sanitise(event["match"].group(0))
             out = self._from_url(url)
-            if not out == None:
+            if out is not None:
                 out, short_url = out
                 event.eat()
                 event["stdout"].write(out)
