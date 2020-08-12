@@ -39,8 +39,6 @@ def _tweet(exports, event, tweet, from_url):
         if get_shorturl:
             short_url = get_shorturl
 
-    created_at = _timestamp(tweet["created_at"])
-
     # having to use hasattr here is nasty.
     if hasattr(tweet, "retweeted_status"):
         original_username = tweet["retweeted_status"]["user"]["screen_name"]
@@ -65,10 +63,10 @@ def _profile(exports, event, profile, from_url):
     profile_id = profile["id"]
     profile_username = "@" + user["screen_name"]
     profile_display_name = user["name"]
-    total_tweets = utils.parse._shorten_volume(user["statuses_count"])
+    total_tweets = utils.parse.shorten_volume(user["statuses_count"])
     verified = VERIFIED_TICK if user["verified"] else ""
-    following = utils.parse._shorten_volume(user["friends_count"])
-    followers = utils.parse._shorten_volume(user["followers_count"])
+    following = utils.parse.shorten_volume(user["friends_count"])
+    followers = utils.parse.shorten_volume(user["followers_count"])
     created_at = user["created_at"]
     created_at_hr = datetime.strptime(created_at,
                                       '%a %b %d %H:%M:%S %z %Y').replace(tzinfo=timezone.utc

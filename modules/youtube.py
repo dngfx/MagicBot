@@ -57,9 +57,9 @@ class Module(ModuleManager.BaseModule):
             video_uploader = snippet["channelTitle"]
             video_title = utils.irc.bold(snippet["title"])
 
-            video_views = self._number(statistics.get("viewCount"))
-            video_likes = self._number(statistics.get("likeCount"))
-            video_dislikes = self._number(statistics.get("dislikeCount"))
+            video_views = utils.parse.shorten_volume(statistics.get("viewCount"))
+            video_likes = utils.parse.shorten_volume(statistics.get("likeCount"))
+            video_dislikes = utils.parse.shorten_volume(statistics.get("dislikeCount"))
 
             video_opinions = ""
             if video_likes and video_dislikes:
@@ -159,7 +159,7 @@ class Module(ModuleManager.BaseModule):
         from_url = url is not None
 
         if not url:
-            safe_setting = event["target"].get_setting("youtube-safesearch", True)
+            safe_setting = event["target"].get_setting("youtube-safesearch", False)
             safe = "moderate" if safe_setting else "none"
             search_page = utils.http.request(
                 URL_YOUTUBESEARCH,

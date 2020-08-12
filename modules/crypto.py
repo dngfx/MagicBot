@@ -37,8 +37,8 @@ class Module(ModuleManager.BaseModule):
         # Bitcoin (BTC) Last 24H — Trade Vol: $2.6B — Avg Price: $9257.11 — Chg -0.18%
         # —=
 
-        trade_vol = int(info["volumeUsd24Hr"].split(".")[0])
-        trade_vol_formatted = utils.parse._shorten_volume(trade_vol)
+        trade_vol = str(info["volumeUsd24Hr"].split(".")[0])
+        trade_vol_formatted = utils.parse.shorten_volume(trade_vol)
 
         chg_parts = info["changePercent24Hr"].split(".")
         chg_positive = float(info["changePercent24Hr"]) > 0
@@ -47,7 +47,7 @@ class Module(ModuleManager.BaseModule):
         arrow = ARROW_UP if chg_positive else ARROW_DOWN
         chg_text = utils.irc.bold(utils.irc.color(chg + "% " + arrow, color))
         avg_parts = info["vwap24Hr"].split(".")
-        avg_price = "%s.%s" % (avg_parts[0], avg_parts[1][:2])
+        avg_price = "%s.%s" % (utils.parse.comma_format(avg_parts[0]), avg_parts[1][:2])
 
         event["stdout"].write(
             "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s" % (

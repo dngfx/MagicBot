@@ -67,8 +67,8 @@ class Module(ModuleManager.BaseModule):
         wordiest_id, wordiest_count = wordcount[0]
         runnerup_id, runnerup_count = wordcount[1]
 
-        wordiest_count = utils.parse._comma_format(wordiest_count)
-        runnerup_count = utils.parse._comma_format(runnerup_count)
+        wordiest_count = utils.parse.comma_format(wordiest_count)
+        runnerup_count = utils.parse.comma_format(runnerup_count)
 
         wordiest_nick = self._get_nick_from_id(wordiest_id, server_id)
         runnerup_nick = self._get_nick_from_id(runnerup_id, server_id)
