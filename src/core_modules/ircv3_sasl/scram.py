@@ -14,14 +14,14 @@ ALGORITHMS = ["MD5", "SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512"]
 
 SCRAM_ERRORS = [
     "invalid-encoding",
-    "extensions-not-supported", # unrecognized 'm' value
+    "extensions-not-supported",  # unrecognized 'm' value
     "invalid-proof",
     "channel-bindings-dont-match",
     "server-does-support-channel-binding",
     "channel-binding-not-supported",
     "unsupported-channel-binding-type",
     "unknown-user",
-    "invalid-username-encoding", # invalid utf8 or bad SASLprep
+    "invalid-username-encoding",  # invalid utf8 or bad SASLprep
     "no-resources"
 ]
 
@@ -57,6 +57,7 @@ class SCRAMError(Exception):
 
 class SCRAM(object):
 
+
     def __init__(self, algo: str, username: str, password: str):
         if not algo in ALGORITHMS:
             raise ValueError("Unknown SCRAM algorithm '%s'" % algo)
@@ -73,18 +74,23 @@ class SCRAM(object):
         self._salted_password = b""
         self._auth_message = b""
 
+
     def _get_pieces(self, data: bytes) -> typing.Dict[bytes, bytes]:
         pieces = (piece.split(b"=", 1) for piece in data.split(b","))
         return dict((piece[0], piece[1]) for piece in pieces)
 
+
     def _hmac(self, key: bytes, msg: bytes) -> bytes:
         return hmac.new(key, msg, self._algo).digest()
+
 
     def _hash(self, msg: bytes) -> bytes:
         return hashlib.new(self._algo, msg).digest()
 
+
     def _constant_time_compare(self, b1: bytes, b2: bytes):
         return hmac.compare_digest(b1, b2)
+
 
     def client_first(self) -> bytes:
         self.state = SCRAMState.ClientFirst
@@ -92,6 +98,7 @@ class SCRAM(object):
 
         # n,,n=<username>,r=<nonce>
         return b"n,,%s" % self._client_first
+
 
     def server_first(self, data: bytes) -> bytes:
         self.state = SCRAMState.ClientFinal
@@ -118,6 +125,7 @@ class SCRAM(object):
 
         # c=<b64encode("n,,")>,r=<nonce>,p=<proof>
         return b"%s,p=%s" % (auth_noproof, client_proof)
+
 
     def server_final(self, data: bytes) -> bool:
         pieces = self._get_pieces(data)

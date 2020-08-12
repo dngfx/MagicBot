@@ -21,6 +21,7 @@ class LocationType(enum.Enum):
 class Module(ModuleManager.BaseModule):
     _name = "Time"
 
+
     def _find_setting(self, event):
         query = None
         target_user = None
@@ -44,6 +45,7 @@ class Module(ModuleManager.BaseModule):
             else:
                 return LocationType.NAME, event["args"], None
 
+
     def _timezoned(self, dt, timezone):
         dt = dt.astimezone(pytz.timezone(timezone))
         utc_offset = (dt.utcoffset().total_seconds() / 60) / 60
@@ -53,6 +55,7 @@ class Module(ModuleManager.BaseModule):
                 tz += "+"
             tz += "%g" % utc_offset
         return "%s %s" % (utils.datetime.format.datetime_human(dt), tz)
+
 
     @utils.hook("received.command.time")
     @utils.kwarg("help", "Get the time for you or someone else")
@@ -79,6 +82,7 @@ class Module(ModuleManager.BaseModule):
                 out = NOLOCATION_NAME
 
             event["stderr"].write(out % name)
+
 
     @utils.export("time-localise")
     def time_localise(self, user, dt):

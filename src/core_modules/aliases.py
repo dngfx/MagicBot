@@ -1,10 +1,12 @@
 #--depends-on commands
 from src import ModuleManager, utils
 
+
 SETTING_PREFIX = "command-alias-"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     def _arg_replace(self, s, args_split, kwargs):
         vars = {}
@@ -15,6 +17,7 @@ class Module(ModuleManager.BaseModule):
         vars.update(kwargs)
         return utils.parse.format_token_replace(s, vars)
 
+
     def _get_alias(self, server, target, command):
         setting = "%s%s" % (SETTING_PREFIX, command)
         command = self.bot.get_setting(setting, server.get_setting(setting, target.get_setting(setting, None)))
@@ -22,6 +25,7 @@ class Module(ModuleManager.BaseModule):
             command, _, args = command.partition(" ")
             return command, args
         return None
+
 
     def _get_aliases(self, targets):
         alias_list = []
@@ -35,6 +39,7 @@ class Module(ModuleManager.BaseModule):
                 aliases[alias] = command
         return aliases
 
+
     @utils.hook("get.command")
     def get_command(self, event):
         alias = self._get_alias(event["server"], event["target"], event["command"].command)
@@ -47,6 +52,7 @@ class Module(ModuleManager.BaseModule):
 
             event["command"].command = alias
             event["command"].args = self._arg_replace(alias_args, given_args, event["kwargs"])
+
 
     @utils.hook("received.command.alias", permission="alias")
     @utils.hook("received.command.balias", permission="balias")

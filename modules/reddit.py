@@ -17,6 +17,7 @@ ARROW_DOWN = "↓"
 @utils.export("channelset", utils.BoolSetting("auto-reddit", "Auto parse Reddit URLs to display with info"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     #@utils.kwarg("priority", EventManager.PRIORITY_MONITOR)

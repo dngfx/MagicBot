@@ -11,11 +11,11 @@ default_data = os.path.join(home, ".magicbot")
 arg_parser = argparse.ArgumentParser(description="MagicBot CLI control utility")
 
 arg_parser.add_argument(
-    "--socket",
-    "-s",
-    help="Location of magicbot's unix domain socket",
-    default=os.path.join(default_data,
-                         "bot.sock")
+        "--socket",
+        "-s",
+        help="Location of magicbot's unix domain socket",
+        default=os.path.join(default_data,
+                             "bot.sock")
 )
 
 arg_parser.add_argument("command")

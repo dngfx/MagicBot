@@ -11,8 +11,10 @@ LINE_MAX = 470
 
 class IRCArgs(object):
 
+
     def __init__(self, args: typing.List[str]):
         self._args = args
+
 
     def get(self, index: int) -> typing.Optional[str]:
         if index < 0:
@@ -22,17 +24,22 @@ class IRCArgs(object):
             return self._args[index]
         return None
 
+
     def __repr__(self):
         return "IRCArgs(%s)" % self._args
+
 
     def __len__(self) -> int:
         return len(self._args)
 
+
     def __getitem__(self, index: int) -> str:
         return self._args[index]
 
+
     def __setitem__(self, index: int, value: str):
         self._args[index] = value
+
 
     def append(self, value: str):
         self._args.append(value)
@@ -40,14 +47,17 @@ class IRCArgs(object):
 
 class Hostmask(object):
 
+
     def __init__(self, nickname: str, username: str, hostname: str, hostmask: str):
         self.nickname = nickname
         self.username = username
         self.hostname = hostname
         self.hostmask = hostmask
 
+
     def __repr__(self):
         return "Hostmask(%s)" % self.__str__()
+
 
     def __str__(self):
         return self.hostmask
@@ -74,13 +84,14 @@ def message_tag_unescape(s):
 
 class ParsedLine(object):
 
+
     def __init__(
-        self,
-        command: str,
-        args: typing.List[str],
-        source: Hostmask = None,
-        tags: typing.Dict[str,
-                          str] = None
+            self,
+            command: str,
+            args: typing.List[str],
+            source: Hostmask = None,
+            tags: typing.Dict[str,
+                              str] = None
     ):
         self.id = str(uuid.uuid4())
         self.command = command
@@ -91,32 +102,42 @@ class ParsedLine(object):
         self._valid = True
         self._assured = False
 
+
     def __repr__(self):
         return "ParsedLine(%s)" % self.__str__()
+
 
     def __str__(self):
         return self.format()
 
+
     def valid(self) -> bool:
         return self._valid
+
 
     def invalidate(self):
         self._valid = False
 
+
     def assured(self) -> bool:
         return self._assured
+
 
     def assure(self):
         self._assured = True
 
+
     def add_tag(self, tag: str, value: str = None):
         self.tags[tag] = value or ""
+
 
     def has_tag(self, tag: str) -> bool:
         return "tag" in self.tags
 
+
     def get_tag(self, tag: str) -> typing.Optional[str]:
         return self.tags[tag]
+
 
     def _tag_str(self, tags: typing.Dict[str, str]) -> str:
         tag_pieces = []
@@ -130,6 +151,7 @@ class ParsedLine(object):
         if tag_pieces:
             return "@%s" % ";".join(tag_pieces)
         return ""
+
 
     def _format(self) -> typing.Tuple[str, str]:
         pieces = []
@@ -151,6 +173,7 @@ class ParsedLine(object):
 
         return tags, " ".join(pieces).replace("\r", "")
 
+
     def format(self) -> str:
         tags, line = self._format()
         line, _ = self._newline_truncate(line)
@@ -159,12 +182,15 @@ class ParsedLine(object):
         else:
             return line
 
+
     def _newline_truncate(self, line: str) -> typing.Tuple[str, str]:
         line, sep, overflow = line.partition("\n")
         return (line, overflow)
 
+
     def _line_max(self, hostmask: str, margin: int) -> int:
         return LINE_MAX - len((":%s " % hostmask).encode("utf8")) - margin
+
 
     def truncate(self, hostmask: str, margin: int = 0) -> typing.Tuple[str, str]:
         valid_bytes = b""
@@ -242,20 +268,25 @@ def parse_human(line: str) -> typing.Optional[ParsedLine]:
 
 class SentLine(IRCObject.Object):
 
+
     def __init__(self, events: "EventManager.Events", send_time: datetime.datetime, hostmask: str, line: ParsedLine):
         self.events = events
         self.send_time = send_time
         self._hostmask = hostmask
         self.parsed_line = line
 
+
     def __repr__(self) -> str:
         return "IRCLine.SentLine(%s)" % self.__str__()
+
 
     def __str__(self) -> str:
         return self._for_wire()
 
+
     def _for_wire(self) -> str:
         return self.parsed_line.truncate(self._hostmask)[0]
+
 
     def for_wire(self) -> bytes:
         return b"%s\r\n" % self._for_wire().encode("utf8")
@@ -263,14 +294,15 @@ class SentLine(IRCObject.Object):
 
 class IRCBatch(object):
 
+
     def __init__(
-        self,
-        identifier: str,
-        batch_type: str,
-        args: typing.List[str],
-        tags: typing.Dict[str,
-                          str] = None,
-        source: Hostmask = None
+            self,
+            identifier: str,
+            batch_type: str,
+            args: typing.List[str],
+            tags: typing.Dict[str,
+                              str] = None,
+            source: Hostmask = None
     ):
         self.identifier = identifier
         self.type = batch_type
@@ -279,8 +311,10 @@ class IRCBatch(object):
         self.source = source
         self._lines = []  # type: typing.List[ParsedLine]
 
+
     def add_line(self, line: ParsedLine):
         self._lines.append(line)
+
 
     def get_lines(self) -> typing.List[ParsedLine]:
         return self._lines
@@ -288,8 +322,10 @@ class IRCBatch(object):
 
 class IRCSendBatch(IRCBatch):
 
+
     def __init__(self, batch_type: str, args: typing.List[str], tags: typing.Dict[str, str] = None):
         IRCBatch.__init__(self, str(uuid.uuid4()), batch_type, args, tags)
+
 
     def get_lines(self) -> typing.List[ParsedLine]:
         lines = []

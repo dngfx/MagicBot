@@ -23,26 +23,29 @@ ARROW_DOWN = "↓"
 
 
 @utils.export(
-    "channelset",
-    utils.BoolSetting("auto-youtube",
-                      "Disable/Enable automatically getting info from youtube URLs")
+        "channelset",
+        utils.BoolSetting("auto-youtube",
+                          "Disable/Enable automatically getting info from youtube URLs")
 )
 @utils.export("channelset", utils.BoolSetting("youtube-safesearch", "Turn safe search off/on"))
 class Module(ModuleManager.BaseModule):
 
+
     def get_video_page(self, video_id):
         return utils.http.request(
-            URL_YOUTUBEVIDEO,
-            get_params={
-                "part": "contentDetails,snippet,statistics",
-                "id": video_id,
-                "key": self.bot.config["google-api-key"]
-            }
+                URL_YOUTUBEVIDEO,
+                get_params={
+                    "part": "contentDetails,snippet,statistics",
+                    "id":   video_id,
+                    "key":  self.bot.config["google-api-key"]
+                }
         ).json()
+
 
     def _number(self, n: str) -> str:
         if n:
             return "{:,}".format(int(n))
+
 
     def video_details(self, video_id):
         page = self.get_video_page(video_id)
@@ -82,15 +85,17 @@ class Module(ModuleManager.BaseModule):
                 video_views_str, video_opinions), url
         return None
 
+
     def get_playlist_page(self, playlist_id):
         return utils.http.request(
-            URL_YOUTUBEPLAYLIST,
-            get_params={
-                "part": "contentDetails,snippet",
-                "id": playlist_id,
-                "key": self.bot.config["google-api-key"]
-            }
+                URL_YOUTUBEPLAYLIST,
+                get_params={
+                    "part": "contentDetails,snippet",
+                    "id":   playlist_id,
+                    "key":  self.bot.config["google-api-key"]
+                }
         ).json()
+
 
     def playlist_details(self, playlist_id):
         page = self.get_playlist_page(playlist_id)
@@ -105,6 +110,7 @@ class Module(ModuleManager.BaseModule):
                                         snippet["title"], count, "video" if count == 1 else "videos"
                                         ), URL_PLAYLIST % playlist_id
 
+
     def _from_url(self, url):
         parsed = urllib.parse.urlparse(url)
         query = urllib.parse.parse_qs(parsed.query)
@@ -118,24 +124,26 @@ class Module(ModuleManager.BaseModule):
         elif parsed.path == "/playlist" and "list" in query:
             return self.playlist_details(query["list"][0])
 
+
     @utils.export("search-youtube")
     def _search_youtube(self, query):
 
         search_page = utils.http.request(
-            URL_YOUTUBESEARCH,
-            get_params={
-                "q": query,
-                "part": "snippet",
-                "maxResults": "1",
-                "type": "video",
-                "key": self.bot.config["google-api-key"]
-            }
+                URL_YOUTUBESEARCH,
+                get_params={
+                    "q":          query,
+                    "part":       "snippet",
+                    "maxResults": "1",
+                    "type":       "video",
+                    "key":        self.bot.config["google-api-key"]
+                }
         ).json()
 
         if search_page:
             if search_page["pageInfo"]["totalResults"] > 0:
                 video_id = search_page["items"][0]["id"]["videoId"]
                 return "https://youtu.be/%s" % video_id
+
 
     @utils.hook("received.command.yt", alias_of="youtube")
     @utils.hook("received.command.youtube")
@@ -163,15 +171,15 @@ class Module(ModuleManager.BaseModule):
             safe_setting = event["target"].get_setting("youtube-safesearch", False)
             safe = "moderate" if safe_setting else "none"
             search_page = utils.http.request(
-                URL_YOUTUBESEARCH,
-                get_params={
-                    "q": search,
-                    "part": "snippet",
-                    "maxResults": "1",
-                    "type": "video",
-                    "key": self.bot.config["google-api-key"],
-                    "safeSearch": safe
-                }
+                    URL_YOUTUBESEARCH,
+                    get_params={
+                        "q":          search,
+                        "part":       "snippet",
+                        "maxResults": "1",
+                        "type":       "video",
+                        "key":        self.bot.config["google-api-key"],
+                        "safeSearch": safe
+                    }
             ).json()
 
             if search_page:
@@ -193,6 +201,7 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventResultsError()
         else:
             event["stderr"].write("No search phrase provided")
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

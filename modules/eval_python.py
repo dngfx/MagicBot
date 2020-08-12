@@ -11,6 +11,7 @@ EVAL_URL = "http://dotpy3.herokuapp.com/"
 class Module(ModuleManager.BaseModule):
     _name = "Python"
 
+
     @utils.hook("received.command.py", alias_of="python")
     @utils.hook("received.command.python")
     def _eval(self, event):

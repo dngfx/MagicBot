@@ -28,6 +28,7 @@ def _setting_parse(s):
 class Module(ModuleManager.BaseModule):
     _name = "Fedi"
 
+
     def on_load(self):
         server_username = self.bot.get_setting("fediverse-server", None)
         if server_username:
@@ -44,9 +45,11 @@ class Module(ModuleManager.BaseModule):
             self.events.on("api.post.ap-inbox").hook(self.server.ap_inbox, authenticated=False)
             self.events.on("api.get.ap-outbox").hook(self.server.ap_outbox, authenticated=False)
 
+
     def unload(self):
         if not self.server == None:
             self.server.unload()
+
 
     @utils.hook("received.command.fediverse")
     @utils.hook("received.command.fedi", alias_of="fediverse")
@@ -109,6 +112,7 @@ class Module(ModuleManager.BaseModule):
         else:
             out = "%s: %s - %s" % (author, content, shorturl)
         event["stdout"].write(out)
+
 
     def _get_from_outbox(self, username, instance):
         try:

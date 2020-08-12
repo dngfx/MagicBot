@@ -4,16 +4,19 @@
 
 from src import ModuleManager, utils
 
+
 URL_WEATHER = "http://api.openweathermap.org/data/2.5/weather"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     def _user_location(self, user):
         user_location = user.get_setting("location", None)
         if not user_location == None:
             name = user_location.get("name", None)
             return [user_location["lat"], user_location["lon"], name]
+
 
     @utils.hook("received.command.w", alias_of="weather")
     @utils.hook("received.command.weather")
@@ -75,7 +78,7 @@ class Module(ModuleManager.BaseModule):
                     location_str = ", ".join(location_parts)
 
                 celsius = "%dC" % page["main"]["temp"]
-                fahrenheit = "%dF" % ((page["main"]["temp"] * (9/5)) + 32)
+                fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
                 description = page["weather"][0]["description"].title()
                 humidity = "%s%%" % page["main"]["humidity"]
 

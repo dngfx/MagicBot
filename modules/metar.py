@@ -12,6 +12,7 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "METAR"
 
+
     @utils.hook("received.command.metar")
     @utils.kwarg("help", "Get a METAR report")
     @utils.spec("!<icao>lstring")
@@ -22,8 +23,8 @@ class Module(ModuleManager.BaseModule):
         page = utils.http.request(METAR_URL % location,
                                   get_params={
                                       "options": "info",
-                                      "format": "json",
-                                      "token": self.bot.config["avwx-api-key"]
+                                      "format":  "json",
+                                      "token":   self.bot.config["avwx-api-key"]
                                   }).json()
 
         if "error" in page:

@@ -7,6 +7,7 @@ from src import ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.rot13")
     def rot13(self, event):
         line = event["args"] or event["target"].buffer.get().message

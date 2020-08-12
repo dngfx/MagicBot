@@ -2,11 +2,13 @@
 
 from src import ModuleManager, utils
 
+
 URL_URBANDICTIONARY = "http://api.urbandictionary.com/v0/define"
 
 
 class Module(ModuleManager.BaseModule):
     _name = "UrbanDictionary"
+
 
     @utils.hook("received.command.ud", alias_of="urbandictionary")
     @utils.hook("received.command.urbandictionary", min_args=1)

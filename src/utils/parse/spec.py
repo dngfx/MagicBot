@@ -9,6 +9,7 @@ from .types import try_int
 
 class SpecTypeError(Exception):
 
+
     def __init__(self, message: str, arg_count: int = 1):
         self.message = message
         self.arg_count = arg_count
@@ -23,26 +24,31 @@ class SpecArgumentContext(enum.IntFlag):
 class SpecArgumentType(object):
     context = SpecArgumentContext.ALL
 
+
     def __init__(
-        self,
-        type_name: str,
-        name: typing.Optional[str],
-        modifier: typing.Optional[str],
-        exported: typing.Optional[str]
+            self,
+            type_name: str,
+            name: typing.Optional[str],
+            modifier: typing.Optional[str],
+            exported: typing.Optional[str]
     ):
         self.type = type_name
         self._name = name
         self._set_modifier(modifier)
         self.exported = exported
 
+
     def _set_modifier(self, modifier: typing.Optional[str]):
         pass
+
 
     def name(self) -> typing.Optional[str]:
         return self._name
 
+
     def simple(self, args: typing.List[str]) -> typing.Tuple[typing.Any, int]:
         return None, -1
+
 
     def error(self) -> typing.Optional[str]:
         return None
@@ -51,8 +57,10 @@ class SpecArgumentType(object):
 class SpecArgumentTypePattern(SpecArgumentType):
     _pattern: typing.Pattern
 
+
     def _set_modifier(self, modifier):
         self._pattern = re.compile(modifier)
+
 
     def simple(self, args):
         match = self._pattern.search(" ".join(args))
@@ -64,6 +72,7 @@ class SpecArgumentTypePattern(SpecArgumentType):
 
 class SpecArgumentTypeWord(SpecArgumentType):
 
+
     def simple(self, args):
         if args:
             return args[0], 1
@@ -72,6 +81,7 @@ class SpecArgumentTypeWord(SpecArgumentType):
 
 class SpecArgumentTypeAdditionalWord(SpecArgumentType):
 
+
     def simple(self, args):
         if len(args) > 1:
             return args[0], 1
@@ -79,6 +89,7 @@ class SpecArgumentTypeAdditionalWord(SpecArgumentType):
 
 
 class SpecArgumentTypeWordLower(SpecArgumentTypeWord):
+
 
     def simple(self, args):
         out = SpecArgumentTypeWord.simple(self, args)
@@ -89,8 +100,10 @@ class SpecArgumentTypeWordLower(SpecArgumentTypeWord):
 
 class SpecArgumentTypeString(SpecArgumentType):
 
+
     def name(self):
         return "%s ..." % SpecArgumentType.name(self)
+
 
     def simple(self, args):
         if args:
@@ -100,11 +113,13 @@ class SpecArgumentTypeString(SpecArgumentType):
 
 class SpecArgumentTypeTrimString(SpecArgumentTypeString):
 
+
     def simple(self, args):
         return SpecArgumentTypeString.simple(self, list(filter(None, args)))
 
 
 class SpecArgumentTypeWords(SpecArgumentTypeString):
+
 
     def simple(self, args):
         if args:
@@ -115,6 +130,7 @@ class SpecArgumentTypeWords(SpecArgumentTypeString):
 
 class SpecArgumentTypeInt(SpecArgumentType):
 
+
     def simple(self, args):
         if args:
             return try_int(args[0]), 1
@@ -123,13 +139,16 @@ class SpecArgumentTypeInt(SpecArgumentType):
 
 class SpecArgumentTypeDuration(SpecArgumentType):
 
+
     def name(self):
         return "+%s" % (SpecArgumentType.name(self) or "duration")
+
 
     def simple(self, args):
         if args:
             return duration(args[0]), 1
         return None, 1
+
 
     def error(self) -> typing.Optional[str]:
         return "Invalid timeframe"
@@ -137,8 +156,10 @@ class SpecArgumentTypeDuration(SpecArgumentType):
 
 class SpecArgumentTypeDate(SpecArgumentType):
 
+
     def name(self):
         return SpecArgumentType.name(self) or "yyyy-mm-dd"
+
 
     def simple(self, args):
         if args:
@@ -151,16 +172,16 @@ class SpecArgumentPrivateType(SpecArgumentType):
 
 
 SPEC_ARGUMENT_TYPES = {
-    "word": SpecArgumentTypeWord,
-    "aword": SpecArgumentTypeAdditionalWord,
+    "word":      SpecArgumentTypeWord,
+    "aword":     SpecArgumentTypeAdditionalWord,
     "wordlower": SpecArgumentTypeWordLower,
-    "string": SpecArgumentTypeString,
-    "words": SpecArgumentTypeWords,
-    "tstring": SpecArgumentTypeTrimString,
-    "int": SpecArgumentTypeInt,
-    "date": SpecArgumentTypeDate,
-    "duration": SpecArgumentTypeDuration,
-    "pattern": SpecArgumentTypePattern
+    "string":    SpecArgumentTypeString,
+    "words":     SpecArgumentTypeWords,
+    "tstring":   SpecArgumentTypeTrimString,
+    "int":       SpecArgumentTypeInt,
+    "date":      SpecArgumentTypeDate,
+    "duration":  SpecArgumentTypeDuration,
+    "pattern":   SpecArgumentTypePattern
 }
 
 
@@ -168,6 +189,7 @@ class SpecArgument(object):
     consume = True
     optional: bool = False
     types: typing.List[SpecArgumentType] = []
+
 
     @staticmethod
     def parse(optional: bool, argument_types: typing.List[str]):
@@ -203,6 +225,7 @@ class SpecArgument(object):
         spec_argument.types = out
         return spec_argument
 
+
     def format(self, context: SpecArgumentContext) -> typing.Optional[str]:
         if self.optional:
             format = "[%s]"
@@ -222,10 +245,12 @@ class SpecArgument(object):
 
 class SpecArgumentTypeLiteral(SpecArgumentType):
 
+
     def simple(self, args: typing.List[str]) -> typing.Tuple[typing.Any, int]:
         if args and args[0] == self.name():
             return args[0], 1
         return None, 1
+
 
     def error(self) -> typing.Optional[str]:
         return None
@@ -233,12 +258,14 @@ class SpecArgumentTypeLiteral(SpecArgumentType):
 
 class SpecLiteralArgument(SpecArgument):
 
+
     @staticmethod
     def parse(optional: bool, literals: typing.List[str]) -> SpecArgument:
         spec_argument = SpecLiteralArgument()
         spec_argument.optional = optional
         spec_argument.types = [SpecArgumentTypeLiteral("literal", l, None, None) for l in literals]
         return spec_argument
+
 
     def format(self, context: SpecArgumentContext) -> typing.Optional[str]:
         return "|".join(t.name() or "" for t in self.types)

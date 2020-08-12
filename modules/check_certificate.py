@@ -8,14 +8,15 @@ from src import ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("preprocess.connect")
     def preprocess_connect(self, event):
         certificate_filename = self.bot.config.get("tls-certificate", None)
         if not certificate_filename == None:
             with open(certificate_filename, "rb") as certificate_file:
                 certificate = cryptography.x509.load_pem_x509_certificate(
-                    certificate_file.read(),
-                    cryptography.hazmat.backends.default_backend())
+                        certificate_file.read(),
+                        cryptography.hazmat.backends.default_backend())
 
             today = datetime.datetime.utcnow().date()
             week = datetime.timedelta(days=7)

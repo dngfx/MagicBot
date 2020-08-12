@@ -17,17 +17,18 @@ fn main() {
 }
 """
 API_ARGS = {
-    "channel": "nightly",
+    "channel":   "nightly",
     "crateType": "bin",
-    "mode": "debug",
-    "tests": False,
-    "execute": True,
-    "target": "ast",
+    "mode":      "debug",
+    "tests":     False,
+    "execute":   True,
+    "target":    "ast",
     "backtrace": False
 }
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.rust", min_args=1)
     def eval(self, event):
@@ -44,6 +45,7 @@ class Module(ModuleManager.BaseModule):
 
         err_or_out = "stdout" if page["success"] else "stderr"
         event[err_or_out].write("%s: %s" % (event["user"].nickname, page[err_or_out].strip("\n")))
+
 
     @utils.hook("received.command.crate")
     @utils.kwarg("min_args", 1)

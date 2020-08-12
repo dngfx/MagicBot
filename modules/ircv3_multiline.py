@@ -1,5 +1,6 @@
 from src import IRCLine, ModuleManager, utils
 
+
 CAP = utils.irc.Capability(None, "draft/multiline", alias="multiline")
 BATCH = utils.irc.BatchType(None, "draft/multiline")
 TAG = utils.irc.MessageTag(None, "draft/multiline-concat")
@@ -7,6 +8,7 @@ TAG = utils.irc.MessageTag(None, "draft/multiline-concat")
 
 @utils.export("cap", CAP)
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("preprocess.send.privmsg")
     def preprocess_send_privmsg(self, event):
@@ -22,6 +24,7 @@ class Module(ModuleManager.BaseModule):
                     batch.add_line(line)
                 for line in batch.get_lines():
                     event["server"].send(line)
+
 
     @utils.hook("received.batch.end")
     def batch_end(self, event):

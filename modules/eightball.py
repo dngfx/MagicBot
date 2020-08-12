@@ -38,6 +38,7 @@ CHOICES = [
 class Module(ModuleManager.BaseModule):
     _name = "8Ball"
 
+
     @utils.hook("received.command.8", alias_of="8ball")
     @utils.hook("received.command.8ball", min_args=1)
     @utils.kwarg("help", "Ask the mystic 8ball a question")

@@ -15,14 +15,15 @@ RANDOM_DELAY_SECONDS = 3
 class Module(ModuleManager.BaseModule):
     _last_called = 0
 
+
     def _get_definition(self, word):
         page = utils.http.request(
-            URL_WORDNIK % word,
-            get_params={
-                "useCanonical": "true",
-                "sourceDictionaries": "all",
-                "api_key": self.bot.config["wordnik-api-key"]
-            }
+                URL_WORDNIK % word,
+                get_params={
+                    "useCanonical":       "true",
+                    "sourceDictionaries": "all",
+                    "api_key":            self.bot.config["wordnik-api-key"]
+                }
         )
 
         if page:
@@ -34,6 +35,7 @@ class Module(ModuleManager.BaseModule):
                 return True, None
         else:
             return False, None
+
 
     @utils.hook("received.command.define")
     @utils.kwarg("help", "Define a provided term")
@@ -51,6 +53,7 @@ class Module(ModuleManager.BaseModule):
         else:
             raise utils.EventResultsError()
 
+
     @utils.hook("received.command.randomword")
     @utils.kwarg("help", "Define a random word")
     def random_word(self, event):
@@ -58,11 +61,11 @@ class Module(ModuleManager.BaseModule):
             self._last_called = time.time()
 
             page = utils.http.request(
-                URL_WORDNIK_RANDOM,
-                get_params={
-                    "api_key": self.bot.config["wordnik-api-key"],
-                    "min_dictionary_count": 1
-                }
+                    URL_WORDNIK_RANDOM,
+                    get_params={
+                        "api_key":              self.bot.config["wordnik-api-key"],
+                        "min_dictionary_count": 1
+                    }
             ).json()
             if page:
                 success, definition = self._get_definition(page["word"])

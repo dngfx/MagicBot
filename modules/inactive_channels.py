@@ -10,8 +10,8 @@ SETTING = utils.BoolSetting(SETTING_NAME, "Whether or not to leave inactive chan
 
 MODE_SETTING_NAME = "inactive-channel-modes"
 MODE_SETTING = utils.BoolSetting(
-    MODE_SETTING_NAME,
-    "Whether or not we will leave inactive channels that we have a mode in"
+        MODE_SETTING_NAME,
+        "Whether or not we will leave inactive channels that we have a mode in"
 )
 
 
@@ -22,19 +22,24 @@ MODE_SETTING = utils.BoolSetting(
 @utils.export("channelset", MODE_SETTING)
 class Module(ModuleManager.BaseModule):
 
+
     def _get_timestamp(self, channel):
         return channel.get_setting("last-message", None)
+
 
     def _set_timestamp(self, channel):
         channel.set_setting("last-message", utils.datetime.format.iso8601(utils.datetime.utcnow()))
 
+
     def _del_timestamp(self, channel):
         channel.del_setting("last-message")
+
 
     @utils.hook("new.channel")
     def new_channel(self, event):
         if self._get_timestamp(event["channel"]) == None:
             self._set_timestamp(event["channel"])
+
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0")
@@ -68,6 +73,7 @@ class Module(ModuleManager.BaseModule):
             self.log.warn("Leaving %s:%s due to channel inactivity", [str(server), str(channel)])
             channel.send_part("Channel inactive")
             self._del_timestamp(channel)
+
 
     @utils.hook("received.message.channel")
     def channel_message(self, event):

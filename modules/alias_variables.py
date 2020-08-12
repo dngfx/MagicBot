@@ -5,6 +5,7 @@ from src import EventManager, ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("get.command")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def get_command(self, event):

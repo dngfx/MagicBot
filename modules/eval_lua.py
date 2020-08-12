@@ -11,6 +11,7 @@ EVAL_URL = "https://www.lua.org/cgi-bin/demo"
 class Module(ModuleManager.BaseModule):
     _name = "Lua"
 
+
     @utils.hook("received.command.lua", min_args=1)
     def eval(self, event):
         try:

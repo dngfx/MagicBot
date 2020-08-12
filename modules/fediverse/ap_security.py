@@ -18,6 +18,7 @@ def _private_key(key_filename: str) -> rsa.RSAPrivateKey:
 
 class PrivateKey(object):
 
+
     def __init__(self, filename, id):
         self.key = _private_key(filename)
         self.id = id

@@ -15,8 +15,10 @@ SETTING = utils.BoolSetting("channel-log", "Enable/disable channel logging")
 @utils.export("botset", SETTING)
 class Module(ModuleManager.BaseModule):
 
+
     def _enabled(self, server, channel):
         return channel.get_setting("log", server.get_setting("channel-log", self.bot.get_setting("channel-log", False)))
+
 
     def _file(self, server_name, channel_name):
         # if a channel name has os.path.sep (e.g. "/") in it, the channel's log
@@ -27,6 +29,7 @@ class Module(ModuleManager.BaseModule):
         sanitised_name = channel_name.replace(os.path.sep, ",")
         return self.data_directory("%s/%s.log" % (server_name, sanitised_name))
 
+
     def _write_line(self, channel, line):
         #channel._log_file.write("%s\n" % line)
         #channel._log_file.flush()
@@ -34,6 +37,7 @@ class Module(ModuleManager.BaseModule):
         #print("WRITE_LINE")
         #log.info(log, "[%s] %s" % (channel, line))
         return True
+
 
     def _write(self, channel, filename, key, line):
         if not hasattr(channel, "_log_file"):
@@ -53,12 +57,14 @@ class Module(ModuleManager.BaseModule):
             line = "\x04%s" % utils.security.aes_encrypt(channel._log_aes, line)
         self._write_line(channel, line)
 
+
     def _log(self, server, channel, line):
         if self._enabled(server, channel):
             filename = self._file(str(server), str(channel))
             timestamp = utils.datetime.format.datetime_human(datetime.datetime.now())
             log_line = "%s %s" % (timestamp, line)
             self._write(channel, filename, self.bot.config.get("log-key"), log_line)
+
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")

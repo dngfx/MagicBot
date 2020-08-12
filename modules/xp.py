@@ -8,20 +8,25 @@ from src import ModuleManager, utils
 @utils.export("channelset", utils.BoolSetting("xp-enabled", "Is the XP module enabled?"))
 class Module(ModuleManager.BaseModule):
 
+
     def _user_all(self, user):
         return self.bot.database.execute_fetchall("SELECT channel_id, count FROM words WHERE user_id=?",
                                                   [user.get_id()])
 
+
     def _get_user_info_from_id(self, id):
         return self.bot.database.execute_fetchone("SELECT server_id, nickname FROM users WHERE user_id=?", [id])
 
+
     def _get_server_from_id(self, id):
         return self.bot.get_server_by_id(id)
+
 
     def _getLevel(self, points):
         levels = [0, 500, 1500, 2500, 5000, 10000, 15000, 20000, 30000, 50000, 100000, 250000]
         lvl = len([x for x in levels if points > x])
         return lvl
+
 
     @utils.hook("received.command.xp", channel_only=True)
     @utils.kwarg("help", "See your XP score!")
@@ -37,6 +42,7 @@ class Module(ModuleManager.BaseModule):
         level = 1 if level == 0 else level
 
         event["stdout"].write("%s has %s XP. They're level %s" % (nick, cur_xp, utils.irc.bold(level)))
+
 
     @utils.hook("received.command.xpaddinternal")
     @utils.kwarg("help", "See your XP score!")

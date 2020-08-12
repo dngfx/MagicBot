@@ -210,20 +210,21 @@ OPT_STR = typing.Optional[str]
 
 class IRCConnectionParameters(object):
 
+
     def __init__(
-        self,
-        id: int,
-        alias: str,
-        hostname: str,
-        port: int,
-        password: OPT_STR,
-        tls: bool,
-        bindhost: OPT_STR,
-        nickname: str,
-        username: OPT_STR,
-        realname: OPT_STR,
-        args: typing.Dict[str,
-                          str] = {}
+            self,
+            id: int,
+            alias: str,
+            hostname: str,
+            port: int,
+            password: OPT_STR,
+            tls: bool,
+            bindhost: OPT_STR,
+            nickname: str,
+            username: OPT_STR,
+            realname: OPT_STR,
+            args: typing.Dict[str,
+                              str] = {}
     ):
         self.id = id
         self.alias = alias
@@ -239,6 +240,7 @@ class IRCConnectionParameters(object):
 
 
 class CTCPMessage(object):
+
 
     def __init__(self, command: str, message: str):
         self.command = command
@@ -260,35 +262,42 @@ def parse_ctcp(s: str) -> typing.Optional[CTCPMessage]:
 
 class Capability(object):
 
+
     def __init__(
-        self,
-        ratified_name: typing.Optional[str],
-        draft_name: str = None,
-        alias: str = None,
-        depends_on: typing.List[str] = None
+            self,
+            ratified_name: typing.Optional[str],
+            draft_name: str = None,
+            alias: str = None,
+            depends_on: typing.List[str] = None
     ):
         self.alias = alias or ratified_name
         self._caps = set([ratified_name, draft_name])
         self.depends_on = depends_on or []
         self._on_ack_callbacks = []  # type: typing.List[typing.Callable[[], None]]
 
+
     def available(self, capabilities: typing.Iterable[str]) -> typing.Optional[str]:
         match = list(set(capabilities) & self._caps)
         return match[0] if match else None
+
 
     def match(self, capability: str) -> typing.Optional[str]:
         cap = list(set([capability]) & self._caps)
         return cap[0] if cap else None
 
+
     def copy(self):
         return Capability(*self._caps, alias=self.alias, depends_on=self.depends_on[:])
+
 
     def on_ack(self, callback: typing.Callable[[], None]):
         self._on_ack_callbacks.append(callback)
 
+
     def ack(self):
         for callback in self._on_ack_callbacks:
             callback()
+
 
     def nak(self):
         pass
@@ -296,15 +305,19 @@ class Capability(object):
 
 class MessageTag(object):
 
+
     def __init__(self, name: typing.Optional[str], draft_name: str = None):
         self._names = set([name, draft_name])
+
 
     def get_value(self, tags: typing.Dict[str, str]) -> typing.Optional[str]:
         key = list(set(tags.keys()) & self._names)
         return tags[key[0]] if key else None
 
+
     def present(self, tags: typing.Dict[str, str]) -> bool:
         return bool(set(tags.keys()) & self._names)
+
 
     def match(self, tag: str) -> typing.Optional[str]:
         key = list(set([tag]) & self._names)
@@ -313,8 +326,10 @@ class MessageTag(object):
 
 class BatchType(object):
 
+
     def __init__(self, name: typing.Optional[str], draft_name: str = None):
         self._names = set([name, draft_name])
+
 
     def match(self, type: str) -> typing.Optional[str]:
         t = list(set([type]) & self._names)
@@ -325,6 +340,7 @@ class BatchType(object):
 class HostmaskPattern(object):
     original: str
     pattern: typing.Pattern
+
 
     def match(self, hostmask: str):
         return bool(self.pattern.fullmatch(hostmask))
@@ -340,7 +356,7 @@ def hostmask_parse(hostmask: str):
     return HostmaskPattern(hostmask, re.compile(".".join(part1_out)))
 
 
-def hostmask_match_many(hostmasks: typing.List[str], pattern: HostmaskPattern,) -> typing.Generator[str, None, None]:
+def hostmask_match_many(hostmasks: typing.List[str], pattern: HostmaskPattern, ) -> typing.Generator[str, None, None]:
     for hostmask in hostmasks:
         if pattern.match(hostmask):
             yield hostmask

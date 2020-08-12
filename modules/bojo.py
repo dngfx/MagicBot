@@ -22,6 +22,7 @@ CHOICES = [
 class Module(ModuleManager.BaseModule):
     _name = "BORIS JOHNSON"
 
+
     @utils.hook("received.command.bojo", alias_of="borisjohnson")
     @utils.hook("received.command.borisjohnson")
     @utils.kwarg("help", "Receive an image of boris johnson")

@@ -22,8 +22,8 @@ REGEX_FLOAT = re.compile("(?:\d+(?:\.\d{1,2}|$)|\.\d{1,2})")
 DECIMAL_ZERO = decimal.Decimal("0")
 DECIMAL_BET_MINIMUM = decimal.Decimal("0.01")
 
-HOUR_SECONDS = (1*60) * 60
-LOTTERY_INTERVAL = (60*60) * 6  # 6 hours
+HOUR_SECONDS = (1 * 60) * 60
+LOTTERY_INTERVAL = (60 * 60) * 6  # 6 hours
 LOTTERY_BUYIN = "100.00"
 
 RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
@@ -51,6 +51,7 @@ class CoinParseException(Exception):
 
 class Module(ModuleManager.BaseModule):
 
+
     def _coin_spec_parse(self, word):
         try:
             out = decimal.Decimal(word)
@@ -61,12 +62,14 @@ class Module(ModuleManager.BaseModule):
         else:
             raise utils.parse.SpecTypeError("Please provide a positive coin amount")
 
+
     @utils.export("command-spec.coins")
     def _coins_spec(self, server, channel, user, args):
         if args:
             return self._coin_spec_parse(args[0]), 1
         else:
             raise utils.parse.SpecTypeError("No coin amount provided")
+
 
     @utils.export("command-spec.coinsmany")
     def _coins_many_spec(self, server, channel, user, args):
@@ -75,10 +78,12 @@ class Module(ModuleManager.BaseModule):
             out.append(self._coin_spec_parse(arg))
         return (out or None), 1
 
+
     def _until_next_hour(self, now=None):
         now = now or datetime.datetime.utcnow()
         until_next_hour = 60 - now.second
         return until_next_hour + ((60 - (now.minute + 1)) * 60)
+
 
     def _until_next_6_hour(self):
         now = datetime.datetime.utcnow()
@@ -87,11 +92,14 @@ class Module(ModuleManager.BaseModule):
         until_next_6_hour = until_next_6_hour * HOUR_SECONDS
         return until_next_hour + until_next_6_hour
 
+
     def _get_user_coins(self, user):
         return decimal.Decimal(user.get_setting("coins", "0.0"))
 
+
     def _set_user_coins(self, user, coins):
         user.set_setting("coins", self._coin_str(coins))
+
 
     def _all_coins(self, server):
         all_coins = server.get_all_user_settings("coins", [])
@@ -101,21 +109,26 @@ class Module(ModuleManager.BaseModule):
 
         return dict(filter(lambda coin: coin[1], all_coins))
 
+
     def _redeem_amount(self, server):
         return decimal.Decimal(server.get_setting("redeem-amount", DEFAULT_REDEEM_AMOUNT))
 
+
     def _redeem_delay(self, server):
         return server.get_setting("redeem-delay", DEFAULT_REDEEM_DELAY)
+
 
     def _give(self, server, user, amount):
         user_coins = self._get_user_coins(user)
         self._set_user_coins(user, user_coins + amount)
         return user_coins + amount
 
+
     def _take(self, server, user, amount):
         user_coins = self._get_user_coins(user)
         self._set_user_coins(user, user_coins - amount)
         return user_coins - amount
+
 
     def _move(self, user1, user2, amount):
         user1_coins = self._get_user_coins(user1)
@@ -124,11 +137,14 @@ class Module(ModuleManager.BaseModule):
         user2_coins = self._get_user_coins(user2)
         self._set_user_coins(user2, user2_coins + amount)
 
+
     def _coin_str(self, coins):
         return "{0:.2f}".format(coins)
 
+
     def _coin_str_human(self, coins):
         return "{0:,.2f}".format(coins)
+
 
     def _parse_coins(self, s, minimum=None):
         try:
@@ -146,6 +162,7 @@ class Module(ModuleManager.BaseModule):
         else:
             raise CoinParseException("Please provide a valid positive coin amount")
 
+
     @utils.hook("received.command.coins")
     @utils.kwarg("help", "Show how many coins you have")
     def coins(self, event):
@@ -155,10 +172,11 @@ class Module(ModuleManager.BaseModule):
             target = event["user"]
         coins = self._get_user_coins(target)
         event["stdout"].write(
-            "%s has %s coin%s" % (target.nickname,
-                                  self._coin_str_human(coins),
-                                  "" if coins == 1 else "s")
+                "%s has %s coin%s" % (target.nickname,
+                                      self._coin_str_human(coins),
+                                      "" if coins == 1 else "s")
         )
+
 
     @utils.hook("received.command.resetcoins")
     @utils.kwarg("help", "Reset a user's coins to 0")
@@ -170,6 +188,7 @@ class Module(ModuleManager.BaseModule):
         self._take(event["server"], target, coins)
         event["stdout"].write("Reset coins for %s" % target.nickname)
 
+
     @utils.hook("received.command.givecoins")
     @utils.kwarg("help", "Create coins and give them to a user")
     @utils.kwarg("permission", "give-coins")
@@ -180,18 +199,21 @@ class Module(ModuleManager.BaseModule):
         self._give(event["server"], target, coins)
         event["stdout"].write("Gave '%s' %s coins" % (target.nickname, self._coin_str(coins)))
 
+
     @utils.hook("received.command.richest")
     @utils.kwarg("help", "Show the top 10 richest users")
     def richest(self, event):
         top_10 = utils.top_10(
-            self._all_coins(event["server"]),
-            convert_key=lambda nickname: event["server"].get_user(nickname).nickname,
-            value_format=lambda value: self._coin_str_human(value)
+                self._all_coins(event["server"]),
+                convert_key=lambda nickname: event["server"].get_user(nickname).nickname,
+                value_format=lambda value: self._coin_str_human(value)
         )
         event["stdout"].write("Richest users: %s" % ", ".join(top_10))
 
+
     def _redeem_cache(self, server, user):
         return "redeem|%s|%s@%s" % (server.id, user.username, user.hostname)
+
 
     @utils.hook("received.command.redeemcoins")
     @utils.kwarg("help", "Redeem your free coins")
@@ -210,12 +232,13 @@ class Module(ModuleManager.BaseModule):
             else:
                 time_left = self.bot.cache.until_expiration(cache)
                 event["stderr"].write(
-                    "%s: Please wait %s before redeeming" %
-                    (event["user"].nickname,
-                     utils.datetime.format.to_pretty_until(time_left))
+                        "%s: Please wait %s before redeeming" %
+                        (event["user"].nickname,
+                         utils.datetime.format.to_pretty_until(time_left))
                 )
         else:
             event["stderr"].write("%s: You can only redeem coins when you have none" % event["user"].nickname)
+
 
     @utils.hook("received.command.flip")
     @utils.kwarg("help", "Bet on a coin flip")
@@ -241,25 +264,26 @@ class Module(ModuleManager.BaseModule):
         if win:
             new_total = self._give(event["server"], event["user"], coin_bet)
             event["stdout"].write(
-                "%s flips %s and wins %s coin%s! (new total: %s)" % (
-                    event["user"].nickname,
-                    side_name,
-                    coin_bet_str,
-                    "" if coin_bet == 1 else "s",
-                    self._coin_str_human(new_total)
-                )
+                    "%s flips %s and wins %s coin%s! (new total: %s)" % (
+                        event["user"].nickname,
+                        side_name,
+                        coin_bet_str,
+                        "" if coin_bet == 1 else "s",
+                        self._coin_str_human(new_total)
+                    )
             )
         else:
             self._take(event["server"], event["user"], coin_bet)
             event["stdout"].write(
-                "%s flips %s and loses %s coin%s! (new total: %s)" % (
-                    event["user"].nickname,
-                    side_name,
-                    coin_bet_str,
-                    "" if coin_bet == 1 else "s",
-                    self._coin_str_human(user_coins - coin_bet)
-                )
+                    "%s flips %s and loses %s coin%s! (new total: %s)" % (
+                        event["user"].nickname,
+                        side_name,
+                        coin_bet_str,
+                        "" if coin_bet == 1 else "s",
+                        self._coin_str_human(user_coins - coin_bet)
+                    )
             )
+
 
     @utils.hook("received.command.sendcoins")
     @utils.kwarg("help", "Send coins to another user")
@@ -281,28 +305,30 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("%s: You have no coins" % event["user"].nickname)
         elif new_total_coins < redeem_amount:
             raise utils.EventError(
-                "%s: You cannot send an amount of money that puts"
-                " you below %s coins" % (event["user"].nickname,
-                                         self._coin_str(redeem_amount))
+                    "%s: You cannot send an amount of money that puts"
+                    " you below %s coins" % (event["user"].nickname,
+                                             self._coin_str(redeem_amount))
             )
 
         target_user_coins = self._get_user_coins(target_user)
         if target_user_coins == None:
             raise utils.EventError(
-                "%s: You can only send coins to users that "
-                "have had coins before" % event["user"].nickname
+                    "%s: You can only send coins to users that "
+                    "have had coins before" % event["user"].nickname
             )
 
         self._move(event["user"], target_user, send_amount)
 
         event["stdout"].write(
-            "%s sent %s coins to %s" % (event["user"].nickname,
-                                        self._coin_str(send_amount),
-                                        target_user.nickname)
+                "%s sent %s coins to %s" % (event["user"].nickname,
+                                            self._coin_str(send_amount),
+                                            target_user.nickname)
         )
 
+
     def _double_street(self, i):
-        return (i*3) - 2, (i*3) + 3
+        return (i * 3) - 2, (i * 3) + 3
+
 
     @utils.hook("received.command.roulette")
     @utils.kwarg("help", "Spin a roulette wheel")
@@ -339,9 +365,9 @@ class Module(ModuleManager.BaseModule):
         losses = {}
         if choice == 0:
             event["stdout"].write(
-                "Roulette spin lands on 0, "
-                "the house wins, %s loses %s" % (event["user"].nickname,
-                                                 bet_amount_total)
+                    "Roulette spin lands on 0, "
+                    "the house wins, %s loses %s" % (event["user"].nickname,
+                                                     bet_amount_total)
             )
             self._take(event["server"], event["user"], bet_amount_total)
             return
@@ -379,7 +405,7 @@ class Module(ModuleManager.BaseModule):
                 odds = 2 * (choice in THIRD_COLUMN)
             elif street_match:
                 row = int(street_match.group(1))
-                odds = 11 * (((row*3) - 2) <= choice <= (row * 3))
+                odds = 11 * (((row * 3) - 2) <= choice <= (row * 3))
             elif doublestreet_match:
                 row = int(doublestreet_match.group(1))
                 min_num, max_num = self._double_street(row)
@@ -425,29 +451,30 @@ class Module(ModuleManager.BaseModule):
         choice = "%d %s" % (choice, colour)
         if not losses and winnings:
             event["stdout"].write(
-                "Roulette spin lands on %s, "
-                "%s wins %s%s" % (choice,
-                                  event["user"].nickname,
-                                  ", ".join(winnings_str),
-                                  total_winnings_str)
+                    "Roulette spin lands on %s, "
+                    "%s wins %s%s" % (choice,
+                                      event["user"].nickname,
+                                      ", ".join(winnings_str),
+                                      total_winnings_str)
             )
         elif losses and winnings:
             event["stdout"].write(
-                "Roulette spin lands on %s, "
-                "%s wins %s%s; loses %s" %
-                (choice,
-                 event["user"].nickname,
-                 ", ".join(winnings_str),
-                 str(total_winnings_str),
-                 str(coin_losses))
+                    "Roulette spin lands on %s, "
+                    "%s wins %s%s; loses %s" %
+                    (choice,
+                     event["user"].nickname,
+                     ", ".join(winnings_str),
+                     str(total_winnings_str),
+                     str(coin_losses))
             )
         else:
             event["stdout"].write(
-                "Roulette spin lands on %s, "
-                "%s loses %s" % (choice,
-                                 event["user"].nickname,
-                                 str(coin_losses))
+                    "Roulette spin lands on %s, "
+                    "%s loses %s" % (choice,
+                                     event["user"].nickname,
+                                     str(coin_losses))
             )
+
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0 *")
@@ -465,6 +492,7 @@ class Module(ModuleManager.BaseModule):
                     interest = round(coins * interest_rate, 2)
                     server.set_user_setting(nickname, "coins", self._coin_str(coins + interest))
 
+
     @utils.hook("received.command.lotterybuy")
     @utils.kwarg("help", "Buy ticket(s) for the lottery")
     @utils.kwarg("authenticated", True)
@@ -481,9 +509,9 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("%s: You don't have enough coins" % event["user"].nickname)
         elif new_user_coins < redeem_amount:
             raise utils.EventError(
-                "%s: you can't play the lottery if it puts your total coins "
-                "below %s" % (event["user"].nickname,
-                              self._coin_str(redeem_amount))
+                    "%s: you can't play the lottery if it puts your total coins "
+                    "below %s" % (event["user"].nickname,
+                                  self._coin_str(redeem_amount))
             )
 
         self._take(event["server"], event["user"], coin_amount)
@@ -497,12 +525,13 @@ class Module(ModuleManager.BaseModule):
         event["server"].set_setting("lottery", lottery)
 
         event["stdout"].write(
-            "%s: You bought %d lottery ticket%s for %s" %
-            (event["user"].nickname,
-             amount,
-             "" if amount == 1 else "s",
-             self._coin_str(coin_amount))
+                "%s: You bought %d lottery ticket%s for %s" %
+                (event["user"].nickname,
+                 amount,
+                 "" if amount == 1 else "s",
+                 self._coin_str(coin_amount))
         )
+
 
     @utils.hook("received.command.mylottery")
     @utils.kwarg("help", "Show how many lottery tickets you currently have")
@@ -511,10 +540,11 @@ class Module(ModuleManager.BaseModule):
                                               {})
         count = lottery.get(event["user"].nickname_lower, 0)
         event["stdout"].write(
-            "%s: You have %d lottery ticket%s" % (event["user"].nickname,
-                                                  count,
-                                                  "" if count == 1 else "s")
+                "%s: You have %d lottery ticket%s" % (event["user"].nickname,
+                                                      count,
+                                                      "" if count == 1 else "s")
         )
+
 
     @utils.hook("received.command.jackpot")
     @utils.kwarg("help", "Show the current lottery jackpot")
@@ -523,15 +553,17 @@ class Module(ModuleManager.BaseModule):
                                               {})
         count = sum(value for nickname, value in lottery.items())
         event["stdout"].write(
-            "%s: The current jackpot is %s" % (event["user"].nickname,
-                                               decimal.Decimal(LOTTERY_BUYIN) * count)
+                "%s: The current jackpot is %s" % (event["user"].nickname,
+                                                   decimal.Decimal(LOTTERY_BUYIN) * count)
         )
+
 
     @utils.hook("received.command.nextlottery")
     @utils.kwarg("help", "Show time until the next lottery draw")
     def next_lottery(self, event):
         until = self._until_next_6_hour()
         event["stdout"].write("Next lottery is in: %s" % utils.datetime.format.to_pretty_until(until))
+
 
     @utils.hook("received.command.lotterywinner")
     @utils.kwarg("help", "Show who last won the lottery")
@@ -541,6 +573,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("Last lottery winner: %s" % winner)
         else:
             event["stderr"].write("There have been no lottery winners!")
+
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0 */6")
@@ -565,7 +598,7 @@ class Module(ModuleManager.BaseModule):
             self._give(server, user, winnings)
             server.set_setting("lottery-winner", user.nickname)
             user.send_notice(
-                "You won %s in the lottery! you now have %s coins" %
-                (self._coin_str(winnings),
-                 self._coin_str(new_coins))
+                    "You won %s in the lottery! you now have %s coins" %
+                    (self._coin_str(winnings),
+                     self._coin_str(new_coins))
             )

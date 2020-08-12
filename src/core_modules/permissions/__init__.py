@@ -2,6 +2,7 @@
 
 from src import EventManager, ModuleManager, utils
 
+
 HOSTMASKS_SETTING = "hostmask-account"
 NO_PERMISSION = "You do not have permission to do that"
 ACCOUNT_TAG = utils.irc.MessageTag("account")
@@ -9,6 +10,7 @@ ACCOUNT_TAG = utils.irc.MessageTag("account")
 
 class Module(ModuleManager.BaseModule):
     whois_nicks = []
+
 
     @utils.hook("new.server")
     def new_server(self, event):
@@ -18,21 +20,26 @@ class Module(ModuleManager.BaseModule):
             for hostmask in user_hostmasks:
                 self._add_hostmask(event["server"], utils.irc.hostmask_parse(hostmask), account)
 
+
     def _add_hostmask(self, server, hostmask, account):
         server._hostmasks[hostmask.original] = (hostmask, account)
+
 
     def _remove_hostmask(self, server, hostmask):
         if hostmask in server._hostmasks:
             del server._hostmasks[hostmask]
+
 
     def _make_hash(self, password, salt=None):
         salt = salt or utils.security.salt()
         hash = utils.security.hash(salt, password)
         return hash, salt
 
+
     def _get_hash(self, server, account):
         hash, salt = server.get_user(account).get_setting("authentication", (None, None))
         return hash, salt
+
 
     def _master_password(self):
         master_password = utils.security.password()
@@ -40,27 +47,33 @@ class Module(ModuleManager.BaseModule):
         self.bot.set_setting("master-password", [hash, salt])
         return master_password
 
+
     @utils.hook("control.master-password")
     def command_line(self, event):
         master_password = self._master_password()
         return "One-time master password: %s" % master_password
 
+
     def _has_identified(self, server, user, account):
         user._id_override = server.get_user_id(account)
         self.events.on("internal.identified").call(server=server, user=user, account=account)
+
 
     @utils.export("is-identified")
     def _is_identified(self, user):
         return not user._id_override == None
 
+
     def _signout(self, user):
         user._id_override = None
+
 
     def _find_hostmask(self, server, user):
         user_hostmask = user.hostmask()
         for hostmask, (hostmask_pattern, account) in server._hostmasks.items():
             if utils.irc.hostmask_match(user_hostmask, hostmask_pattern):
                 return (hostmask, account)
+
 
     def _specific_hostmask(self, server, hostmask, account):
         for user in server.users.values():
@@ -72,6 +85,7 @@ class Module(ModuleManager.BaseModule):
                     user._hostmask_account = (hostmask, account)
                     self._has_identified(server, user, account)
 
+
     @utils.export("account-name")
     def _account_name(self, user):
         if not user.account == None:
@@ -80,6 +94,7 @@ class Module(ModuleManager.BaseModule):
             return user._account_override
         elif not user._hostmask_account == None:
             return user._hostmask_account[1]
+
 
     @utils.hook("new.user")
     def new_user(self, event):
@@ -98,12 +113,14 @@ class Module(ModuleManager.BaseModule):
         user._account_override = None
         user._master_admin = False
 
+
     def _set_hostmask(self, server, user):
         account = self._find_hostmask(server, user)
         if not account == None:
             hostmask, account = account
             user._hostmask_account = (hostmask, account)
             self._has_identified(server, user, account)
+
 
     @utils.hook("received.chghost")
     @utils.hook("received.nick")
@@ -113,6 +130,7 @@ class Module(ModuleManager.BaseModule):
     def chghost(self, event):
         if not self._is_identified(event["user"]):
             self._set_hostmask(event["server"], event["user"])
+
 
     @utils.hook("received.whox")
     @utils.hook("received.account")
@@ -126,6 +144,7 @@ class Module(ModuleManager.BaseModule):
             else:
                 self._set_hostmask(event["server"], event["user"])
 
+
     @utils.hook("received.message.private")
     @utils.hook("received.message.channel")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
@@ -135,10 +154,12 @@ class Module(ModuleManager.BaseModule):
             if not account == None:
                 self._has_identified(event["server"], event["user"], account)
 
+
     def _get_permissions(self, user):
         if self._is_identified(user):
             return user.get_setting("permissions", [])
         return []
+
 
     def _has_permission(self, user, permission):
         if user._master_admin:
@@ -164,6 +185,7 @@ class Module(ModuleManager.BaseModule):
                             return True
         return False
 
+
     @utils.hook("received.command.masterlogin")
     @utils.kwarg("min_args", 1)
     @utils.kwarg("private_only", True)
@@ -177,6 +199,7 @@ class Module(ModuleManager.BaseModule):
                 return
         event["stderr"].write("Master login failed")
 
+
     @utils.hook("received.command.mypermissions")
     @utils.kwarg("authenticated", True)
     def my_permissions(self, event):
@@ -185,6 +208,7 @@ class Module(ModuleManager.BaseModule):
         """
         permissions = event["user"].get_setting("permissions", [])
         event["stdout"].write("Your permissions: %s" % ", ".join(permissions))
+
 
     @utils.hook("received.command.register")
     @utils.kwarg("help", "Register your nickname")
@@ -202,6 +226,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("Nickname registered successfully")
         else:
             event["stderr"].write("This nickname is already registered")
+
 
     @utils.hook("received.command.identify")
     @utils.kwarg("help", "Identify for your current nickname")
@@ -228,6 +253,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("You are already identified as %s" % self._account_name(event["user"]))
 
+
     @utils.hook("received.command.permission")
     @utils.spec("!'list,clear !<nickname>ouser")
     @utils.spec("!'add,remove !<nickname>ouser !<permission>tstring")
@@ -238,8 +264,8 @@ class Module(ModuleManager.BaseModule):
 
         if subcommand == "list":
             event["stdout"].write(
-                "Permissions for %s: %s" % (target_user.nickname,
-                                            ", ".join(self._get_permissions(target_user)))
+                    "Permissions for %s: %s" % (target_user.nickname,
+                                                ", ".join(self._get_permissions(target_user)))
             )
         elif subcommand == "clear":
             if not self._get_permissions(target_user):
@@ -271,6 +297,7 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write("Removed permissions from %s: %s" % (target_user.nickname, ", ".join(change)))
             else:
                 raise utils.EventError("Unknown subcommand %s" % subcommand)
+
 
     @utils.hook("received.command.hostmask")
     @utils.kwarg("authenticated", True)
@@ -311,11 +338,13 @@ class Module(ModuleManager.BaseModule):
             else:
                 raise utils.EventError("Unknown subcommand %s" % subcommand)
 
+
     def _assert(self, allowed):
         if allowed:
             return utils.consts.PERMISSION_FORCE_SUCCESS, None
         else:
             return utils.consts.PERMISSION_ERROR, NO_PERMISSION
+
 
     @utils.hook("preprocess.command")
     def preprocess_command(self, event):
@@ -331,9 +360,11 @@ class Module(ModuleManager.BaseModule):
 
         return self._assert(allowed)
 
+
     @utils.hook("check.command.permission")
     def check_permission(self, event):
         return self._assert(self._has_permission(event["user"], event["request_args"][0]))
+
 
     @utils.hook("check.command.authenticated")
     def check_authenticated(self, event):

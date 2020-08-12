@@ -9,11 +9,12 @@ BATCH = utils.irc.BatchType("labeled-response", "draft/labeled-response")
 
 CAP_TO_TAG = {
     "draft/labeled-response-0.2": "draft/label",
-    "labeled-response": "label"
+    "labeled-response":           "label"
 }
 
 
 class WaitingForLabel(object):
+
 
     def __init__(self, line, events):
         self.line = line
@@ -24,9 +25,11 @@ class WaitingForLabel(object):
 @utils.export("cap", CAP)
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("new.server")
     def new_server(self, event):
         event["server"]._label_cache = {}
+
 
     @utils.hook("preprocess.send")
     def raw_send(self, event):
@@ -41,6 +44,7 @@ class Module(ModuleManager.BaseModule):
 
             event["server"]._label_cache[label] = WaitingForLabel(event["line"], event["events"])
 
+
     @utils.hook("raw.received")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def raw_recv(self, event):
@@ -49,11 +53,13 @@ class Module(ModuleManager.BaseModule):
             if not label == None:
                 self._recv(event["server"], label, [event["line"]])
 
+
     @utils.hook("received.batch.end")
     def batch_end(self, event):
         if BATCH.match(event["batch"].type):
             label = TAG.get_value(event["batch"].tags)
             self._recv(event["server"], label, event["batch"].get_lines())
+
 
     def _recv(self, server, label, lines):
         if not label in server._label_cache:

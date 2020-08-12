@@ -1,10 +1,12 @@
 from src import ModuleManager, utils
 
+
 SETTING = "cron-reminders"
 
 
 class Module(ModuleManager.BaseModule):
     _name = "cron"
+
 
     @utils.hook("cron")
     def cron(self, event):
@@ -12,6 +14,7 @@ class Module(ModuleManager.BaseModule):
             self._catch_cron(event["schedule"])
         except Exception as e:
             self.log.error("Failed to call cron reminders: %s", [str(e)], exc_info=True)
+
 
     def _catch_cron(self, schedule_check):
         all = []
@@ -34,6 +37,7 @@ class Module(ModuleManager.BaseModule):
 
         for target, nickname, text in all:
             target.send_message("%s, reminder: %s" % (nickname, text))
+
 
     @utils.hook("received.command.cron")
     @utils.kwarg("permission", "cron")

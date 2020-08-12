@@ -2,12 +2,14 @@
 
 from src import ModuleManager, utils
 
+
 SETTING = utils.BoolSetting("accept-invites", "Set whether I accept invites")
 
 
 @utils.export("botset", SETTING)
 @utils.export("serverset", SETTING)
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.invite")
     def on_invite(self, event):

@@ -8,12 +8,14 @@ from src import IRCLine, ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.nick")
     @utils.kwarg("help", "Change my nickname")
     @utils.kwarg("permission", "changenickname")
     @utils.spec("!<nickname>word")
     def change_nickname(self, event):
         event["server"].send_nick(event["spec"][0])
+
 
     @utils.hook("received.command.broadcast")
     @utils.kwarg("help", "Send a message to every channel on the current server")
@@ -33,6 +35,7 @@ class Module(ModuleManager.BaseModule):
             chan = channel[0]
             server.send_message(chan, broadcast_text)
 
+
     @utils.hook("received.command.raw")
     @utils.kwarg("help", "Send a line of raw IRC data")
     @utils.kwarg("permission", "raw")
@@ -49,6 +52,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Line was filtered")
 
+
     @utils.hook("received.command.part")
     @utils.kwarg("help", "Part from the current or given channel")
     @utils.kwarg("permission", "part")
@@ -58,18 +62,22 @@ class Module(ModuleManager.BaseModule):
     def part(self, event):
         event["server"].send_part(event["spec"][0].name)
 
+
     def _id_from_alias(self, alias):
         return self.bot.database.servers.get_by_alias(alias)
+
 
     def _server_from_alias(self, alias):
         id, server = self._both_from_alias(alias)
         return server
+
 
     def _both_from_alias(self, alias):
         id = self._id_from_alias(alias)
         if id == None:
             raise utils.EventError("Unknown server alias")
         return id, self.bot.get_server_by_id(id)
+
 
     @utils.hook("received.command.reconnect")
     @utils.kwarg("help", "Reconnect to the current, or provided, server")
@@ -87,6 +95,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stdout"].write("Not connected to %s" % alias)
 
+
     @utils.hook("received.command.connect", min_args=1)
     @utils.kwarg("help", "Connect to a given server")
     @utils.kwarg("permission", "connect")
@@ -99,6 +108,7 @@ class Module(ModuleManager.BaseModule):
 
         server = self.bot.add_server(self._id_from_alias(alias))
         event["stdout"].write("Connecting to %s" % str(server))
+
 
     @utils.hook("received.command.disconnect")
     @utils.kwarg("help", "Disconnect from the current or provided server")
@@ -120,6 +130,7 @@ class Module(ModuleManager.BaseModule):
         if not server == event["server"]:
             event["stdout"].write("Disconnected from %s" % alias)
 
+
     @utils.hook("received.command.shutdown")
     @utils.kwarg("help", "Shutdown the bot")
     @utils.kwarg("permission", "shutdown")
@@ -132,8 +143,10 @@ class Module(ModuleManager.BaseModule):
 
         self.quit_process()
 
+
     def quit_process(self):
         sys.exit()
+
 
     def _shutdown_hook(self, server):
 
@@ -141,7 +154,9 @@ class Module(ModuleManager.BaseModule):
             server.disconnect()
             self.bot.disconnect(server)
 
+
         return shutdown
+
 
     @utils.hook("received.command.addserver")
     @utils.kwarg("help", "Add a new server")
@@ -165,21 +180,22 @@ class Module(ModuleManager.BaseModule):
 
         try:
             server_id = self.bot.database.servers.add(
-                alias,
-                hostname,
-                port,
-                "",
-                tls,
-                bindhost,
-                nickname,
-                username,
-                realname
+                    alias,
+                    hostname,
+                    port,
+                    "",
+                    tls,
+                    bindhost,
+                    nickname,
+                    username,
+                    realname
             )
         except Exception as e:
             event["stderr"].write("Failed to add server")
             self.log.error("failed to add server \"%s\"", [alias], exc_info=True)
             return
         event["stdout"].write("Added server '%s'" % alias)
+
 
     @utils.hook("received.command.editserver")
     @utils.kwarg("help", "Edit server details")

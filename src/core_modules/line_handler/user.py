@@ -78,10 +78,10 @@ def nick(events, event):
 
     if not event["server"].is_own_nickname(event["line"].source.nickname):
         events.on("received.nick").call(
-            new_nickname=new_nickname,
-            old_nickname=old_nickname,
-            user=user,
-            server=event["server"]
+                new_nickname=new_nickname,
+                old_nickname=old_nickname,
+                user=user,
+                server=event["server"]
         )
     else:
         event["server"].set_own_nickname(new_nickname)
@@ -118,10 +118,10 @@ def chghost(events, event):
     target.hostname = hostname
 
     events.on("received.chghost").call(
-        user=target,
-        server=event["server"],
-        old_username=old_username,
-        old_hostname=old_hostname
+            user=target,
+            server=event["server"],
+            old_username=old_username,
+            old_hostname=old_hostname
     )
 
 

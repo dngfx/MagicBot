@@ -2,11 +2,15 @@
 # usage: $ python3 migration/v01.19.00-words.py ~/.bitbot/bot.db
 
 import argparse
+
+
 parser = argparse.ArgumentParser(description="Migrate pre-v1.19.0 word stats")
 parser.add_argument("database")
 args = parser.parse_args()
 
 import datetime, sqlite3
+
+
 database = sqlite3.connect(args.database)
 cursor = database.cursor()
 

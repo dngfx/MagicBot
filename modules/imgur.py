@@ -29,11 +29,12 @@ NSFW_TEXT = "(NSFW)"
 
 
 @utils.export(
-    "channelset",
-    utils.BoolSetting("auto-imgur",
-                      "Disable/Enable automatically getting info from Imgur URLs")
+        "channelset",
+        utils.BoolSetting("auto-imgur",
+                          "Disable/Enable automatically getting info from Imgur URLs")
 )
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -51,6 +52,7 @@ class Module(ModuleManager.BaseModule):
             event.eat()
             return True
 
+
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "imgur")
@@ -59,6 +61,7 @@ class Module(ModuleManager.BaseModule):
         if event["target"].get_setting("auto-imgur", False):
             self._parse_gallery(event, event["match"].group(1))
             event.eat()
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -69,11 +72,12 @@ class Module(ModuleManager.BaseModule):
             self._parse_album(event, event["match"].group(1))
             event.eat()
 
+
     def _parse_gallery(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-            URL_GALLERY % hash,
-            headers={"Authorization": "Client-ID %s" % api_key}
+                URL_GALLERY % hash,
+                headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:
@@ -112,11 +116,12 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(output)
 
+
     def _parse_album(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-            URL_ALBUM % hash,
-            headers={"Authorization": "Client-ID %s" % api_key}
+                URL_ALBUM % hash,
+                headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:
@@ -156,11 +161,12 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(output)
 
+
     def _parse_image(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-            URL_IMAGE % hash,
-            headers={"Authorization": "Client-ID %s" % api_key}
+                URL_IMAGE % hash,
+                headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:

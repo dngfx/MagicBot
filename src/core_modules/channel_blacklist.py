@@ -4,6 +4,7 @@ from src import EventManager, ModuleManager, utils
 @utils.export("channelset", utils.BoolSetting("blacklist", "Refuse to join a given channel"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("preprocess.send.join")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def preprocess_send_join(self, event):
@@ -33,6 +34,7 @@ class Module(ModuleManager.BaseModule):
                     keys = [c[1] for c in channels_out if c[1]]
                     event["line"].args[0] = ",".join(channels)
                     event["line"].args[1:] = keys
+
 
     @utils.hook("received.join")
     def on_join(self, event):

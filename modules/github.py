@@ -35,6 +35,7 @@ API_PULL_URL = "https://api.github.com/repos/%s/%s/pulls/%s"
                                example="300"))
 class Module(ModuleManager.BaseModule):
 
+
     def _parse_ref(self, channel, ref, sep):
         repo, _, number = ref.rpartition(sep)
         org, _, repo = repo.partition("/")
@@ -53,6 +54,7 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Please provide username/repo#number")
         return org, repo, number
 
+
     def _short_url(self, url):
         try:
             page = utils.http.request("https://git.io",
@@ -63,17 +65,22 @@ class Module(ModuleManager.BaseModule):
             self.log.warn("HTTPTimeoutException while waiting for github short URL", [])
             return url
 
+
     def _change_count(self, n, symbol, color):
         return utils.irc.color("%s%d" % (symbol, n), color) + utils.irc.bold("")
+
 
     def _added(self, n):
         return self._change_count(n, "+", COLOR_POSITIVE)
 
+
     def _removed(self, n):
         return self._change_count(n, "-", COLOR_NEGATIVE)
 
+
     def _modified(self, n):
         return self._change_count(n, "~", utils.consts.PURPLE)
+
 
     def _get(self, url):
         oauth2_token = self.bot.config.get("github-token", None)
@@ -82,6 +89,7 @@ class Module(ModuleManager.BaseModule):
             headers["Authorization"] = "token %s" % oauth2_token
         request = utils.http.Request(url, headers=headers)
         return utils.http.request(request)
+
 
     def _commit(self, username, repository, commit):
         page = self._get(API_COMMIT_URL % (username, repository, commit))
@@ -95,9 +103,11 @@ class Module(ModuleManager.BaseModule):
                                            page["commit"]["message"],
                                            self._short_url(page["html_url"]))
 
+
     def _parse_commit(self, target, ref):
         username, repository, commit = self._parse_ref(target, ref, "@")
         return self._commit(username, repository, commit)
+
 
     @utils.hook("received.command.ghcommit")
     @utils.kwarg("min_args", 1)
@@ -109,6 +119,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(out)
         else:
             event["stderr"].write("Commit not found")
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -126,6 +137,7 @@ class Module(ModuleManager.BaseModule):
 
                 if out:
                     event["stdout"].write(out)
+
 
     def _parse_issue(self, page, username, repository, number):
         repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
@@ -145,8 +157,10 @@ class Module(ModuleManager.BaseModule):
 
         return "(%s issue%s, %s) %s %s%s" % (repo, number, state, page["title"], labels_str, url)
 
+
     def _get_issue(self, username, repository, number):
         return self._get(API_ISSUE_URL % (username, repository, number))
+
 
     @utils.hook("received.command.ghissue", min_args=1)
     def github_issue(self, event):
@@ -163,6 +177,7 @@ class Module(ModuleManager.BaseModule):
             self._parse_issue(page.json(), username, repository, number)
         else:
             event["stderr"].write("Could not find issue")
+
 
     def _parse_pull(self, page, username, repository, number):
         repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
@@ -191,8 +206,10 @@ class Module(ModuleManager.BaseModule):
                                                           page["title"],
                                                           url)
 
+
     def _get_pull(self, username, repository, number):
         return self._get(API_PULL_URL % (username, repository, number))
+
 
     @utils.hook("received.command.ghpull", min_args=1)
     def github_pull(self, event):
@@ -211,6 +228,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Could not find pull request")
 
+
     def _get_info(self, target, ref):
         username, repository, number = self._parse_ref(target, ref, "#")
         if not number.isdigit():
@@ -227,6 +245,7 @@ class Module(ModuleManager.BaseModule):
         else:
             return None
 
+
     @utils.hook("received.command.gh", alias_of="github")
     @utils.hook("received.command.github", min_args=1)
     def github(self, event):
@@ -239,8 +258,10 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Issue/PR not found")
 
+
     def _cache_ref(self, ref):
         return "auto-github-%s" % ref.lower()
+
 
     def _auto_github_cooldown(self, channel, ref):
         cooldown = channel.get_setting("auto-github-cooldown", None)
@@ -253,6 +274,7 @@ class Module(ModuleManager.BaseModule):
                 return False
         else:
             return True
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -271,6 +293,7 @@ class Module(ModuleManager.BaseModule):
                     if event["target"].get_setting("github-hide-prefix", False):
                         event["stdout"].prefix = None
                     event["stdout"].write(result)
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

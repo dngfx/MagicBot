@@ -10,11 +10,13 @@ from src import IRCObject, ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     def on_load(self):
         our_directory = os.path.abspath(os.path.dirname(__file__))
         self._directory = os.path.join(our_directory, "scripts")
         self._hooks = []
         self._load_scripts()
+
 
     def _load_scripts(self):
         for filename in glob.glob(os.path.join(self._directory, "*")):
@@ -27,8 +29,10 @@ class Module(ModuleManager.BaseModule):
                     hook = self.events.on(value).hook(hook_fn)
                     self._hooks.append([value, hook])
 
+
     def _make_hook(self, filename, name):
         return lambda event: self.call(event, filename, name)
+
 
     @utils.hook("received.command.reloadscripts", permission="reloadscripts")
     def reload(self, event):
@@ -36,6 +40,7 @@ class Module(ModuleManager.BaseModule):
             self.events.on(event_name).unhook(hook)
         self._load_scripts()
         event["stdout"].write("Reloaded all scripts")
+
 
     def call(self, event, filename, name):
         env = {

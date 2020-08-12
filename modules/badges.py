@@ -12,6 +12,7 @@ HUMAN_FORMAT_HELP = "year-month-day (e.g. 2018-12-29)"
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.export("command-spec.marginstring")
     def _marginstring_spec(self, server, channel, user, args):
         if len(args) > 1:
@@ -20,21 +21,27 @@ class Module(ModuleManager.BaseModule):
         else:
             return None, 1
 
+
     def _round_up_day(self, dt: datetime.datetime):
         return dt.date() + datetime.timedelta(days=1)
 
+
     def _days_since(self, now: datetime.date, dt: datetime.datetime):
         return (now - dt.date()).days
+
 
     def _get_badges(self, user):
         return user.get_setting("badges",
                                 {})
 
+
     def _set_badges(self, user, badges):
         user.set_setting("badges", badges)
 
+
     def _del_badges(self, user):
         user.del_setting("badges")
+
 
     @utils.hook("received.command.badge")
     @utils.kwarg("help", "List, add and remove badges")
@@ -95,6 +102,7 @@ class Module(ModuleManager.BaseModule):
 
             if not mut_badges == badges:
                 self._set_badges(event["user"], mut_badges)
+
 
     @utils.hook("received.command.badgeclear")
     @utils.kwarg("help", "Clear a user's badges")

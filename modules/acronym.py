@@ -1,9 +1,11 @@
 from src import ModuleManager, utils
 
+
 API = "http://acronyms.silmaril.ie/cgi-bin/xaa?%s"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.acronym")
     @utils.kwarg("min_args", 1)

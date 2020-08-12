@@ -67,10 +67,10 @@ def rsa_encrypt(key_filename: str, data: bytes) -> str:
         key_content = key_file.read()
     key = serialization.load_pem_public_key(key_content, backend=default_backend())
     out = key.encrypt(
-        data,
-        a_padding.OAEP(mgf=a_padding.MGF1(algorithm=hashes.SHA256()),
-                       algorithm=hashes.SHA256(),
-                       label=None))
+            data,
+            a_padding.OAEP(mgf=a_padding.MGF1(algorithm=hashes.SHA256()),
+                           algorithm=hashes.SHA256(),
+                           label=None))
     return base64.b64encode(out).decode("latin-1")
 
 

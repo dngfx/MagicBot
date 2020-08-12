@@ -31,22 +31,27 @@ def _get_follows():
 @utils.export("channelset", utils.BoolSetting("auto-tweet", "Enable/disable automatically getting tweet info"))
 class Module(ModuleManager.BaseModule):
 
+
     def on_load(self):
         auth = self._get_auth()
         api = self._get_api(auth)
+
 
     def _api(self):
         auth = self._get_auth()
         api = self._get_api(auth)
         return api
 
+
     def _get_auth(self):
         auth = tweepy.OAuthHandler(self.bot.config["twitter-api-key"], self.bot.config["twitter-api-secret"])
         auth.set_access_token(self.bot.config["twitter-access-token"], self.bot.config["twitter-access-secret"])
         return auth
 
+
     def _get_api(self, auth):
         return tweepy.API(auth, parser=JSONParser())
+
 
     def _from_id(self, tweet_id):
         api = self._api()
@@ -57,6 +62,7 @@ class Module(ModuleManager.BaseModule):
 
         return status
 
+
     def _get_profile(self, profile_name):
         api = self._api()
 
@@ -66,6 +72,7 @@ class Module(ModuleManager.BaseModule):
             return False
 
         return profile[0]
+
 
     @utils.hook("received.command.tw", alias_of="tweet")
     @utils.hook("received.command.tweet")
@@ -89,6 +96,7 @@ class Module(ModuleManager.BaseModule):
             self.regex_status(event, statusmatch)
             return
 
+
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "tweet")
@@ -106,6 +114,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(tweet_str)
         else:
             event["stderr"].write("Could not find tweet")
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

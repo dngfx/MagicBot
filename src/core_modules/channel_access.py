@@ -4,11 +4,13 @@
 
 from src import ModuleManager, utils
 
+
 SPECIAL = ["low", "high", "admin"]
 
 
 class Module(ModuleManager.BaseModule):
     _name = "ChanAccess"
+
 
     def _has_channel_access(self, target, user, names):
         required_access = []
@@ -26,6 +28,7 @@ class Module(ModuleManager.BaseModule):
 
         return ("*" in user_access or matched) and identified
 
+
     def _command_check(self, event, channel, require_access):
         if channel:
             if self._has_channel_access(channel, event["user"], require_access):
@@ -35,12 +38,14 @@ class Module(ModuleManager.BaseModule):
         else:
             raise ValueError("_command_check requires a channel")
 
+
     @utils.hook("preprocess.command")
     def preprocess_command(self, event):
         require_access = event["hook"].get_kwarg("require_access")
         if require_access:
             channel = event["kwargs"].get("channel", event["target"] if event["is_channel"] else None)
             return self._command_check(event, channel, require_access)
+
 
     @utils.hook("check.command.channel-access")
     def check_command(self, event):
@@ -51,6 +56,7 @@ class Module(ModuleManager.BaseModule):
             access = event["request_args"][1]
 
         return self._command_check(event, target, access)
+
 
     @utils.hook("received.command.access")
     @utils.kwarg("require_mode", "high")

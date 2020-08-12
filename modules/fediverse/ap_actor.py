@@ -6,6 +6,7 @@ from . import ap_security, ap_utils
 
 class Actor(object):
 
+
     def __init__(self, url):
         self.url = url
 
@@ -14,6 +15,7 @@ class Actor(object):
         self.inbox = None
         self.outbox = None
         self.followers = None
+
 
     def load(self):
         response = ap_utils.activity_request(self.url)
@@ -30,8 +32,10 @@ class Actor(object):
 
 class Outbox(object):
 
+
     def __init__(self, url):
         self._url = url
+
 
     def load(self):
         outbox = ap_utils.activity_request(self._url).json()
@@ -52,8 +56,10 @@ class Outbox(object):
 
 class Inbox(object):
 
+
     def __init__(self, url):
         self._url = url
+
 
     def send(self, sender, activity, private_key):
         now = email.utils.formatdate(timeval=None, localtime=False, usegmt=True)

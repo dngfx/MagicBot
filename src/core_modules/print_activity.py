@@ -11,6 +11,7 @@ from src.Logging import Logger as log
 @utils.export("channelset", utils.BoolSetting("print", "Whether or not to print activity a channel to logs"))
 class Module(ModuleManager.BaseModule):
 
+
     def _print(self, event):
         if (event["channel"] and not event["channel"].get_setting("print", True)):
             return
@@ -25,6 +26,7 @@ class Module(ModuleManager.BaseModule):
         context = event["context"] if (event["context"] not in ["*", ""]) and (event["context"] != None) else "Server"
 
         log.info(log, message=line, server=server, context=context, format=True)
+
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
@@ -44,6 +46,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("formatted.delete")
     def formatted(self, event):
         self._print(event)
+
 
     @utils.hook("formatted.motd")
     def motd(self, event):

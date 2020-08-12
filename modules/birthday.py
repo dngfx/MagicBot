@@ -61,6 +61,7 @@ def _apostrophe(nickname):
 @utils.export("set", utils.FunctionSetting(_parse_setting, "birthday", "Set your birthday", example=EXAMPLE_DATE_YEAR))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.birthday")
     def birthday(self, event):
         """
@@ -101,6 +102,7 @@ class Module(ModuleManager.BaseModule):
                     event["stdout"].write("%s birthday is today! ??" % _apostrophe(target_user.nickname))
         else:
             event["stderr"].write("No birthday set for %s" % target_user.nickname)
+
 
     @utils.hook("received.command.birthdays")
     def birthdays(self, event):

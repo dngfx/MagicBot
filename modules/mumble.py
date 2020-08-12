@@ -28,6 +28,7 @@ SETTING = utils.FunctionSetting(_parse,
 @utils.export("serverset", SETTING)
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.mumble")
     @utils.kwarg("help", "Get user and bandwidth stats for a mumble server")
     @utils.kwarg("usage", "[server[:<port>]]")

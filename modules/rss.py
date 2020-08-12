@@ -19,8 +19,10 @@ RSS_INTERVAL = 60  # 1 minute
 class Module(ModuleManager.BaseModule):
     _name = "RSS"
 
+
     def on_load(self):
         self.timers.add("rss-feeds", self._timer, self.bot.get_setting("rss-interval", RSS_INTERVAL))
+
 
     def _format_entry(self, server, feed_title, entry, shorten):
         title = utils.parse.line_normalise(utils.http.strip_html(entry["title"]))
@@ -39,6 +41,7 @@ class Module(ModuleManager.BaseModule):
         feed_title_str = "%s: " % feed_title if feed_title else ""
 
         return "%s%s%s%s" % (feed_title_str, title, author, link)
+
 
     def _timer(self, timer):
         start_time = time.monotonic()
@@ -105,10 +108,12 @@ class Module(ModuleManager.BaseModule):
         total_milliseconds = (time.monotonic() - start_time) * 1000
         log.trace(log, "Polled RSS feeds in %fms" % (total_milliseconds))
 
+
     def _get_id(self, entry):
         entry_id = entry.get("id", entry["link"])
         entry_id_hash = hashlib.sha1(entry_id.encode("utf8")).hexdigest()
         return entry_id, "sha1:%s" % entry_id_hash
+
 
     def _get_entries(self, url, max: int = None):
         try:
@@ -123,6 +128,7 @@ class Module(ModuleManager.BaseModule):
         for entry in feed["entries"]:
             entry_ids.append(entry.get("id", entry["link"]))
         return feed["feed"].get("title", None), feed["entries"][:max]
+
 
     @utils.hook("received.command.rss", min_args=1, channel_only=True)
     def rss(self, event):

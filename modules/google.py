@@ -15,6 +15,7 @@ URL_GOOGLESUGGEST = "http://google.com/complete/search"
 @utils.export("channelset", utils.BoolSetting("google-safesearch", "Turn safe search off/on"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.g", alias_of="google")
     @utils.hook("received.command.google")
     def google(self, event):
@@ -30,13 +31,13 @@ class Module(ModuleManager.BaseModule):
 
             page = utils.http.request(URL_GOOGLESEARCH,
                                       get_params={
-                                          "q": phrase,
+                                          "q":           phrase,
                                           "prettyPrint": "true",
-                                          "num": 1,
-                                          "gl": "gb",
-                                          "key": self.bot.config["google-api-key"],
-                                          "cx": self.bot.config["google-search-id"],
-                                          "safe": safe
+                                          "num":         1,
+                                          "gl":          "gb",
+                                          "key":         self.bot.config["google-api-key"],
+                                          "cx":          self.bot.config["google-search-id"],
+                                          "safe":        safe
                                       }).json()
             if page:
                 if "items" in page and len(page["items"]):
@@ -51,6 +52,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("No phrase provided")
 
+
     @utils.hook("received.command.suggest")
     def suggest(self, event):
         """
@@ -63,8 +65,8 @@ class Module(ModuleManager.BaseModule):
                                       get_params={
                                           "output": "json",
                                           "client": "hp",
-                                          "gl": "gb",
-                                          "q": phrase
+                                          "gl":     "gb",
+                                          "q":      phrase
                                       }).json()
             if page:
                 # google gives us jsonp, so we need to unwrap it.

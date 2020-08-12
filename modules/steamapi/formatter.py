@@ -56,7 +56,7 @@ def extended_user_summary(event, **kwargs):
 
     if last_seen != "":
         formatted_time = utils.datetime.format.to_pretty_time(
-            (datetime.datetime.now() - datetime.datetime.fromtimestamp(last_seen)).total_seconds()
+                (datetime.datetime.now() - datetime.datetime.fromtimestamp(last_seen)).total_seconds()
         )
         print(formatted_time)
 

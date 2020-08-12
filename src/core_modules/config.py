@@ -10,6 +10,7 @@ from src import ModuleManager, utils
 
 class ConfigInvalidValue(Exception):
 
+
     def __init__(self, message: str = None):
         self.message = message
 
@@ -27,6 +28,7 @@ class ConfigResults(enum.Enum):
 
 class ConfigResult(object):
 
+
     def __init__(self, result, data=None):
         self.result = result
         self.data = data
@@ -34,31 +36,38 @@ class ConfigResult(object):
 
 class ConfigChannelTarget(object):
 
+
     def __init__(self, bot, server, channel_name):
         self._bot = bot
         self._server = server
         self._channel_name = channel_name
 
+
     def _get_id(self):
         return self._server.channels.get_id(self._channel_name)
+
 
     def set_setting(self, setting, value):
         channel_id = self._get_id()
         self._bot.database.channel_settings.set(channel_id, setting, value)
 
+
     def get_setting(self, setting, default=None):
         channel_id = self._get_id()
         return self._bot.database.channel_settings.get(channel_id, setting, default)
 
+
     def del_setting(self, setting):
         channel_id = self._get_id()
         self._bot.database.channel_settings.delete(channel_id, setting)
+
 
     def get_user_setting(self, user_id, setting, default=None):
         return self._bot.database.user_channel_settings.get(user_id, self._get_id(), setting, default)
 
 
 class Module(ModuleManager.BaseModule):
+
 
     def _to_context(self, server, channel, user, context_desc):
         context_desc_lower = context_desc.lower()
@@ -84,6 +93,7 @@ class Module(ModuleManager.BaseModule):
             return self.bot, "botset", None
         else:
             raise ValueError()
+
 
     @utils.hook("preprocess.command")
     def preprocess_command(self, event):
@@ -126,10 +136,12 @@ class Module(ModuleManager.BaseModule):
                     )
                     return utils.consts.PERMISSION_ERROR, error
 
+
     def _get_export_setting(self, context):
         settings = self.exports.get_all(context)
         return {setting.name.lower(): setting
                 for setting in settings}
+
 
     def _config(self, export_settings, target, setting, value=None):
         if not value == None:
@@ -166,6 +178,7 @@ class Module(ModuleManager.BaseModule):
             else:
                 raise ConfigSettingInexistent()
 
+
     @utils.hook("received.command.c", alias_of="config")
     @utils.hook("received.command.config")
     @utils.kwarg("min_args", 1)
@@ -185,12 +198,12 @@ class Module(ModuleManager.BaseModule):
 
         try:
             target, context, name_override = self._to_context(
-                event["server"], event["target"], event["user"], context_desc
+                    event["server"], event["target"], event["user"], context_desc
             )
         except ValueError:
             raise utils.EventError(
-                "Unknown context '%s'. Please provide "
-                "'user', 'channel', 'server' or 'bot'" % context_desc
+                    "Unknown context '%s'. Please provide "
+                    "'user', 'channel', 'server' or 'bot'" % context_desc
             )
 
         name = name_override or name
@@ -215,11 +228,11 @@ class Module(ModuleManager.BaseModule):
                 else:
                     raise utils.EventError("Cannot change config for current channel when in " "private message")
             event["check_assert"](
-                permission_check | utils.Check("channel-access",
-                                               target,
-                                               "high,config") | utils.Check("channel-mode",
-                                                                            target,
-                                                                            "o")
+                    permission_check | utils.Check("channel-access",
+                                                   target,
+                                                   "high,config") | utils.Check("channel-mode",
+                                                                                target,
+                                                                                "o")
             )
         elif context == "serverset" or context == "botset":
             event["check_assert"](permission_check)

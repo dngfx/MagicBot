@@ -14,6 +14,7 @@ ACTIVITY_SETTING_PREFIX = "ap-activity-"
 
 class Server(object):
 
+
     def __init__(self, bot, exports, username, instance):
         self.bot = bot
         self.exports = exports
@@ -35,6 +36,7 @@ class Server(object):
         self._request_thread.daemon = True
         self._request_thread.start()
 
+
     def _request_loop(self, private_key, our_actor):
 
         while True:
@@ -45,11 +47,14 @@ class Server(object):
                 actor, activity = obj
                 actor.inbox.send(our_actor, activity, private_key)
 
+
     def unload(self):
         self._request_queue.put("kill")
 
+
     def _random_id(self):
         return binascii.hexlify(os.urandom(3)).decode("ascii")
+
 
     def _get_activities(self):
         activities = []
@@ -58,11 +63,13 @@ class Server(object):
             activities.append([activity_id, content, timestamp])
         return activities
 
+
     def _make_activity(self, content):
         timestamp = utils.datetime.format.iso8601_now()
         activity_id = self._random_id()
         self.bot.set_setting("ap-activity-%s" % activity_id, [content, timestamp])
         return activity_id
+
 
     def _toot(self, activity_id):
         content, timestamp = self.bot.get_setting("ap-activity-%s" % activity_id)
@@ -71,12 +78,12 @@ class Server(object):
         activity_url = self._ap_activity_url(url_for, activity_id)
 
         object = {
-            "id": activity_url,
-            "type": "Note",
-            "published": timestamp,
+            "id":           activity_url,
+            "type":         "Note",
+            "published":    timestamp,
             "attributedTo": self_id,
-            "content": content,
-            "to": "https://www.w3.org/ns/activitystreams#Public"
+            "content":      content,
+            "to":           "https://www.w3.org/ns/activitystreams#Public"
         }
         activity = ap_activities.Create(activity_url, object)
 
@@ -87,26 +94,34 @@ class Server(object):
             actor.load()
             actor.inbox.send(activity, private_key)
 
+
     def _ap_url(self, url_for, fragment, arg):
         return "https://%s" % url_for("api", fragment, args=[arg])
+
 
     def _ap_self_url(self, url_for):
         return self._ap_url(url_for, "ap-user", self.username)
 
+
     def _ap_inbox_url(self, url_for):
         return self._ap_url(url_for, "ap-inbox", self.username)
+
 
     def _ap_outbox_url(self, url_for):
         return self._ap_url(url_for, "ap-outbox", self.username)
 
+
     def _ap_activity_url(self, url_for, activity_id):
         return self._ap_url(url_for, "ap-activity", activity_id)
+
 
     def _ap_keyid_url(self, url_for):
         return "%s#key" % self._ap_self_url(url_for)
 
+
     def _ap_uuid_url(self, url_for):
         return self._ap_url(url_for, "ap-id", str(uuid.uuid4()))
+
 
     def ap_webfinger(self, event):
         resource = event["params"].get("resource", None)
@@ -123,9 +138,9 @@ class Server(object):
                 event["response"].content_type = ap_utils.JRD_TYPE
                 event["response"].write_json({
                     "aliases": [self_id],
-                    "links": [{
+                    "links":   [{
                         "href": self_id,
-                        "rel": "self",
+                        "rel":  "self",
                         "type": ap_utils.ACTIVITY_TYPE
                     }],
                     "subject": "acct:%s" % resource
@@ -135,8 +150,10 @@ class Server(object):
         else:
             event["response"].code = 400
 
+
     def _get_arg(self, args):
         return (args or [None])[0]
+
 
     def ap_user(self, event):
         username = self._get_arg(event["args"])
@@ -151,37 +168,39 @@ class Server(object):
 
             event["response"].content_type = ap_utils.LD_TYPE
             event["response"].write_json({
-                "@context": "https://www.w3.org/ns/activitystreams",
-                "id": self_id,
-                "url": self_id,
-                "type": "Service",
-                "summary": "beep boop",
+                "@context":          "https://www.w3.org/ns/activitystreams",
+                "id":                self_id,
+                "url":               self_id,
+                "type":              "Service",
+                "summary":           "beep boop",
                 "preferredUsername": self.username,
-                "name": self.username,
-                "inbox": inbox,
-                "outbox": outbox,
-                "publicKey": {
-                    "id": "%s#key" % self_id,
-                    "owner": self_id,
+                "name":              self.username,
+                "inbox":             inbox,
+                "outbox":            outbox,
+                "publicKey":         {
+                    "id":           "%s#key" % self_id,
+                    "owner":        self_id,
                     "publicKeyPem": pubkey
                 }
             })
         else:
             event["response"].code = 404
 
+
     def _prepare_activity(self, url_for, self_id, activity_id, content, timestamp):
         activity_url = self._ap_activity_url(url_for, activity_id)
         context = "data:%s" % activity_id
         return activity_url, {
             "attributedTo": self_id,
-            "content": content,
+            "content":      content,
             "conversation": context, "context": context,
-            "id": activity_url, "url": activity_url,
-            "published": timestamp,
-            "summary": "", # content warning here
-            "to": "https://www.w3.org/ns/activitystreams#Public",
-            "type": "Note",
+            "id":           activity_url, "url": activity_url,
+            "published":    timestamp,
+            "summary":      "",  # content warning here
+            "to":           "https://www.w3.org/ns/activitystreams#Public",
+            "type":         "Note",
         }
+
 
     def ap_outbox(self, event):
         username = self._get_arg(event["args"])
@@ -193,31 +212,33 @@ class Server(object):
             activities = []
             for activity_id, content, timestamp in self._get_activities():
                 activity_url, activity_object = self._prepare_activity(
-                    event["url_for"], self_id, activity_id, content, timestamp)
+                        event["url_for"], self_id, activity_id, content, timestamp)
                 activities.append({
-                    "actor": self_id,
-                    "id": activity_url,
-                    "object": activity_object,
+                    "actor":     self_id,
+                    "id":        activity_url,
+                    "object":    activity_object,
                     "published": timestamp,
-                    "to": "https://www.w3.org/ns/activitystreams#Public",
-                    "type": "Create"
+                    "to":        "https://www.w3.org/ns/activitystreams#Public",
+                    "type":      "Create"
                 })
 
             event["response"].content_type = ap_utils.LD_TYPE
             event["response"].write_json({
-                "@context": "https://www.w3.org/ns/activitystreams",
-                "id": outbox,
+                "@context":     "https://www.w3.org/ns/activitystreams",
+                "id":           outbox,
                 "orderedItems": activities,
-                "totalItems": len(activities),
-                "type": "OrderedCollection"
+                "totalItems":   len(activities),
+                "type":         "OrderedCollection"
             })
 
         else:
             event["response"].code = 404
 
+
     def _private_key(self, id):
         filename = self.bot.config["tls-key"]
         return ap_security.PrivateKey(filename, id)
+
 
     def ap_inbox(self, event):
         data = json.loads(event["data"])

@@ -11,6 +11,7 @@ from src import ModuleManager, utils
                                 "Set whether I strip colors from my messages on in this channel"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("preprocess.send.privmsg")
     @utils.hook("preprocess.send.notice")
     def preprocess(self, event):

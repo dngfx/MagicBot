@@ -30,6 +30,7 @@ class TriggerEventType(enum.Enum):
 
 class TriggerEvent(object):
 
+
     def __init__(self, type: TriggerEventType, callback: typing.Callable[[], None] = None):
         self.type = type
         self.callback = callback
@@ -37,15 +38,17 @@ class TriggerEvent(object):
 
 class ListLambdaPollHook(PollHook.PollHook):
 
+
     def __init__(
-        self,
-        collection: typing.Callable[[],
-                                    typing.Iterable[typing.Any]],
-        func: typing.Callable[[typing.Any],
-                              None]
+            self,
+            collection: typing.Callable[[],
+                                        typing.Iterable[typing.Any]],
+            func: typing.Callable[[typing.Any],
+                                  None]
     ):
         self._collection = collection
         self._func = func
+
 
     def next(self):
         timeouts = [self._func(i) for i in self._collection()]
@@ -54,6 +57,7 @@ class ListLambdaPollHook(PollHook.PollHook):
 
 
 class Bot(object):
+
 
     def __init__(self, directory, data_directory, args, cache, config, database, events, exports, log, modules, timers):
         self.directory = directory
@@ -91,33 +95,38 @@ class Bot(object):
 
         self._poll_timeouts = []  # typing.List[PollHook.PollHook]
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(),
-                               lambda server: server.until_read_timeout())
+                ListLambdaPollHook(lambda: self.servers.values(),
+                                   lambda server: server.until_read_timeout())
         )
 
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(),
-                               lambda server: server.until_next_ping())
+                ListLambdaPollHook(lambda: self.servers.values(),
+                                   lambda server: server.until_next_ping())
         )
 
         self._poll_timeouts.append(ListLambdaPollHook(lambda: self.servers.values(), self._throttle_timeout))
 
         self._poll_sources = []  # typing.List[PollSource.PollSource]
 
+
     def add_poll_hook(self, hook: PollHook.PollHook):
         self._poll_timeouts.append(hook)
 
+
     def add_poll_source(self, source: PollSource.PollSource):
         self._poll_sources.append(source)
+
 
     def _throttle_timeout(self, server: IRCServer.Server):
         if server.socket.waiting_throttled_send():
             return server.socket.send_throttle_timeout()
         return None
 
+
     def _trigger_both(self):
         self.trigger_read()
         self.trigger_write()
+
 
     def trigger_read(self):
         with self._rtrigger_lock:
@@ -125,15 +134,17 @@ class Bot(object):
                 self._rtriggered = True
                 self._rtrigger_client.send(b"TRIGGER")
 
+
     def trigger_write(self):
         with self._write_condition:
             self._write_condition.notify()
 
+
     def trigger(
-        self,
-        func: typing.Optional[typing.Callable[[],
-                                              typing.Any]] = None,
-        trigger_threads=True
+            self,
+            func: typing.Optional[typing.Callable[[],
+                                                  typing.Any]] = None,
+            trigger_threads=True
     ) -> typing.Any:
         func = func or (lambda: None)
 
@@ -145,6 +156,7 @@ class Bot(object):
 
         func_queue = queue.Queue(1)  # type: queue.Queue[str]
 
+
         def _action():
             try:
                 returned = func()
@@ -153,6 +165,7 @@ class Bot(object):
                 returned = e
                 type = TriggerResult.Exception
             func_queue.put([type, returned])
+
 
         event_item = TriggerEvent(TriggerEventType.Action, _action)
         self._event_queue.put(event_item)
@@ -167,6 +180,7 @@ class Bot(object):
         elif type == TriggerResult.Return:
             return returned
 
+
     def panic(self, reason):
         exc_info = False
         if any(sys.exc_info()):
@@ -175,11 +189,13 @@ class Bot(object):
         log.critical(log, message=("panic() called: %s" % reason), exc_info=exc_info)
         sys.exit(utils.consts.Exit.PANIC)
 
+
     def get_config(self, name: str) -> Config.Config:
         path = os.path.join(self.data_directory, "%s.conf" % name)
         config = Config.Config(name, path)
         config.load()
         return config
+
 
     def _module_lists(self):
         module_lists = self.get_config("modules")
@@ -188,30 +204,33 @@ class Bot(object):
 
         return whitelist, blacklist
 
+
     def load_modules(self) -> typing.Tuple[typing.List[str], typing.List[str]]:
         whitelist, blacklist = self._module_lists()
         return self.modules.load_modules(self, whitelist=whitelist, blacklist=blacklist)
+
 
     def try_reload_modules(self) -> ModuleManager.TryReloadResult:
         whitelist, blacklist = self._module_lists()
         return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist)
 
+
     def add_server(
-        self,
-        server_id: int,
-        connect: bool = True,
-        connection_param_args: typing.Dict[str,
-                                           str] = {}
+            self,
+            server_id: int,
+            connect: bool = True,
+            connection_param_args: typing.Dict[str,
+                                               str] = {}
     ) -> IRCServer.Server:
         connection_params = utils.irc.IRCConnectionParameters(*self.database.servers.get(server_id))
         connection_params.args = connection_param_args
 
         new_server = IRCServer.Server(
-            self,
-            self._events,
-            connection_params.id,
-            connection_params.alias,
-            connection_params
+                self,
+                self._events,
+                connection_params.id,
+                connection_params.alias,
+                connection_params
         )
         self._events.on("new.server").call(server=new_server)
 
@@ -222,11 +241,13 @@ class Bot(object):
 
         return new_server
 
+
     def get_server_by_id(self, id: int) -> typing.Optional[IRCServer.Server]:
         for server in self.servers.values():
             if server.id == id:
                 return server
         return None
+
 
     def get_server_by_alias(self, alias: str) -> typing.Optional[IRCServer.Server]:
         alias_lower = alias.lower()
@@ -234,6 +255,7 @@ class Bot(object):
             if server.alias.lower() == alias_lower:
                 return server
         return None
+
 
     def connect(self, server: IRCServer.Server) -> bool:
         try:
@@ -245,6 +267,7 @@ class Bot(object):
         self._read_poll.register(server.fileno(), select.POLLIN)
         return True
 
+
     def get_poll_timeout(self) -> float:
         timeouts = []
         for poll_timeout in self._poll_timeouts:
@@ -253,9 +276,11 @@ class Bot(object):
         min_secs = min([timeout for timeout in timeouts if not timeout == None])
         return max([min_secs, 0])
 
+
     def disconnect(self, server: IRCServer.Server):
         del self.servers[server.fileno()]
         self._trigger_both()
+
 
     def _timed_reconnect(self, timer: Timers.Timer):
         server_id = timer.kwargs["server_id"]
@@ -265,10 +290,11 @@ class Bot(object):
         else:
             del self.reconnections[server_id]
 
+
     def reconnect(
-        self,
-        server_id: int,
-        connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
+            self,
+            server_id: int,
+            connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
     ) -> bool:
         args = {}  # type: typing.Dict[str, str]
         if not connection_params == None:
@@ -281,11 +307,14 @@ class Bot(object):
             return True
         return False
 
+
     def set_setting(self, setting: str, value: typing.Any):
         self.database.bot_settings.set(setting, value)
 
+
     def get_setting(self, setting: str, default: typing.Any = None) -> typing.Any:
         return self.database.bot_settings.get(setting, default)
+
 
     def find_settings(self,
                       pattern: str = None,
@@ -298,14 +327,17 @@ class Bot(object):
         else:
             raise ValueError("Please provide 'pattern' or 'prefix'")
 
+
     def del_setting(self, setting: str):
         self.database.bot_settings.delete(setting)
+
 
     def _daemon_thread(self, target: typing.Callable[[], None]):
         thread = threading.Thread(target=target)
         thread.daemon = True
         thread.start()
         return thread
+
 
     def run(self):
         self._writing = True
@@ -315,12 +347,14 @@ class Bot(object):
         self._write_thread = self._daemon_thread(lambda: self._loop_catch("write", self._write_loop))
         self._event_loop()
 
+
     def stop(self, reason: str = "Stopping"):
         self._reading = False  # disable read thread
         self.trigger_read()
         for server in self.servers.values():
             line = server.send_quit(reason)
             line.events.on("send").hook(self._shutdown_hook(server))
+
 
     def _shutdown_hook(self, server):
 
@@ -330,12 +364,15 @@ class Bot(object):
             if not self.servers:
                 self._writing = False
 
+
         return shutdown
+
 
     def _kill(self):
         self._writing = False
         self._reading = False
         self._trigger_both()
+
 
     def _event_loop(self):
         while ((self._writing or self._reading) or not self._event_queue.empty()):
@@ -359,17 +396,21 @@ class Bot(object):
                     item.callback()
                 break
 
+
     def _post_send_factory(self, server, lines):
         return lambda: server._post_send(lines)
 
+
     def _post_read_factory(self, server, lines):
         return lambda: server._post_read(lines)
+
 
     def _loop_catch(self, name: str, loop: typing.Callable[[], None]):
         try:
             loop()
         except Exception as e:
             self.panic("Exception on '%s' thread" % name)
+
 
     def _write_loop(self):
         while self._writing:
@@ -412,7 +453,9 @@ class Bot(object):
                         def _trigger(source, fd):
                             return lambda: source.is_writeable(fd)
 
+
                         self.trigger(_trigger(poll_sources[fd], fd))
+
 
     def _read_loop(self):
         poll_sources = {}
@@ -443,6 +486,7 @@ class Bot(object):
                     def _trigger(source, fd):
                         return lambda: source.is_readable(fd)
 
+
                     self.trigger(_trigger(poll_sources[fd], fd))
                 else:
                     if not fd in self.servers:
@@ -461,6 +505,7 @@ class Bot(object):
                     elif event & select.POLLHUP:
                         log.warn(log, ("Recieved POLLHUP for %s" % str(server)))
                         server.disconnect()
+
 
     def _check(self):
         for poll_timeout in self._poll_timeouts:
@@ -484,10 +529,10 @@ class Bot(object):
                     reconnect_delay = self.config.get("reconnect-delay", 10)
 
                     timer = self._timers.add(
-                        "timed-reconnect",
-                        self._timed_reconnect,
-                        reconnect_delay,
-                        server_id=server.id
+                            "timed-reconnect",
+                            self._timed_reconnect,
+                            reconnect_delay,
+                            server_id=server.id
                     )
                     self.reconnections[server.id] = timer
 

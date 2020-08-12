@@ -14,9 +14,11 @@ URL_TOKEN = "https://accounts.spotify.com/api/token"
 
 class Module(ModuleManager.BaseModule):
 
+
     def on_load(self):
         self._token = None
         self._token_expires = None
+
 
     def _get_token(self):
         if self._token and time.time() < (self._token_expires + 10):
@@ -41,6 +43,7 @@ class Module(ModuleManager.BaseModule):
             self._token_expires = time.time() + page["expires_in"]
             return token
 
+
     @utils.hook("received.command.sp", alias_of="spotify")
     @utils.hook("received.command.spotify", min_args=1)
     def spotify(self, event):
@@ -51,9 +54,9 @@ class Module(ModuleManager.BaseModule):
         token = self._get_token()
         page = utils.http.request(URL_SEARCH,
                                   get_params={
-                                      "type": "track",
+                                      "type":  "track",
                                       "limit": 1,
-                                      "q": event["args"]
+                                      "q":     event["args"]
                                   },
                                   headers={
                                       "Authorization": "Bearer %s" % token

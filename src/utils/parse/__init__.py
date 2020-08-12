@@ -32,6 +32,7 @@ def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[st
 
 class Docstring(object):
 
+
     def __init__(self, description: str, items: typing.Dict[str, str], var_items: typing.Dict[str, typing.List[str]]):
         self.description = description
         self.items = items
@@ -128,9 +129,11 @@ def shorten_volume(volume) -> str:
     prefix = ["", "K", "M", "B"]
     return "%s.%s%s" % (parts[0], parts[1][0], prefix[amount])
 
+
 def comma_format(number):
     number = int(number)
     return str(f"{number:,}")
+
 
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:
     i = 0

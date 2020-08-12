@@ -1,6 +1,7 @@
 from src import EventManager, ModuleManager, utils
 from . import types
 
+
 # describing command arg specifications, to centralise parsing and validating.
 #
 # format: <!|?><name>
@@ -33,6 +34,7 @@ from . import types
 
 class Module(ModuleManager.BaseModule):
 
+
     def _spec_value(self, server, channel, user, argument_types, args):
         options = []
         first_error = None
@@ -61,6 +63,7 @@ class Module(ModuleManager.BaseModule):
             options.append([argument_type, value, n, error])
         return options
 
+
     def _argument_types(self, options, args):
         errors = []
         current_error = first_error = None
@@ -73,6 +76,7 @@ class Module(ModuleManager.BaseModule):
                 errors.append("Not enough arguments")
 
         return [None, -1, errors[0] if len(errors) == 1 else "Invalid arguments"]
+
 
     @utils.hook("preprocess.command")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)

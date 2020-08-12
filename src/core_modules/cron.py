@@ -20,12 +20,14 @@ TIMESTAMP_BOUNDS = [
 
 class Module(ModuleManager.BaseModule):
 
+
     def on_load(self):
         now = datetime.datetime.utcnow()
         next_minute = now.replace(second=0, microsecond=0)
         next_minute += datetime.timedelta(minutes=1)
         until = time.time() + ((next_minute - now).total_seconds())
         self.timers.add("cron", self._minute, 60, until)
+
 
     def _minute(self, timer):
         now = datetime.datetime.utcnow().replace(second=0, microsecond=0)
@@ -35,8 +37,10 @@ class Module(ModuleManager.BaseModule):
 
         events = self.events.on("cron")
 
+
         def _check(schedule):
             return self._schedule_match(timestamp, schedule.split(" "))
+
 
         event = events.make_event(schedule=_check)
 
@@ -47,12 +51,14 @@ class Module(ModuleManager.BaseModule):
             else:
                 cron.call(event)
 
+
     def _schedule_match(self, timestamp, schedule):
         items = enumerate(zip(timestamp, schedule))
         for i, (timestamp_part, schedule_part) in items:
             if not self._schedule_match_part(i, timestamp_part, schedule_part):
                 return False
         return True
+
 
     def _schedule_match_part(self, i, timestamp_part, schedule_part):
         if "," in schedule_part:
@@ -69,7 +75,7 @@ class Module(ModuleManager.BaseModule):
             else:
                 range_min, range_max = TIMESTAMP_BOUNDS[i]
 
-            if (range_min <= timestamp_part <= range_max and ((timestamp_part-range_min) % int(step)) == 0):
+            if (range_min <= timestamp_part <= range_max and ((timestamp_part - range_min) % int(step)) == 0):
                 return True
 
         elif "-" in schedule_part:

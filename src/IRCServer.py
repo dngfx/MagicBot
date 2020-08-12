@@ -14,13 +14,14 @@ PING_INTERVAL_SECONDS = 30
 
 class Server(IRCObject.Object):
 
+
     def __init__(
-        self,
-        bot: "IRCBot.Bot",
-        events: EventManager.Events,
-        id: int,
-        alias: str,
-        connection_params: utils.irc.IRCConnectionParameters
+            self,
+            bot: "IRCBot.Bot",
+            events: EventManager.Events,
+            id: int,
+            alias: str,
+            connection_params: utils.irc.IRCConnectionParameters
     ):
         self.bot = bot
         self.events = events
@@ -75,35 +76,40 @@ class Server(IRCObject.Object):
         self.ping_sent = False
         self.send_enabled = True
 
+
     def __repr__(self) -> str:
         return "IRCServer.Server(%s)" % self.__str__()
+
 
     def __str__(self) -> str:
         return self.alias
 
+
     def fileno(self) -> int:
         return self.socket.fileno()
+
 
     def hostmask(self):
         return "%s!%s@%s" % (self.nickname, self.username, self.hostname)
 
+
     def connect(self):
         self.socket = IRCSocket.Socket(
-            self.bot.log,
-            self.get_setting("encoding",
-                             "utf8"),
-            self.get_setting("fallback-encoding",
-                             "iso-8859-1"),
-            self.connection_params.hostname,
-            self.connection_params.port,
-            self.connection_params.bindhost,
-            self.connection_params.tls,
-            tls_verify=self.get_setting("ssl-verify",
-                                        True),
-            cert=self.bot.config.get("tls-certificate",
-                                     None),
-            key=self.bot.config.get("tls-key",
-                                    None)
+                self.bot.log,
+                self.get_setting("encoding",
+                                 "utf8"),
+                self.get_setting("fallback-encoding",
+                                 "iso-8859-1"),
+                self.connection_params.hostname,
+                self.connection_params.port,
+                self.connection_params.bindhost,
+                self.connection_params.tls,
+                tls_verify=self.get_setting("ssl-verify",
+                                            True),
+                cert=self.bot.config.get("tls-certificate",
+                                         None),
+                key=self.bot.config.get("tls-key",
+                                        None)
         )
         self.events.on("preprocess.connect").call(server=self)
         self.socket.connect()
@@ -122,17 +128,22 @@ class Server(IRCObject.Object):
         self.send_user(username, realname)
         self.send_nick(nickname)
 
+
     def disconnect(self):
         self.socket.disconnect()
+
 
     def get_channels(self):
         return self.channels.items()
 
+
     def set_setting(self, setting: str, value: typing.Any):
         self.bot.database.server_settings.set(self.id, setting, value)
 
+
     def get_setting(self, setting: str, default: typing.Any = None) -> typing.Any:
         return self.bot.database.server_settings.get(self.id, setting, default)
+
 
     def find_settings(self,
                       pattern: str = None,
@@ -145,37 +156,47 @@ class Server(IRCObject.Object):
         else:
             raise ValueError("Please provide 'pattern' or 'prefix'")
 
+
     def del_setting(self, setting: str):
         self.bot.database.server_settings.delete(self.id, setting)
+
 
     def get_user_setting(self, nickname: str, setting: str, default: typing.Any = None) -> typing.Any:
         user_id = self.get_user_id(nickname)
         return self.bot.database.user_settings.get(user_id, setting, default)
 
+
     def set_user_setting(self, nickname: str, setting: str, value: typing.Any):
         user_id = self.get_user_id(nickname)
         self.bot.database.user_settings.set(user_id, setting, value)
 
+
     def get_all_user_settings(self, setting: str, default: typing.Any = []) -> typing.List[typing.Any]:
         return self.bot.database.user_settings.find_all_by_setting(self.id, setting, default)
+
 
     def find_all_user_channel_settings(self, setting: str, default: typing.Any = []) -> typing.List[typing.Any]:
         return self.bot.database.user_channel_settings.find_all_by_setting(self.id, setting, default)
 
+
     def set_own_nickname(self, nickname: str):
         self.nickname = nickname
         self.nickname_lower = self.irc_lower(nickname)
+
 
     def is_own_nickname(self, nickname: str) -> bool:
         if self.nickname == None:
             return False
         return self.irc_equals(nickname, typing.cast(str, self.nickname))
 
+
     def add_own_mode(self, mode: str, arg: str = None):
         self.own_modes[mode] = arg
 
+
     def remove_own_mode(self, mode: str):
         del self.own_modes[mode]
+
 
     def change_own_mode(self, remove: bool, mode: str, arg: str = None):
         if remove:
@@ -183,13 +204,15 @@ class Server(IRCObject.Object):
         else:
             self.add_own_mode(mode, arg)
 
+
     def has_user(self, nickname: str) -> bool:
         return self.irc_lower(nickname) in self.users
+
 
     def fetch_user(self, nickname: str) -> IRCUser.User:
         if self.has_user(nickname):
             return self.users[self.irc_lower(nickname)]
-        
+
         return False
 
 
@@ -215,36 +238,45 @@ class Server(IRCObject.Object):
             self.events.on("new.user").call(user=new_user, server=self)
         return user
 
+
     def is_testing_enabled(self):
         self.testing_enabled = self.get_setting("testing-enabled", False)
         return self.testing_enabled
+
 
     def get_user_id(self, nickname: str) -> int:
         nickname_lower = self.irc_lower(nickname)
         self.bot.database.users.add(self.id, nickname_lower)
         return self.bot.database.users.get_id(self.id, nickname_lower)
 
+
     def has_user_id(self, nickname: str) -> bool:
         id = self.bot.database.users.get_id(self.id, self.irc_lower(nickname))
         return not id == None
 
+
     def get_user_nickname(self, user_id: int) -> str:
         return self.bot.database.users.get_nickname(self.id, user_id)
+
 
     def remove_user(self, user: IRCUser.User):
         del self.users[user.nickname_lower]
         for channel in user.channels:
             channel.remove_user(user)
 
+
     def quit_user(self, user: IRCUser.User):
         self.remove_user(user)
+
 
     def part_user(self, channel: IRCChannel.Channel, user: IRCUser.User):
         user.part_channel(channel)
         channel.remove_user(user)
 
+
     def is_channel(self, name: str) -> bool:
         return name[0] in self.channel_types
+
 
     def get_target(self, name: str) -> typing.Optional[typing.Union[IRCChannel.Channel, IRCUser.User]]:
         if self.is_channel(name):
@@ -254,22 +286,27 @@ class Server(IRCObject.Object):
             return self.get_user(name)
         return None
 
+
     def change_user_nickname(self, old_nickname: str, new_nickname: str):
         user = self.users.pop(self.irc_lower(old_nickname))
         user._id = self.get_user_id(new_nickname)
         self.users[self.irc_lower(new_nickname)] = user
 
+
     def irc_lower(self, s: str) -> str:
         return utils.irc.lower(self.case_mapping, s)
 
+
     def irc_equals(self, s1: str, s2: str) -> bool:
         return utils.irc.equals(self.case_mapping, s1, s2)
+
 
     def _post_read(self, lines: typing.List[str]):
         for line in lines:
             log.debug(log, "%s (raw recv) | %s" % (str(self), line.replace("<", "\<")))
             self.events.on("raw.received").call_unsafe(server=self, line=IRCLine.parse_line(line))
             self.check_users()
+
 
     def check_users(self):
         prune: typing.List[IRCUser.User] = []
@@ -279,19 +316,24 @@ class Server(IRCObject.Object):
         for user in prune:
             self.remove_user(user)
 
+
     def until_next_ping(self) -> typing.Optional[float]:
         if self.ping_sent:
             return None
         return max(0, (self.socket.last_read + PING_INTERVAL_SECONDS) - time.monotonic())
 
+
     def ping_due(self) -> bool:
         return self.until_next_ping() == 0
+
 
     def until_read_timeout(self) -> float:
         return max(0, (self.socket.last_read + READ_TIMEOUT_SECONDS) - time.monotonic())
 
+
     def read_timed_out(self) -> bool:
         return self.until_read_timeout() == 0
+
 
     def read(self) -> typing.Optional[typing.List[str]]:
         lines = self.socket.read()
@@ -300,16 +342,19 @@ class Server(IRCObject.Object):
 
         return lines
 
+
     def _send(self) -> typing.List[IRCLine.SentLine]:
         lines = self.socket._send()
         for line in lines:
             log.debug(log, "%s (raw send) | %s" % (str(self), line.parsed_line.format()))
         return lines
 
+
     def _post_send(self, lines: typing.List[IRCLine.SentLine]):
         for line in lines:
             line.events.on("send").call()
             self.events.on("raw.send").call_unsafe(server=self, line=line.parsed_line)
+
 
     def send(self, line_parsed: IRCLine.ParsedLine, immediate: bool = False) -> typing.Optional[IRCLine.SentLine]:
         if not self.send_enabled:
@@ -318,9 +363,9 @@ class Server(IRCObject.Object):
         line_events = self.events.new_root()
 
         self.events.on("preprocess.send").on(line_parsed.command).call_unsafe(
-            server=self,
-            line=line_parsed,
-            events=line_events
+                server=self,
+                line=line_parsed,
+                events=line_events
         )
         self.events.on("preprocess.send").call_unsafe(server=self, line=line_parsed, events=line_events)
 
@@ -335,8 +380,10 @@ class Server(IRCObject.Object):
             return line_obj
         return None
 
+
     def send_raw(self, line: str):
         return self.send(IRCLine.parse_line(line))
+
 
     def _line(self,
               command: str,
@@ -345,14 +392,18 @@ class Server(IRCObject.Object):
         args: typing.List[str] = [a for a in unfiltered_args if not a is None]
         return IRCLine.ParsedLine(command, args, tags=tags)
 
+
     def send_user(self, username: str, realname: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("USER", [username, "0", "*", realname]))
+
 
     def send_nick(self, nickname: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("NICK", [nickname]))
 
+
     def send_capibility_ls(self) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("CAP", ["LS", "302"]))
+
 
     def send_capability_queue(self):
         # textwrap works here because in ASCII, all chars are 1 bytes:
@@ -368,29 +419,38 @@ class Server(IRCObject.Object):
         for capability_batch in capability_batches:
             self.send_capability_request(capability_batch)
 
+
     def send_capability_request(self, capabilities: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("CAP", ["REQ", capabilities]))
+
 
     def send_capability_end(self) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("CAP", ["END"]))
 
+
     def send_authenticate(self, text: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("AUTHENTICATE", [text]))
+
 
     def has_capability(self, capability: utils.irc.Capability) -> bool:
         return bool(self.available_capability(capability))
 
+
     def has_capability_str(self, capability: str) -> bool:
         return capability in self.agreed_capabilities
+
 
     def available_capability(self, capability: utils.irc.Capability) -> typing.Optional[str]:
         return capability.available(self.agreed_capabilities)
 
+
     def waiting_for_capabilities(self) -> bool:
         return bool(len(self._capabilities_waiting))
 
+
     def wait_for_capability(self, capability: str):
         self._capabilities_waiting.add(capability)
+
 
     def capability_done(self, capability: str):
         if capability in self._capabilities_waiting:
@@ -398,29 +458,38 @@ class Server(IRCObject.Object):
             if not self._capabilities_waiting:
                 self.send_capability_end()
 
+
     def clear_waiting_capabilities(self):
         self._capabilities_waiting.clear()
+
 
     def send_pass(self, password: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PASS", [password]))
 
+
     def send_ping(self, token: str = "hello") -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PING", [token]))
+
 
     def send_pong(self, token: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PONG", [token]))
 
+
     def send_join(self, channel_name: str, keys: typing.List[str] = None) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("JOIN", [channel_name] + (keys or [])))
+
 
     def send_joins(self, channel_names: typing.List[str], keys: typing.List[str] = None):
         return self.send(self._line("JOIN", [",".join(channel_names)] + (keys or [])))
 
+
     def send_part(self, channel_name: str, reason: str = None) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PART", [channel_name, reason]))
 
+
     def send_quit(self, reason: str = "Leaving") -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("QUIT", [reason]))
+
 
     def send_message(self,
                      target: str,
@@ -428,14 +497,17 @@ class Server(IRCObject.Object):
                      tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("PRIVMSG", [target, message], tags=tags))
 
+
     def send_notice(self,
                     target: str,
                     message: str,
                     tags: dict = {}) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("NOTICE", [target, message], tags=tags))
 
+
     def send_tagmsg(self, target: str, tags: dict):
         return self.send(self._line("TARGMSG", [], tags=tags))
+
 
     def send_mode(self,
                   target: str,
@@ -446,30 +518,39 @@ class Server(IRCObject.Object):
             line_args.extend(args)
         return self.send(self._line("MODE", line_args))
 
+
     def send_topic(self, channel_name: str, topic: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("TOPIC", [channel_name, topic]))
+
 
     def send_kick(self, channel_name: str, target: str, reason: str = None) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("KICK", [channel_name, target, reason]))
 
+
     def send_names(self, channel_name: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("NAMES", [channel_name]))
+
 
     def send_list(self, search_for: str = None) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("LIST", [search_for]))
 
+
     def send_invite(self, channel_name: str, target: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("INVITE", [target, channel_name]))
 
+
     def send_whois(self, target: str) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("WHOIS", [target]))
+
 
     def send_whowas(self, target: str, amount: int = None, server: str = None) -> typing.Optional[IRCLine.SentLine]:
         amount_str = str(amount) if not amount == None else None
         return self.send(self._line("WHOWAS", [target, amount_str, server]))
 
+
     def send_who(self, filter: str = None) -> typing.Optional[IRCLine.SentLine]:
         return self.send(self._line("WHO", [filter]))
+
 
     def send_whox(self, mask: str, filter: str, fields: str, label: str = None) -> typing.Optional[IRCLine.SentLine]:
         flags = "%s%%%s%s" % (filter, fields, "," + label if label else "")

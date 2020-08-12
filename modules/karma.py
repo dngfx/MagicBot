@@ -18,6 +18,7 @@ REGEX_PARENS = re.compile(r"\(([^)]+)\)(\+\+|--)")
 @utils.export("channelset", utils.BoolSetting("karma-pattern", "Enable/disable parsing ++/-- karma format"))
 class Module(ModuleManager.BaseModule):
 
+
     def _karma_str(self, karma):
         karma_str = str(karma)
         if karma < 0:
@@ -27,10 +28,12 @@ class Module(ModuleManager.BaseModule):
         else:
             return utils.irc.color(str(karma), utils.consts.YELLOW)
 
+
     @utils.hook("new.user")
     def new_user(self, event):
         event["user"]._last_positive_karma = None
         event["user"]._last_negative_karma = None
+
 
     def _check_throttle(self, user, positive):
         bypass_throttle = user.get_setting("permissions", None)
@@ -44,17 +47,20 @@ class Module(ModuleManager.BaseModule):
             timestamp = user._last_negative_karma
         return timestamp == None or (time.time() - timestamp) >= KARMA_DELAY_SECONDS
 
+
     def _set_throttle(self, user, positive):
         if positive:
             user._last_positive_karma = time.time()
         else:
             user._last_negative_karma = time.time()
 
+
     def _get_target(self, server, target):
         target = target.strip()
         if not " " in target and server.has_user(target):
             return server.get_user_nickname(server.get_user(target).get_id())
         return target.lower()
+
 
     def _change_karma(self, server, sender, target, positive):
         if not self._check_throttle(sender, positive):
@@ -79,6 +85,7 @@ class Module(ModuleManager.BaseModule):
 
         return True, "%s now has %s karma (%s from %s)" % (nick, karma_total, karma_str, sender.nickname)
 
+
     @utils.hook("received.command.setkarma")
     @utils.kwarg("min_args", 2)
     @utils.kwarg("permission", "setkarma")
@@ -94,6 +101,7 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write("Set %s karma to %s" % (karma_text, amount))
 
+
     @utils.hook("command.regex", pattern=REGEX_WORD)
     @utils.hook("command.regex", pattern=REGEX_PARENS)
     @utils.kwarg("command", "karma")
@@ -108,6 +116,7 @@ class Module(ModuleManager.BaseModule):
             success, message = self._change_karma(event["server"], event["user"], target, positive)
             event["stdout" if success else "stderr"].write(message)
 
+
     @utils.hook("command.regex", pattern=REGEX_WORD_START)
     @utils.kwarg("command", "karma")
     def regex_word_start(self, event):
@@ -117,6 +126,7 @@ class Module(ModuleManager.BaseModule):
             success, message = self._change_karma(event["server"], event["user"], target, positive)
             event["stdout" if success else "stderr"].write(message)
 
+
     @utils.hook("received.command.addpoint")
     @utils.hook("received.command.rmpoint")
     @utils.kwarg("min_args", 1)
@@ -125,6 +135,7 @@ class Module(ModuleManager.BaseModule):
         positive = event["command"] == "addpoint"
         success, message = self._change_karma(event["server"], event["user"], event["spec"][0], positive)
         event["stdout" if success else "stderr"].write(message)
+
 
     @utils.hook("received.command.karma")
     def karma(self, event):
@@ -142,6 +153,7 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write("%s has %s karma" % (target, karma))
 
+
     def _get_karma(self, server, target):
         settings = dict(server.get_all_user_settings("karma-%s" % target))
 
@@ -150,6 +162,7 @@ class Module(ModuleManager.BaseModule):
             del settings[target_lower]
 
         return sum(settings.values())
+
 
     @utils.hook("received.command.resetkarma")
     @utils.kwarg("min_args", 2)

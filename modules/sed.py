@@ -16,8 +16,10 @@ REGEX_SED = re.compile("^(?:(\\S+)[:,] )?s/")
                                 "Disable/Enable sed only looking at the messages sent by the user"))
 class Module(ModuleManager.BaseModule):
 
+
     def _closest_setting(self, event, setting, default):
         return event["target"].get_setting(setting, event["server"].get_setting(setting, default))
+
 
     @utils.hook("command.regex")
     @utils.kwarg("command", "sed")

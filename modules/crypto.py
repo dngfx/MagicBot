@@ -13,6 +13,7 @@ class Module(ModuleManager.BaseModule):
     _assets = {}
     _name = "Cryptocurrency"
 
+
     @utils.hook("received.command.coinstats")
     @utils.kwarg("help", "Shows market information about the coin requested")
     @utils.spec("!<coin>word")
@@ -21,7 +22,7 @@ class Module(ModuleManager.BaseModule):
         page = utils.http.request((API_URL % "assets"),
                                   get_params={
                                       "search": coin,
-                                      "limit": 1
+                                      "limit":  1
                                   }).json()
         data = page["data"]
 
@@ -49,14 +50,15 @@ class Module(ModuleManager.BaseModule):
         avg_price = "%s.%s" % (utils.parse.comma_format(avg_parts[0]), avg_parts[1][:2])
 
         event["stdout"].write(
-            "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s" % (
-                info["name"],
-                utils.irc.bold(info["symbol"]),
-                utils.irc.bold("$" + trade_vol_formatted),
-                utils.irc.bold("$" + avg_price),
-                chg_text
-            )
+                "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s" % (
+                    info["name"],
+                    utils.irc.bold(info["symbol"]),
+                    utils.irc.bold("$" + trade_vol_formatted),
+                    utils.irc.bold("$" + avg_price),
+                    chg_text
+                )
         )
+
 
     @utils.hook("received.command.curtocoin", alias_of="currencytocoin")
     @utils.hook("received.command.currencytocoin")
@@ -68,12 +70,12 @@ class Module(ModuleManager.BaseModule):
         coin = event["spec"][2].upper()
 
         page = utils.http.request(
-            API_URL % "markets",
-            get_params={
-                "baseSymbol": coin,
-                "quoteSymbol": currency,
-                "limit": 1
-            }
+                API_URL % "markets",
+                get_params={
+                    "baseSymbol":  coin,
+                    "quoteSymbol": currency,
+                    "limit":       1
+                }
         ).json()
         data = page["data"]
 
@@ -86,14 +88,15 @@ class Module(ModuleManager.BaseModule):
         #symbol = info["quoteSymbol"]
 
         event["stdout"].write(
-            "Convert %s %s to %s: %s %s" % (
-                utils.irc.bold(amount),
-                utils.irc.bold(currency),
-                utils.irc.bold(coin),
-                utils.irc.bold(price),
-                utils.irc.bold(coin)
-            )
+                "Convert %s %s to %s: %s %s" % (
+                    utils.irc.bold(amount),
+                    utils.irc.bold(currency),
+                    utils.irc.bold(coin),
+                    utils.irc.bold(price),
+                    utils.irc.bold(coin)
+                )
         )
+
 
     @utils.hook("received.command.coinprice")
     @utils.kwarg("help", "Get the price of one coin in local currency")
@@ -103,12 +106,12 @@ class Module(ModuleManager.BaseModule):
         coin = event["spec"][0].upper()
 
         page = utils.http.request(
-            API_URL % "markets",
-            get_params={
-                "baseSymbol": coin,
-                "quoteSymbol": currency,
-                "limit": 1
-            }
+                API_URL % "markets",
+                get_params={
+                    "baseSymbol":  coin,
+                    "quoteSymbol": currency,
+                    "limit":       1
+                }
         ).json()
         data = page["data"]
 
@@ -122,11 +125,11 @@ class Module(ModuleManager.BaseModule):
         #symbol = info["quoteSymbol"]
 
         event["stdout"].write(
-            "%s to %s: 1 %s = %s %s" % (
-                utils.irc.bold(coin),
-                utils.irc.bold(currency),
-                utils.irc.bold(coin),
-                utils.irc.bold(price),
-                utils.irc.bold(currency)
-            )
+                "%s to %s: 1 %s = %s %s" % (
+                    utils.irc.bold(coin),
+                    utils.irc.bold(currency),
+                    utils.irc.bold(coin),
+                    utils.irc.bold(price),
+                    utils.irc.bold(currency)
+                )
         )

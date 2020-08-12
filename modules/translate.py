@@ -13,6 +13,7 @@ REGEX_LANGUAGES = re.compile("(\w+)?:(\w+)? ")
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.tr", alias_of="translate")
     @utils.hook("received.command.translate")
     @utils.spec("?<from:to>lstring !<phrase>lstring")
@@ -37,11 +38,11 @@ class Module(ModuleManager.BaseModule):
         page = utils.http.request(URL_TRANSLATE,
                                   method="POST",
                                   post_data={
-                                      "q": phrase,
+                                      "q":      phrase,
                                       "format": "text",
                                       "source": source_language,
                                       "target": target_language,
-                                      "key": self.bot.config["google-translate-api-key"]
+                                      "key":    self.bot.config["google-translate-api-key"]
                                   }).json()
 
         if "data" in page:

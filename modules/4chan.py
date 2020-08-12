@@ -1,8 +1,9 @@
 #--depends-on commands
 
 import datetime
-import flag
 import re
+
+import flag
 
 from src import ModuleManager, utils
 
@@ -13,12 +14,12 @@ THREAD_URL = "https://a.4cdn.org/%s/thread/%s.json"
 NSFW_TEXT = utils.irc.color(utils.irc.bold("(NSFW) "), utils.consts.RED)
 
 CAPCODE_COLOUR = {
-    "mod": utils.consts.PURPLE,
-    "admin": utils.consts.RED,
+    "mod":             utils.consts.PURPLE,
+    "admin":           utils.consts.RED,
     "admin_highlight": utils.consts.RED,
-    "developer": utils.consts.BLUE,
-    "founder": utils.consts.LIGHTGREEN,
-    "manager": utils.consts.PINK
+    "developer":       utils.consts.BLUE,
+    "founder":         utils.consts.LIGHTGREEN,
+    "manager":         utils.consts.PINK
 }
 
 POST_LOCKED_EMOJI = '🔒'
@@ -27,9 +28,9 @@ POST_STICKY_EMOJI = '📌'
 
 @utils.export("channelset", utils.BoolSetting("auto-4chan", "Auto parse 4chan URLs to display with info"))
 class Module(ModuleManager.BaseModule):
-
     _board_list = None
     _name = "4chan"
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -85,7 +86,7 @@ class Module(ModuleManager.BaseModule):
             closed_sticky = "%s%s — " % (closed, sticky)
 
         has_file = "filename" in info
-        
+
         nsfw = NSFW_TEXT if self._board_list[board] == False else ""
         capcode = ""
         country_flag = ""
@@ -137,6 +138,7 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(build_output)
         return
+
 
     def _parse_board_list(self):
         board_list_raw = utils.http.request(BOARD_LIST_URL).json()

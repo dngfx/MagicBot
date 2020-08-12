@@ -4,12 +4,14 @@
 
 from src import ModuleManager, utils
 
+
 URL_TRAKT = "https://api-v2launch.trakt.tv/users/%s/watching"
 URL_TRAKTSLUG = "https://trakt.tv/%s/%s"
 
 
 @utils.export("set", utils.Setting("trakt", "Set username on trakt.tv", example="jesopo"))
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.nw", alias_of="nowwatching")
     @utils.hook("received.command.nowwatching")
@@ -24,9 +26,9 @@ class Module(ModuleManager.BaseModule):
             username = event["user"].get_setting("trakt", event["user"].nickname)
         page = utils.http.request(URL_TRAKT % username,
                                   headers={
-                                      "Content-Type": "application/json",
+                                      "Content-Type":      "application/json",
                                       "trakt-api-version": "2",
-                                      "trakt-api-key": self.bot.config["trakt-api-key"]
+                                      "trakt-api-key":     self.bot.config["trakt-api-key"]
                                   })
         if page:
             if page.code == 200:

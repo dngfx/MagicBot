@@ -1,5 +1,6 @@
 from src import utils
 
+
 CAPABILITIES = [
     utils.irc.Capability("multi-prefix"),
     utils.irc.Capability("chghost"),
@@ -25,7 +26,7 @@ def _cap_depend_sort(caps, server_caps):
     sorted_caps = []
 
     caps_copy = {alias: cap.copy() for alias,
-                 cap in caps.items()}
+                                       cap in caps.items()}
 
     for cap in caps.values():
         if not cap.available(server_caps):

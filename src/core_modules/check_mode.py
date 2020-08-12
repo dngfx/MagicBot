@@ -2,8 +2,9 @@
 
 from src import ModuleManager, utils
 
+
 LOWHIGH = {
-    "low": "v",
+    "low":  "v",
     "high": "o"
 }
 
@@ -17,6 +18,7 @@ LOWHIGH = {
                             "Set which channel mode is considered to be 'high' access",
                             example="o"))
 class Module(ModuleManager.BaseModule):
+
 
     def _check_command(self, event, channel, require_mode):
         if channel:
@@ -38,12 +40,14 @@ class Module(ModuleManager.BaseModule):
         else:
             raise ValueError("_command_check requires a channel")
 
+
     @utils.hook("preprocess.command")
     def preprocess_command(self, event):
         require_mode = event["hook"].get_kwarg("require_mode")
         if not require_mode == None:
             channel = event["kwargs"].get("channel", event["target"] if event["is_channel"] else None)
             return self._check_command(event, channel, require_mode)
+
 
     @utils.hook("check.command.channel-mode")
     def check_command(self, event):

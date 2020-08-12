@@ -15,6 +15,7 @@ def _parse(value):
                                     example="4:2"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.001")
     def connect(self, event):
         throttle = event["server"].get_setting("throttle", None)
