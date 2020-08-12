@@ -1,5 +1,7 @@
-import datetime, pprint
+import datetime
+
 from src import ModuleManager, utils
+
 
 PRUNE_TIMEDELTA = datetime.timedelta(weeks=2)
 

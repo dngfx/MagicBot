@@ -1,8 +1,14 @@
 #--depends-on commands
 #--depends-on permissions
 
-import datetime, decimal, functools, math, random, re, time
+import datetime
+import decimal
+import functools
+import random
+import re
+
 from src import ModuleManager, utils
+
 
 SIDES = {
     "heads": 0,

@@ -4,6 +4,7 @@
 #--depends-on permissions
 
 import enum
+
 from src import ModuleManager, utils
 
 

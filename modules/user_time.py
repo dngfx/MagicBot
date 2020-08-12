@@ -1,9 +1,13 @@
 #--depends-on commands
 #--depends-on location
 
-import datetime, enum
+import datetime
+import enum
+
 import pytz
+
 from src import ModuleManager, utils
+
 
 NOLOCATION_USER = "%s doesn't have a location set"
 NOLOCATION_NAME = "Unknown location '%s'"

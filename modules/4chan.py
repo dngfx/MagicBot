@@ -1,7 +1,11 @@
 #--depends-on commands
 
-import hashlib, re, urllib.parse, datetime, flag
-from src import EventManager, ModuleManager, utils
+import datetime
+import flag
+import re
+
+from src import ModuleManager, utils
+
 
 REGEX_LINK = re.compile("https?://boards\.4chan(?:nel)?\.org/(\w+)/thread/(\d+)")
 BOARD_LIST_URL = "https://a.4cdn.org/boards.json"

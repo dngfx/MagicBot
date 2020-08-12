@@ -1,5 +1,5 @@
 #--depends-on commands
-from src import EventManager, ModuleManager, utils
+from src import ModuleManager, utils
 
 SETTING_PREFIX = "command-alias-"
 

@@ -1,5 +1,7 @@
 import time
+
 from src import ModuleManager, utils
+
 
 CAP = utils.irc.Capability("sts", "draft/sts")
 

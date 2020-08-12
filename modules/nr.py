@@ -1,14 +1,14 @@
 #--depends-on commands
 #--require-config nre-api-key
 
-import collections, re, time
-from datetime import datetime, date
-from collections import Counter
+import re
+from datetime import datetime
+
+from suds import WebFault
+from suds.client import Client
 
 from src import ModuleManager, utils
 
-from suds.client import Client
-from suds import WebFault
 
 # Note that this module requires the open *Staff Version* of the Darwin API
 # You can register for an API key here: http://openldbsv.nationalrail.co.uk/

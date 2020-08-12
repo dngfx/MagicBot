@@ -1,6 +1,3 @@
-from . import utils as ap_utils
-
-
 class Activity(object):
     _type = ""
 

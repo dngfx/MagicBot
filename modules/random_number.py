@@ -1,7 +1,10 @@
 #--depends-on commands
 
-import random, uuid
+import random
+import uuid
+
 from src import ModuleManager, utils
+
 
 COIN_SIDES = ["heads", "tails"]
 

@@ -1,6 +1,4 @@
 from src import ModuleManager, utils
-import pprint
-from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):

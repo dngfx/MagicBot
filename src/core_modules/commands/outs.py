@@ -1,7 +1,3 @@
-import re
-from src import IRCLine, utils
-
-
 class StdOut(object):
 
     def __init__(self, prefix):

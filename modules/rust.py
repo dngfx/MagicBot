@@ -1,7 +1,9 @@
 #--depends-on commands
 
-import json, socket
+import socket
+
 from src import ModuleManager, utils
+
 
 API_CRATE = "https://crates.io/api/v1/crates/%s"
 URL_CRATE = "https://crates.io/crates/%s"

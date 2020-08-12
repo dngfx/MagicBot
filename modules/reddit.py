@@ -1,7 +1,10 @@
 #--depends-on commands
 
-import hashlib, re, urllib.parse, datetime
-from src import EventManager, ModuleManager, utils
+import datetime
+import re
+
+from src import ModuleManager, utils
+
 
 REGEX_LINK = re.compile("https?://(?:\w+\.)?reddit.com/r/([^/]+)/comments/([^/ ]+)")
 REGEX_SUBREDDIT_LINK = re.compile("https?://(?:\w+\.)?reddit.com/r/([^/]+)(?:[ /$])")

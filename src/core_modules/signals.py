@@ -1,5 +1,7 @@
-import signal, sys
-from src import Config, IRCLine, ModuleManager, utils
+import signal
+import sys
+
+from src import IRCLine, ModuleManager
 from src.Logging import Logger as log
 
 

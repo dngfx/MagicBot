@@ -2,8 +2,11 @@
 #--require-config spotify-client-id
 #--require-config spotify-client-secret
 
-import base64, json, time
+import base64
+import time
+
 from src import ModuleManager, utils
+
 
 URL_SEARCH = "https://api.spotify.com/v1/search"
 URL_TOKEN = "https://accounts.spotify.com/api/token"

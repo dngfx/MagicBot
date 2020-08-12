@@ -1,6 +1,5 @@
 #--depends-on commands
 
-import re, random
 from src import ModuleManager, utils
 
 STARSIGNS = [

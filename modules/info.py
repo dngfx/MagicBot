@@ -1,4 +1,3 @@
-import os
 from src import IRCBot, ModuleManager, utils
 
 DBVERSION = "v1.0.1"

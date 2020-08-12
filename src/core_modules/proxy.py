@@ -1,6 +1,9 @@
-import typing, urllib.parse
+import urllib.parse
+
 import socks
+
 from src import ModuleManager, utils
+
 
 TYPES = {
     "socks4": socks.SOCKS4,

@@ -1,8 +1,10 @@
 #--depends-on commands
 #--require-config google-translate-api-key
 
-import json, re
+import re
+
 from src import ModuleManager, utils
+
 
 URL_TRANSLATE = "https://translation.googleapis.com/language/translate/v2"
 URL_LANGUAGES = "https://cloud.google.com/translate/docs/languages"

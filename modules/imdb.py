@@ -1,7 +1,6 @@
 #--depends-on commands
 #--require-config omdbapi-api-key
 
-import json
 from src import ModuleManager, utils
 
 URL_OMDB = "http://www.omdbapi.com/"

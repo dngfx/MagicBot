@@ -2,8 +2,7 @@
 #--depends-on config
 #--depends-on permissions
 
-import time, math, pprint
-from src import EventManager, ModuleManager, utils, IRCChannel
+from src import ModuleManager, utils
 
 
 @utils.export(

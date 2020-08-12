@@ -1,7 +1,6 @@
-import enum, pprint
 from src import EventManager, IRCLine, ModuleManager, utils
-from . import channel, core, ircv3, message, user
 from src.Logging import Logger as log
+from . import channel, core, ircv3, message, user
 
 
 class Module(ModuleManager.BaseModule):

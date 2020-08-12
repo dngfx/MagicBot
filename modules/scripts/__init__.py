@@ -1,6 +1,10 @@
 #--depends-on commands
 
-import glob, json, os, subprocess
+import glob
+import json
+import os
+import subprocess
+
 from src import IRCObject, ModuleManager, utils
 
 

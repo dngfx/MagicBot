@@ -4,7 +4,9 @@
 #--depends-on config
 
 import enum
+
 from src import ModuleManager, utils
+
 
 QUIET_METHODS = {
     "qmode": ["q",

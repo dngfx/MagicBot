@@ -1,8 +1,10 @@
 #--depends-on commands
 #--depends-on config
 
-import datetime, typing
+import datetime
+
 from src import ModuleManager, utils
+
 
 DATE_YEAR_FORMAT = "%Y-%m-%d"
 DATE_FORMAT = "%d-%b"

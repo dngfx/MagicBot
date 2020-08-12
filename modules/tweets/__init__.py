@@ -6,12 +6,14 @@
 #--require-config twitter-access-token
 #--require-config twitter-access-secret
 
-import json, re, pprint
-from src import ModuleManager, utils
-from . import format
+import re
+
 import tweepy
 from tweepy.parsers import JSONParser
-from src.Logging import Logger as log
+
+from src import ModuleManager, utils
+from . import format
+
 
 _bot = None
 _events = None

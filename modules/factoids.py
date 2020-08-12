@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import re
+
 from src import ModuleManager, utils
+
 
 REGEX_FACTOID = re.compile("{!([^}]+)}", re.I)
 FACTOID_DEPTH_MAX = 8

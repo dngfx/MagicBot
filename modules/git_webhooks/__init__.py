@@ -3,9 +3,14 @@
 #--depends-on commands
 #--depends-on shorturl
 
-import itertools, json, re, urllib.parse
+import itertools
+import json
+import re
+import urllib.parse
+
 from src import ModuleManager, utils
 from . import colors, gitea, github, gitlab
+
 
 FORM_ENCODED = "application/x-www-form-urlencoded"
 

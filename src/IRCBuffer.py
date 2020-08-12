@@ -1,5 +1,12 @@
-import collections, dataclasses, datetime, re, typing, uuid
+import collections
+import dataclasses
+import datetime
+import re
+import typing
+import uuid
+
 from src import IRCBot, IRCServer, utils
+
 
 MAX_LINES = 2**10
 

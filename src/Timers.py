@@ -1,6 +1,10 @@
-import time, typing, uuid
+import time
+import typing
+import uuid
+
 from src import Database, EventManager, PollHook
 from src.Logging import Logger as log
+
 
 T_CALLBACK = typing.Callable[["Timer"], None]
 

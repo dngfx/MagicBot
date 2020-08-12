@@ -1,5 +1,7 @@
 import uuid
+
 from src import EventManager, ModuleManager, utils
+
 
 CAP = utils.irc.Capability("labeled-response", "draft/labeled-response-0.2", depends_on=["batch"])
 TAG = utils.irc.MessageTag("label", "draft/label")

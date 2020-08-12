@@ -1,8 +1,10 @@
 #--depends-on commands
 #--depends-on config
 
-import datetime, math, re
-from src import EventManager, ModuleManager, utils
+import re
+
+from src import ModuleManager, utils
+
 
 COLOR_BRANCH = utils.consts.ORANGE
 COLOR_REPO = utils.consts.GREY

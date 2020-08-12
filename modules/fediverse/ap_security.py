@@ -1,12 +1,12 @@
-import base64, typing
+import base64
+import typing
 
 from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.hazmat.primitives.serialization import PublicFormat
 
 SIGNATURE_FORMAT = ("keyId=\"%s\",headers=\"%s\",signature=\"%s\",algorithm=\"rsa-sha256\"")
 

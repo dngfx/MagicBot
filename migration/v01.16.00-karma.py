@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser(description="Migrate pre-v1.16.0 karma")
 parser.add_argument("database")
 args = parser.parse_args()
 
-import json, sqlite3
+import sqlite3
 database = sqlite3.connect(args.database)
 
 cursor = database.cursor()

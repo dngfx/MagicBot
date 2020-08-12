@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import socket
+
 from src import ModuleManager, utils
+
 
 EVAL_URL = "https://www.lua.org/cgi-bin/demo"
 

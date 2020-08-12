@@ -1,6 +1,6 @@
-import datetime, pprint
-from src import EventManager, ModuleManager, utils
-from src.Logging import Logger as log
+import pprint
+
+from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):

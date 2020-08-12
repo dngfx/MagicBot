@@ -1,9 +1,11 @@
 #--depends-on config
 #--depends-on format_activity
 
-import datetime, os.path
+import datetime
+import os.path
+
 from src import ModuleManager, utils
-from src.Logging import Logger as log
+
 
 SETTING = utils.BoolSetting("channel-log", "Enable/disable channel logging")
 

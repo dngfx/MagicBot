@@ -1,7 +1,9 @@
 import random
 import re
 import threading
+
 from src import ModuleManager, utils
+
 
 NO_MARKOV = "Markov chains not enabled in this channel"
 

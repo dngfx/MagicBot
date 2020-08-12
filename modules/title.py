@@ -2,9 +2,13 @@
 #--depends-on config
 #--depends-on shorturl
 
-import hashlib, re, urllib.parse
+import hashlib
+import re
+import urllib.parse
+
 from src import EventManager, ModuleManager, utils
 from src.Logging import Logger as log
+
 
 RE_WORDSPLIT = re.compile("[\s/]")
 

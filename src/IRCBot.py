@@ -4,10 +4,17 @@ with open("VERSION", "r") as version_file:
 SOURCE: str = "https://git.io/magicirc"
 URL: str = "https://git.io/magicirc"
 
-import enum, queue, os, queue, select, socket, sys, threading, time, traceback
-import typing, uuid
-from src import Config, EventManager, Exports, IRCServer
-from src import ModuleManager, PollHook, PollSource, Socket, Timers, utils
+import enum
+import os
+import queue
+import select
+import socket
+import sys
+import threading
+import time
+import typing
+
+from src import Config, IRCServer, ModuleManager, PollHook, PollSource, Timers, utils
 from src.Logging import Logger as log
 
 

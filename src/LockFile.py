@@ -1,5 +1,8 @@
-import datetime, os
+import datetime
+import os
+
 from src import PollHook, utils
+
 
 EXPIRATION = 60  # 1 minute
 

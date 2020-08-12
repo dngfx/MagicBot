@@ -1,5 +1,7 @@
 import random
+
 from src import ModuleManager, utils
+
 
 COLORS = [
     utils.consts.BLUE,

@@ -1,7 +1,6 @@
 #--depends-on config
 #--require-config opencagedata-api-key
 
-import typing
 from src import ModuleManager, utils
 
 URL_OPENCAGE = "https://api.opencagedata.com/geocode/v1/json"

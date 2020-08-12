@@ -1,4 +1,3 @@
-import uuid
 from src import IRCBuffer, IRCLine, utils
 
 

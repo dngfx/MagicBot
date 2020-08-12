@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import urllib.parse
+
 from src import ModuleManager, utils
+
 
 EVAL_URL = "http://dotpy3.herokuapp.com/"
 

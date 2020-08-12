@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-import argparse, os, sys
+import argparse
+import os
+import sys
+
 
 directory = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser("~")

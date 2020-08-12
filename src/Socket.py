@@ -1,4 +1,5 @@
-import socket, typing
+import socket
+import typing
 
 
 class Socket(object):

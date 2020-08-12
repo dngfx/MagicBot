@@ -6,8 +6,7 @@
 
 METAR_URL = "https://avwx.rest/api/metar/%s"
 
-import datetime, math, re
-from src import EventManager, ModuleManager, utils
+from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):

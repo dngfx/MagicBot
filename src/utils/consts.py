@@ -1,4 +1,5 @@
-import enum, typing
+import enum
+
 from . import _consts_256_color
 
 

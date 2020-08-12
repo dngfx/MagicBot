@@ -1,8 +1,13 @@
 #--depends-on commands
 #--depends-on config
 
-import random, re, time, pprint
-from src import EventManager, ModuleManager, utils
+import random
+import re
+import time
+
+from src import ModuleManager, utils
+
+
 """ Licence: WTFPL """
 
 DUCK_TAIL = "・゜゜・。。・゜゜"

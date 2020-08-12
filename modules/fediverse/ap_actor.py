@@ -1,5 +1,6 @@
-import email.utils, urllib.parse
-from src import utils
+import email.utils
+import urllib.parse
+
 from . import ap_security, ap_utils
 
 

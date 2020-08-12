@@ -2,8 +2,7 @@
 #--depends-on config
 #--depends-on permissions
 
-import time, math
-from src import EventManager, ModuleManager, utils
+from src import ModuleManager, utils
 
 
 @utils.export("channelset", utils.BoolSetting("xp-enabled", "Is the XP module enabled?"))

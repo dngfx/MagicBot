@@ -1,6 +1,9 @@
 #--depends-on commands
 
-import re, socket, dns.resolver
+import dns.resolver
+import re
+import socket
+
 from src import ModuleManager, utils
 
 

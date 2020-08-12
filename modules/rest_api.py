@@ -2,9 +2,17 @@
 #--depends-on config
 #--depends-on permissions
 
-import binascii, http.server, json, os, socket, ssl, threading, urllib.parse
+import binascii
+import http.server
+import json
+import os
+import socket
+import threading
+import urllib.parse
+
 from src import ModuleManager, utils
 from src.Logging import Logger as log
+
 
 DEFAULT_PORT = 5001
 DEFAULT_PUBLIC_PORT = 5000

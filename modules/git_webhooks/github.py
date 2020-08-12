@@ -1,6 +1,7 @@
-from src import ModuleManager, utils
-from . import colors
+from src import utils
 from src.Logging import Logger as log
+from . import colors
+
 
 COMMIT_URL = "https://github.com/%s/commit/%s"
 COMMIT_RANGE_URL = "https://github.com/%s/compare/%s...%s"

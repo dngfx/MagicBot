@@ -3,12 +3,13 @@
 #--depends-on permissions
 #--require-config steam-api-key
 
-import time, math, pprint, re
-from steam import webapi, steamid
+import re
+
 from steam.steamid import steam64_from_url, SteamID
-from steam.webapi import WebAPI
-from src import EventManager, ModuleManager, utils, IRCChannel
-from . import consts, api, user
+
+from . import consts
+
+
 """
 https://steamcommunity.com/gid/[g:1:4]
 https://steamcommunity.com/gid/103582791429521412

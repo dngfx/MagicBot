@@ -1,5 +1,9 @@
-import datetime, socket, struct
+import datetime
+import socket
+import struct
+
 from src import ModuleManager, utils
+
 
 DEFAULT_PORT = 64738
 

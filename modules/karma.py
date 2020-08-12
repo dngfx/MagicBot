@@ -2,8 +2,11 @@
 #--depends-on config
 #--depends-on permissions
 
-import re, time
+import re
+import time
+
 from src import EventManager, ModuleManager, utils
+
 
 KARMA_DELAY_SECONDS = 3
 

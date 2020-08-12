@@ -1,7 +1,13 @@
-import base64, binascii, json, os, queue, threading, urllib.parse, uuid
-from src import ModuleManager, utils
+import binascii
+import json
+import os
+import queue
+import threading
+import uuid
 
+from src import utils
 from . import ap_activities, ap_actor, ap_security, ap_utils
+
 
 ACTIVITY_SETTING_PREFIX = "ap-activity-"
 

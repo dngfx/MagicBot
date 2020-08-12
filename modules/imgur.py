@@ -2,9 +2,13 @@
 #--depends-on config
 #--require-config imgur-api-key
 
-import re, datetime, pprint
-from src import ModuleManager, utils, EventManager
-from hurry.filesize import size, alternative
+import datetime
+import re
+
+from hurry.filesize import alternative, size
+
+from src import ModuleManager, utils
+
 
 REGEX_IMAGE = re.compile("https?://(?:i\.)?imgur.com/(\w{2,})")
 REGEX_ALBUM = re.compile("https?://(?:i\.)?imgur.com/a/(\w+)")

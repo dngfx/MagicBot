@@ -1,8 +1,22 @@
-import asyncio, codecs, dataclasses, ipaddress, re, signal, socket, traceback
-import typing, urllib.error, urllib.parse, uuid
+import asyncio
+import codecs
+import dataclasses
+import ipaddress
 import json as _json
-import bs4, netifaces, requests, tornado.httpclient
+import re
+import socket
+import typing
+import urllib.error
+import urllib.parse
+import uuid
+
+import bs4
+import netifaces
+import requests
+import tornado.httpclient
+
 from src import IRCBot, utils
+
 
 REGEX_URL = re.compile("https?://\S+", re.I)
 

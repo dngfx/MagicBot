@@ -1,9 +1,8 @@
-from src import utils
-from src.core_modules import permissions
-from modules import channel_op
 import re
-import pprint
-from src.Logging import Logger as log
+
+from src import utils
+
+
 PLEXUS_REGEX = re.compile("plexus\-\d")
 
 

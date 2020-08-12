@@ -1,10 +1,15 @@
 #--depends-on config
 #--depends-on shorturl
 
-import difflib, hashlib, time
-from src import ModuleManager, utils
+import difflib
+import hashlib
+import time
+
 import feedparser
+
+from src import ModuleManager, utils
 from src.Logging import Logger as log
+
 
 RSS_INTERVAL = 60  # 1 minute
 

@@ -1,7 +1,10 @@
 #--depends-on commands
 
-import random, time, pprint, re
-from src import EventManager, ModuleManager, utils
+import random
+import re
+import time
+
+from src import ModuleManager, utils
 
 
 @utils.export(

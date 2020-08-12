@@ -1,9 +1,11 @@
 #--depends-on config
 
-import base64, hashlib, hmac, typing, uuid
+import base64
+
 from src import ModuleManager, utils
-from . import scram
 from src.Logging import Logger as log
+from . import scram
+
 
 CAP = utils.irc.Capability("sasl")
 

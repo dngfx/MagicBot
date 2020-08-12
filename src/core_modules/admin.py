@@ -2,8 +2,8 @@
 #--depends-on permissions
 
 import sys
-from src import IRCLine, ModuleManager, utils, IRCChannels
-from src.Logging import Logger as log
+
+from src import IRCLine, ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):

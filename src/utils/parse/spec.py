@@ -1,7 +1,10 @@
-import enum, re, typing
+import enum
+import re
+import typing
+
+from src.utils.datetime.parse import date_human
 from .time import duration
 from .types import try_int
-from src.utils.datetime.parse import date_human
 
 
 class SpecTypeError(Exception):

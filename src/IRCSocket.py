@@ -1,6 +1,11 @@
-import datetime, socket, ssl, time, threading, typing
+import socket
+import threading
+import time
+import typing
+
 from src import IRCLine, IRCObject, utils
 from src.Logging import Logger as log
+
 
 THROTTLE_LINES = 4
 THROTTLE_SECONDS = 1

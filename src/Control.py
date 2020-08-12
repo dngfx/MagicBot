@@ -1,4 +1,8 @@
-import json, os, socket, typing
+import json
+import os
+import socket
+import typing
+
 from src import IRCBot, PollSource
 from src.Logging import Logger as log
 

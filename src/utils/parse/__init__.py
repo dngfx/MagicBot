@@ -1,10 +1,11 @@
-import decimal, re, typing
-from src.utils import datetime, errors, io
+import decimal
 
+from src.utils import io
+from . import sed
 from .spec import *
 from .time import duration
 from .types import try_int
-from . import sed
+
 
 COMMENT_TYPES = ["#", "//"]
 

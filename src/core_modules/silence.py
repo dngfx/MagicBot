@@ -2,7 +2,9 @@
 #--depends-on permissions
 
 import time
+
 from src import EventManager, ModuleManager, utils
+
 
 SILENCE_TIME = 60 * 5  # 5 minutes
 

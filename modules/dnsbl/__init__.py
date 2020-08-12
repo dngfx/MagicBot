@@ -1,6 +1,8 @@
 import ipaddress
-from src import ModuleManager, utils
+
 import dns.resolver
+
+from src import ModuleManager, utils
 from . import lists as _lists
 
 

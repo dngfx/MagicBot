@@ -1,5 +1,8 @@
-import datetime, time
-from src import ModuleManager, utils
+import datetime
+import time
+
+from src import ModuleManager
+
 
 TIMESTAMP_BOUNDS = [
     [0,

@@ -3,12 +3,11 @@
 #--depends-on permissions
 #--require-config steam-api-key
 
-import time, math, pprint, datetime, pprint, urllib.parse, operator
-from steam import webapi, steamid
-from steam.steamid import steam64_from_url, SteamID
 from steam.webapi import WebAPI
-from src import EventManager, ModuleManager, utils, IRCChannel
-from . import consts, api, user, formatter
+
+from src import ModuleManager, utils
+from . import api, consts, formatter, user
+
 
 _bot = None
 _events = None

@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import time
+
 from src import ModuleManager, utils
+
 
 HIDDEN_MODES = set(["s", "p"])
 

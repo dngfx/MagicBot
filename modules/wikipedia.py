@@ -1,7 +1,9 @@
 #--depends-on commands
 
-import re, random
+import re
+
 from src import ModuleManager, utils
+
 
 URL_WIKIPEDIA = "https://en.wikipedia.org/w/api.php"
 WIKIPEDIA_REGEX = re.compile("https?://en.wikipedia.org/wiki/([^/]+)")

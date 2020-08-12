@@ -1,7 +1,12 @@
-import collections, datetime, sys, textwrap, time, typing
-from src import EventManager, IRCBot, IRCChannel, IRCChannels, IRCLine
-from src import IRCObject, IRCSocket, IRCUser, utils
+import collections
+import datetime
+import textwrap
+import time
+import typing
+
+from src import EventManager, IRCBot, IRCChannel, IRCChannels, IRCLine, IRCObject, IRCSocket, IRCUser, utils
 from src.Logging import Logger as log
+
 
 READ_TIMEOUT_SECONDS = 120
 PING_INTERVAL_SECONDS = 30

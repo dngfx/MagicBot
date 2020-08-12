@@ -2,7 +2,9 @@
 #--depends-on config
 
 import re
+
 from src import ModuleManager, utils
+
 
 URL_BITLYSHORTEN = "https://api-ssl.bitly.com/v3/shorten"
 

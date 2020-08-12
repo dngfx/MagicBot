@@ -1,6 +1,9 @@
-import itertools, time, traceback, typing
+import time
+import typing
+
 from src import utils
 from src.Logging import Logger as log
+
 
 PRIORITY_URGENT = 0
 PRIORITY_HIGH = 1

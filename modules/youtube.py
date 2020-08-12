@@ -2,10 +2,11 @@
 # --depends-on config
 # --require-config google-api-key
 
-import datetime
 import re
 import urllib.parse
-from src import EventManager, ModuleManager, utils
+
+from src import ModuleManager, utils
+
 
 REGEX_YOUTUBE = re.compile("https?://(?:www\.|m\.)?(?:youtu.be/|youtube.com/)\\S+", re.I)
 

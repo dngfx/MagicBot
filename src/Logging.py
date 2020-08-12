@@ -1,7 +1,9 @@
-import sys, pprint
-from src import Database, utils
-from loguru import logger
+import sys
 from logging import StreamHandler
+
+from loguru import logger
+
+from src import utils
 
 
 class Logger(object):

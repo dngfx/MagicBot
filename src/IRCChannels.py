@@ -1,5 +1,6 @@
 import typing
-from src import EventManager, IRCBot, IRCChannel, IRCServer, utils
+
+from src import EventManager, IRCBot, IRCChannel, IRCServer
 
 
 class Channels(object):

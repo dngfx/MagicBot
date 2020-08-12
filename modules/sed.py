@@ -1,8 +1,11 @@
 #--depends-on commands
 #--depends-on config
 
-import re, traceback
+import re
+import traceback
+
 from src import ModuleManager, utils
+
 
 REGEX_SED = re.compile("^(?:(\\S+)[:,] )?s/")
 

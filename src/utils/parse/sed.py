@@ -1,4 +1,7 @@
-import dataclasses, re, typing
+import dataclasses
+import re
+import typing
+
 
 def _tokens(s: str, token: str) -> typing.List[int]:
     backslash = False

@@ -1,4 +1,4 @@
-from src import ModuleManager, utils
+from src import utils
 from . import colors
 
 EVENT_CATEGORIES = {

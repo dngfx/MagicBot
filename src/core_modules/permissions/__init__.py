@@ -1,6 +1,5 @@
 #--depends-on commands
 
-import base64, binascii, os
 from src import EventManager, ModuleManager, utils
 
 HOSTMASKS_SETTING = "hostmask-account"

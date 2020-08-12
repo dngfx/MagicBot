@@ -1,6 +1,5 @@
 #--depends-on commands
 
-import re
 from src import ModuleManager, utils
 from src.Logging import Logger as log
 

@@ -2,8 +2,10 @@
 #--depends-on config
 #--depends-on permissions
 
-import time, math
+import time
+
 from src import EventManager, ModuleManager, utils
+
 
 WORD_DELIM = "\"'…~*`"
 WORD_START = WORD_DELIM + "“({<"

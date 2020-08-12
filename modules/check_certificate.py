@@ -1,6 +1,9 @@
 import datetime
+
+import cryptography.hazmat.backends
+import cryptography.x509
+
 from src import ModuleManager, utils
-import cryptography.x509, cryptography.hazmat.backends
 
 
 class Module(ModuleManager.BaseModule):

@@ -1,5 +1,5 @@
-import dataclasses, typing
 import sqlite3
+import typing
 
 
 class DatabaseEngineCursor(object):

@@ -1,5 +1,6 @@
-from src.utils.parse import SpecTypeError
 from src.utils.irc import hostmask_match, hostmask_parse
+from src.utils.parse import SpecTypeError
+
 
 TYPES = {}
 

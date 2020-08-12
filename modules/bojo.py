@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import random
+
 from src import ModuleManager, utils
+
 
 CHOICES = [
     "https://i.imgur.com/xkaaN4S.png",

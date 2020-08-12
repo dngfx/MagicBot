@@ -1,10 +1,8 @@
 #--depends-on config
 #--depends-on format_activity
 
-import datetime
-from src import EventManager, ModuleManager, utils
+from src import ModuleManager, utils
 from src.Logging import Logger as log
-import pprint
 
 
 @utils.export("botset", utils.BoolSetting("print-motd", "Set whether I print /motd"))

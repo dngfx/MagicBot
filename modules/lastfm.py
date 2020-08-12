@@ -2,7 +2,6 @@
 #--depends-on config
 #--require-config lastfm-api-key
 
-from datetime import datetime, timezone
 from src import ModuleManager, utils
 
 URL_SCROBBLER = "http://ws.audioscrobbler.com/2.0/"

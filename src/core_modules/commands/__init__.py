@@ -1,10 +1,14 @@
 #--depends-on config
 
-import enum, re, shlex, string, traceback, typing
+import enum
+import re
+import shlex
+import string
+import typing
+
 from src import EventManager, IRCLine, ModuleManager, utils
 from . import outs
-from src.Logging import Logger as log
-import pprint
+
 
 COMMAND_METHOD = "command-method"
 COMMAND_METHODS = ["PRIVMSG", "NOTICE"]

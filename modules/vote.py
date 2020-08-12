@@ -2,8 +2,12 @@
 #--depends-on commands
 #--depends-on permissions
 
-import binascii, enum, os, uuid
+import binascii
+import enum
+import os
+
 from src import ModuleManager, utils
+
 
 STR_NOVOTE = "Unknown vote '%s'"
 

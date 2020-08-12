@@ -1,5 +1,7 @@
 import typing
+
 from .parse import argument_spec
+
 
 BITBOT_MAGIC = "__bitbot"
 

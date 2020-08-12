@@ -1,4 +1,4 @@
-from src import IRCLine, utils
+from src import IRCLine
 
 
 def handle_332(events, event):

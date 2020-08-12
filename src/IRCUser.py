@@ -1,5 +1,6 @@
-import typing, uuid
-from src import IRCBot, IRCChannel, IRCBuffer, IRCObject, IRCServer, utils
+import typing
+
+from src import IRCBot, IRCBuffer, IRCChannel, IRCObject, IRCServer
 
 
 class User(IRCObject.Object):

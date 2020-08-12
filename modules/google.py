@@ -4,7 +4,9 @@
 #--require-config google-search-id
 
 import json
+
 from src import ModuleManager, utils
+
 
 URL_GOOGLESEARCH = "https://www.googleapis.com/customsearch/v1"
 URL_GOOGLESUGGEST = "http://google.com/complete/search"
