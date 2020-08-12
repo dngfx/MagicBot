@@ -3,7 +3,7 @@ import re
 from src import utils
 
 
-PLEXUS_REGEX = re.compile("plexus\-\d")
+PLEXUS_REGEX = re.compile("plexus-\d")
 
 
 def handle_307(event):
@@ -14,18 +14,16 @@ def handle_307(event):
 
     line = event["line"]
 
-    ournick = line.args[0]
+    #ournick = line.args[0]
     nickname = line.args[1]
     idstring = line.args[2]
 
-    if event["server"].is_own_nickname(nickname) or nickname == "df":
+    if event["server"].is_own_nickname(nickname):
         return
 
-    idsplit = idstring.split("has identified for ")[1]
-    identified_for = nickname if idsplit == "this nick" else idsplit
-    user = event["server"].get_target(nickname)
-
-    _identified_304(event["server"], user, user.nickname, event)
+    if idstring.split("has identified for ")[1] == "this nick":
+        user = event["server"].get_target(nickname)
+        _identified_304(event["server"], user, user.nickname, event)
 
 
 def _identified_304(server, user, account, event):

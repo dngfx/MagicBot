@@ -91,6 +91,7 @@ def join(events, event):
         channel.send_mode()
         events.on("self.join").call(channel=channel, server=event["server"], account=account, realname=realname)
     else:
+        event["server"].send_whois(user.nickname)
         events.on("received.join").call(channel=channel,
                                         user=user,
                                         server=event["server"],
