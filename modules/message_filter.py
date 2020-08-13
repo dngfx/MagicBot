@@ -37,7 +37,7 @@ class Module(ModuleManager.BaseModule):
             type, out = utils.parse.sed.sed(sed, message)
 
             if type == "m" and out:
-                log.info(log, "Message matched filter, dropping: %s" % event["line"].format())
+                log.info("Message matched filter, dropping: %s" % event["line"].format())
                 event["line"].invalidate()
                 return
             elif type == "s":

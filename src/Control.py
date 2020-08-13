@@ -84,7 +84,7 @@ class Control(PollSource.PollSource):
         if fileno == self._socket.fileno():
             client_s, address = self._socket.accept()
             self._clients[client_s.fileno()] = ControlClient(client_s)
-            log.debug(log, "New control socket connected")
+            log.debug("New control socket connected")
         elif fileno in self._clients:
             client = self._clients[fileno]
             lines = client.read_lines()
@@ -114,9 +114,9 @@ class Control(PollSource.PollSource):
         #elif command == "log":
         #client.log_level = Logging.LEVELS[data.lower()]
         elif command == "rehash":
-            log.info(log, "Reloading config file")
+            log.info("Reloading config file")
             self._bot.config.load()
-            log.info(log, "Reloaded config file")
+            log.info("Reloaded config file")
             keepalive = False
         elif command == "reload":
             result = self._bot.try_reload_modules()

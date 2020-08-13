@@ -144,7 +144,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             permissions = key_setting.get("permissions", [])
 
             if key_setting:
-                log.debug(log, "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
+                log.debug("[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
 
             if authenticated or path in permissions or "*" in permissions:
                 event_response = None
@@ -157,7 +157,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         url_for=self._url_for(headers)
                 )
                 """except Exception as e:
-                    log.error(log, "failed to call API endpoint \"%s\"" % (path))
+                    log.error("failed to call API endpoint \"%s\"" % (path))
                     response.code = 500"""
 
             if event_response != None:

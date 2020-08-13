@@ -133,7 +133,7 @@ class Socket(IRCObject.Object):
         data_lines = [line.strip(b"\r") for line in data.split(b"\n")]
         if data_lines[-1]:
             self._read_buffer = data_lines[-1]
-            log.trace(log, "recevied and buffered non-complete line: %s" % data_lines[-1])
+            log.trace("recevied and buffered non-complete line: %s" % data_lines[-1])
 
         data_lines.pop(-1)
         decoded_lines = []
@@ -142,7 +142,7 @@ class Socket(IRCObject.Object):
             try:
                 decoded_line = line.decode(self._encoding)
             except UnicodeDecodeError:
-                log.trace(log, "can't decode line with '%s', falling back: %s" % (self._encoding, line))
+                log.trace("can't decode line with '%s', falling back: %s" % (self._encoding, line))
                 try:
                     decoded_line = line.decode(self._fallback_encoding)
                 except UnicodeDecodeError:

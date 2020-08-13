@@ -3,13 +3,13 @@ import re
 from src import utils
 
 
-PLEXUS_REGEX = re.compile("plexus-\d")
+REGEX_307 = re.compile("(plexus-|Unreal3)")
 
 
 def handle_307(event):
     version = event["server"].version
-    is_plexus = PLEXUS_REGEX.search(version) is not None
-    if not is_plexus:
+    is_307_server = REGEX_307.search(version) is not None
+    if not is_307_server:
         return
 
     line = event["line"]
@@ -21,7 +21,7 @@ def handle_307(event):
     if event["server"].is_own_nickname(nickname):
         return
 
-    if idstring.split("has identified for ")[1] == "this nick":
+    if idstring.split(" identified for ")[1] == "this nick":
         user = event["server"].get_target(nickname)
         _identified_304(event["server"], user, user.nickname, event)
 

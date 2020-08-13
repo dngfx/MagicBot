@@ -355,14 +355,17 @@ class ModuleManager(object):
         try:
             loaded_module = self._load_module(bot, definition, check_dependency=False)
         except ModuleWarning as warning:
-            log.warn(log, "Module '%s' not loaded" % definition.name)
+            log.warn(message=("Module '%s' not loaded" % definition.name), context="Server", server="Modules",
+                     formatting=True)
             raise
         except Exception as e:
-            log.error(log, "Failed to load module \"%s\": %s" % (definition.name, str(e)))
+            log.error(message=("Failed to load module \"%s\": %s" % (definition.name, str(e))), context="Server",
+                      server="Modules", formatting=True)
             raise
 
         self.modules[loaded_module.name] = loaded_module
-        log.debug(log, "Module '%s' loaded" % loaded_module.name)
+        log.debug(message=("Module '%s' loaded" % loaded_module.name), context="Server", server="Modules",
+                  formatting=True)
         return loaded_module
 
 
@@ -378,7 +381,9 @@ class ModuleManager(object):
             for dep in deps:
                 if not dep in definition_dependencies:
                     # unknown dependency!
-                    log.warn(log, "Module '%s' not loaded - unfulfilled dependency '%s'" % (name, dep))
+                    log.warn(message="Module '%s' not loaded - unfulfilled dependency '%s'" % (name, dep),
+                             context="Server", server="Modules",
+                             formatting=True)
                     del definition_dependencies[name]
 
         while definition_dependencies:
@@ -403,7 +408,9 @@ class ModuleManager(object):
                 for name, deps in definition_dependencies.items():
                     for dep_name in deps:
                         if name in definition_dependencies[dep_name]:
-                            log.warn(log, "Direct circular dependency detected: %s\<->%s" % (name, dep_name))
+                            log.warn(message=("Direct circular dependency detected: %s\<->%s" % (name, dep_name)),
+                                     context="Server", server="Modules",
+                                     formatting=True)
                             changed = True
                             # snap a circular dependence
                             deps.remove(dep_name)
@@ -423,7 +430,8 @@ class ModuleManager(object):
         loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
 
         for definition in nonloadable:
-            log.warn(log, "Not loading module '%s'" % definition.name)
+            log.warn(message="Not loading module '%s'" % definition.name, context="Server", server="Modules",
+                     formatting=True)
 
         for definition in loadable:
             self.load_module(bot, definition)
@@ -469,17 +477,15 @@ class ModuleManager(object):
         references -= 1  # one of the refs is from getrefcount
 
         log.debug(
-                log,
-                "Module '%s' unloaded (%d reference%s)" % (loaded_module.name,
-                                                           references,
-                                                           "" if references == 1 else "s")
+                message="Module '%s' unloaded (%d reference%s)" % (loaded_module.name,
+                                                                   references,
+                                                                   "" if references == 1 else "s")
         )
         if references > 0:
             log.debug(
-                    log,
-                    "References left for '%s': %s" %
-                    (loaded_module.name,
-                     ", ".join([str(referrer) for referrer in referrers]))
+                    message="References left for '%s': %s" %
+                            (loaded_module.name,
+                             ", ".join([str(referrer) for referrer in referrers]))
             )
 
 

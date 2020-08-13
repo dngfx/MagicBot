@@ -157,7 +157,7 @@ class GitHub(object):
 
 
     def _short_url(self, url):
-        log.debug(log, "git.io shortening: %s" % url)
+        log.debug("git.io shortening: %s" % url)
         try:
             page = utils.http.request(
                     "https://git.io",
@@ -166,7 +166,7 @@ class GitHub(object):
             )
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
-            log.warn(log, "HTTPTimeoutException while waiting for github short URL")
+            log.warn("HTTPTimeoutException while waiting for github short URL")
             return url
 
 

@@ -1,82 +1,99 @@
+import logging
 import sys
-from logging import StreamHandler
 
-from loguru import logger
+from loguru import logger as log
 
 from src import utils
 
 
 class Logger(object):
+    loggen = log.add(
+            logging.StreamHandler(sys.stdout),
+            colorize=True,
+            format=
+            "<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
+            level="INFO"
+    )
 
 
-    def __init__(self, log_level="INFO"):
-        self.set_logger(log_level)
+    def __init__(self):
+        self.set_log()
 
 
-    def set_logger(self, log_level):
-        self.logger = logger.add(
-                StreamHandler(sys.stdout),
-                colorize=True,
-                format=
-                "<b><green>[{time:HH:mm:ss!UTC}]</green> {function} <level>[{level}]</level></b> <level>{message}</level>",
-                level=log_level
-        )
-
+    def set_log(self):
         for curlevel in ("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"):
-            CurrentLevel = logger.level(curlevel)
+            CurrentLevel = log.level(curlevel)
             color = CurrentLevel.color.replace("<bold>", "")
-            logger.level(curlevel, color=color)
+            log.level(curlevel, color=color)
 
 
-    def formatter(self, server, context, message):
+    def get_log(self):
+        return log
+
+
+    def formatter(self, server="", context="Server", message=""):
+        context = "Server" if context == "" else context
+        server = "Startup" if server == "" else server
+
         message = utils.irc.parse_format(message)
+        #context = "<m><b>%s</b></m>:<e><b>%s</b></e>" % (server, context)
+        return [server, context, message]
 
-        formatted_log = "[<m><b>%s</b></m>:<e><b>%s</b></e>] %s" % (server.capitalize(), context, message)
-        return formatted_log
 
-
-    def info(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True, depth=1).info(message)
+    def info(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            server, context, message = Logger.formatter(self, server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).info(message)
         return True
 
 
-    def debug(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True, depth=1).debug(message)
+    def debug(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            server, context, message = Logger.formatter(self, server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).debug(message)
         return True
 
 
-    def warning(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(log=True).warning(message)
+    def warning(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            server, context, message = Logger.formatter(self, server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).warning(message)
         return True
 
 
-    def warn(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).warning(message)
+    def warn(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            server, context, message = Logger.formatter(self, server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).warning(message)
         return True
 
 
-    def error(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).error(message)
+    def error(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            context, message = Logger.formatter(self, server, context, message)
+        log.error(message)
         return True
 
 
-    def critical(self, message="", server="", context="", format=False, **kwargs):
-        logger.opt(colors=False).critical(message, **kwargs)
+    def critical(self=log, message="", server="", context="", formatting=False, **kwargs):
+        log.opt(colors=False).critical(message, **kwargs)
         return True
 
 
-    def trace(self, message="", server="", context="", format=False):
-        if format == True:
-            message = Logger.formatter(Logger, server, context, message)
-        logger.opt(colors=True).trace(message)
+    def trace(self=log, message="", server="", context="", formatting=False):
+        if formatting:
+            context, message = Logger.formatter(self, server, context, message)
+        log.trace(message)
         return True

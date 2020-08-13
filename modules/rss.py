@@ -45,7 +45,7 @@ class Module(ModuleManager.BaseModule):
 
     def _timer(self, timer):
         start_time = time.monotonic()
-        log.trace(log, "Polling RSS feeds")
+        log.trace("Polling RSS feeds")
 
         timer.redo()
         hook_settings = self.bot.database.channel_settings.find_by_setting("rss-hooks")
@@ -76,7 +76,7 @@ class Module(ModuleManager.BaseModule):
             try:
                 data = pages[url].decode()
             except Exception as e:
-                log.error(log, "Failed to decode rss URL %s" % url)
+                log.error("Failed to decode rss URL %s" % url)
                 continue
 
             feed = feedparser.parse(data)
@@ -106,7 +106,7 @@ class Module(ModuleManager.BaseModule):
                 channel.set_setting("rss-seen-ids-%s" % url, seen_ids)
 
         total_milliseconds = (time.monotonic() - start_time) * 1000
-        log.trace(log, "Polled RSS feeds in %fms" % (total_milliseconds))
+        log.trace("Polled RSS feeds in %fms" % (total_milliseconds))
 
 
     def _get_id(self, entry):

@@ -13,7 +13,7 @@ class Module(ModuleManager.BaseModule):
 
 
     def _print(self, event):
-        if (event["channel"] and not event["channel"].get_setting("print", True)):
+        if event["channel"] and not event["channel"].get_setting("print", True):
             return
 
         line = event["line"]
@@ -23,9 +23,10 @@ class Module(ModuleManager.BaseModule):
         server = event["server"]
         server = server if not hasattr(server, "alias") else server.alias
 
-        context = event["context"] if (event["context"] not in ["*", ""]) and (event["context"] != None) else "Server"
+        context = event["context"] if (event["context"] not in ["*", ""]) and (
+                event["context"] is not None) else "Server"
 
-        log.info(log, message=line, server=server, context=context, format=True)
+        log.info(message=line, server=server, context=context, formatting=True)
 
 
     @utils.hook("formatted.message.channel")

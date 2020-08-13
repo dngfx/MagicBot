@@ -48,7 +48,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("raw.received.error")
     def error(self, event):
-        log.error(log, "ERROR received from %s: %s" % (str(event["server"]), event["line"].args[0]))
+        log.error("ERROR received from %s: %s" % (str(event["server"]), event["line"].args[0]))
 
 
     @utils.hook("raw.received.fail")
@@ -58,7 +58,7 @@ class Module(ModuleManager.BaseModule):
         context = event["line"].args[2:-1]
         description = event["line"].args[-1]
 
-        log.warn(log, "FAIL (%s %s) received on %s: %s" % (command, error_code, str(event["server"]), description))
+        log.warn("FAIL (%s %s) received on %s: %s" % (command, error_code, str(event["server"]), description))
         self.events.on("received.fail").on(command).call(
                 error_code=error_code,
                 context=context,
@@ -153,7 +153,7 @@ class Module(ModuleManager.BaseModule):
     # unknown command sent by us, oops!
     @utils.hook("raw.received.421", default_event=True)
     def handle_421(self, event):
-        log.warn(log, "We sent an unknown command to %s: %s" % (str(event["server"]), event["line"].args[1]))
+        log.warn("We sent an unknown command to %s: %s" % (str(event["server"]), event["line"].args[1]))
 
 
     # a user has disconnected!

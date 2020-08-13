@@ -33,9 +33,9 @@ class Module(ModuleManager.BaseModule):
     def _write_line(self, channel, line):
         #channel._log_file.write("%s\n" % line)
         #channel._log_file.flush()
-        #log.debug(log, "%s\n" % line)
+        #log.debug("%s\n" % line)
         #print("WRITE_LINE")
-        #log.info(log, "[%s] %s" % (channel, line))
+        #log.info("[%s] %s" % (channel, line))
         return True
 
 
@@ -87,4 +87,4 @@ class Module(ModuleManager.BaseModule):
         elif event["user"]:
             for channel in event["user"].channels:
                 self._log(event["server"], channel, event["line"])
-            # log.info(log, "%s - [%s] - %s" % (event["server"].name, channel.name, event["line"].replace("<", "\<")))
+            # log.info("%s - [%s] - %s" % (event["server"].name, channel.name, event["line"].replace("<", "\<")))

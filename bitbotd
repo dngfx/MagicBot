@@ -76,15 +76,12 @@ log_level_files = config.get("log-levels", "TRACE,INFO,WARN").split(",")
 
 #log = log.info(not args.no_logging, log_level, LOG_DIR, log_level_files)
 
-startup_info = (
-        "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %s)" %
-        (IRCBot.VERSION,
-         platform.python_version(),
-         DATABASE)
-)
+startup_info = "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %s)" % (IRCBot.VERSION,
+                                                                                       platform.python_version(),
+                                                                                       DATABASE)
 
-log.set_logger(log, log_level.upper())
-log.info(log, startup_info)
+log = log()
+log.info(message=startup_info, server="Startup", context="Server", formatting=True)
 
 lock_file = LockFile.LockFile(LOCK_FILE)
 if not lock_file.available():
@@ -98,9 +95,9 @@ database = Database.Database(log, DATABASE)
 
 if args.remove_server:
     alias = args.remove_server
-    id = database.servers.by_alias(alias)
-    if not id == None:
-        database.servers.delete(typing.cast(int, id))
+    srv_id = database.servers.by_alias(alias)
+    if not srv_id is None:
+        database.servers.delete(typing.cast(int, srv_id))
         print("Deleted server '%s'" % alias)
     else:
         sys.stderr.write("Unknown server '%s'\n" % alias)
@@ -119,7 +116,8 @@ def _add_server():
             details.bindhost,
             details.nickname,
             details.username,
-            details.realname
+            details.realname,
+            True
     )
 
 
@@ -159,11 +157,11 @@ if len(server_configs):
     servers = []
     for server_id, alias in server_configs:
         server = bot.add_server(server_id, connect=False)
-        if not server == None and server.get_setting("connect", True):
+        if not server is None and server.get_setting("connect", True):
             server.from_init = True
             servers.append(server)
 
-    bot._events.on("boot.done").call()
+    bot.get_events().on("boot.done").call()
 
     timers.setup(bot.find_settings(prefix="timer-"))
 

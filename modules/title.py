@@ -70,13 +70,13 @@ class Module(ModuleManager.BaseModule):
 
         hostname = urllib.parse.urlparse(url).hostname
         if not utils.http.host_permitted(hostname):
-            log.warn(log, "Attempted to get forbidden host: %s" % url)
+            log.warn("Attempted to get forbidden host: %s" % url)
             return -1, None
 
         try:
             page = utils.http.request(url)
         except Exception as e:
-            log.error(log, "failed to get URL title for %s: %s" % (url, str(e)))
+            log.error("failed to get URL title for %s: %s" % (url, str(e)))
             return -1, None
 
         if not page.content_type in utils.http.SOUP_CONTENT_TYPES:
@@ -132,7 +132,7 @@ class Module(ModuleManager.BaseModule):
                         )
                 event["stdout"].write(message)
             if code == -2:
-                log.debug(log, "Not showing title for %s, too similar" % url)
+                log.debug("Not showing title for %s, too similar" % url)
 
 
     @utils.hook("received.command.t", alias_of="title")

@@ -258,10 +258,10 @@ class EventRoot(object):
         returns: typing.List[typing.Any] = []
         path_str = self._path_str(path)
         if not path_str in self._hooks:
-            log.trace(log, "not calling non-hooked event \"%s\" (params: %s)" % (path_str, str(kwargs)))
+            log.trace("not calling non-hooked event \"%s\" (params: %s)" % (path_str, str(kwargs)))
             return returns
 
-        log.trace(log, "calling event: \"%s\" (params: %s)" % (path_str, str(kwargs)))
+        log.trace("calling event: \"%s\" (params: %s)" % (path_str, str(kwargs)))
         start = time.monotonic()
 
         # .copy() hooks so we don't call new hooks in this loop
@@ -282,14 +282,14 @@ class EventRoot(object):
                 returned = hook.call(event)
             except Exception as e:
                 if safe:
-                    log.error(log, "failed to call event \"%s\"" % path_str)
+                    log.error("failed to call event \"%s\"" % path_str)
                     continue
                 else:
                     raise
             returns.append(returned)
 
         total_milliseconds = (time.monotonic() - start) * 1000
-        log.trace(log, "event \"%s\" called in %fms" % (path_str, total_milliseconds))
+        log.trace("event \"%s\" called in %fms" % (path_str, total_milliseconds))
 
         return returns
 

@@ -186,7 +186,7 @@ class Bot(object):
         if any(sys.exc_info()):
             exc_info = True
 
-        log.critical(log, message=("panic() called: %s" % reason), exc_info=exc_info)
+        log.critical(message=("panic() called: %s" % reason), exc_info=exc_info)
         sys.exit(utils.consts.Exit.PANIC)
 
 
@@ -242,6 +242,10 @@ class Bot(object):
         return new_server
 
 
+    def get_events(self):
+        return self._events
+
+
     def get_server_by_id(self, id: int) -> typing.Optional[IRCServer.Server]:
         for server in self.servers.values():
             if server.id == id:
@@ -261,7 +265,7 @@ class Bot(object):
         try:
             server.connect()
         except Exception as e:
-            log.warn(log, ("Failed to connect to %s: %s" % [str(server), str(e)]), server.alias, server.alias)
+            log.warn(("Failed to connect to %s: %s" % [str(server), str(e)]), server.alias, server.alias)
             return False
         self.servers[server.fileno()] = server
         self._read_poll.register(server.fileno(), select.POLLIN)
@@ -444,7 +448,7 @@ class Bot(object):
                         try:
                             lines = server._send()
                         except:
-                            log.critical(log, ("Failed to write to %s" % str(server)))
+                            log.critical(("Failed to write to %s" % str(server)))
                             raise
                         event_item = TriggerEvent(TriggerEventType.Action, self._post_send_factory(server, lines))
                         self._event_queue.put(event_item)
@@ -503,7 +507,7 @@ class Bot(object):
                         event_item = TriggerEvent(TriggerEventType.Action, self._post_read_factory(server, lines))
                         self._event_queue.put(event_item)
                     elif event & select.POLLHUP:
-                        log.warn(log, ("Recieved POLLHUP for %s" % str(server)))
+                        log.warn(("Recieved POLLHUP for %s" % str(server)))
                         server.disconnect()
 
 
@@ -515,7 +519,7 @@ class Bot(object):
         throttle_filled = False
         for server in list(self.servers.values()):
             if server.read_timed_out():
-                log.warn(log, ("Pinged out from %s" % str(server)))
+                log.warn(("Pinged out from %s" % str(server)))
                 server.disconnect()
             elif server.ping_due() and not server.ping_sent:
                 server.send_ping()
@@ -536,7 +540,7 @@ class Bot(object):
                     )
                     self.reconnections[server.id] = timer
 
-                    log.warn(log, ("Disconnected from %s, reconnecting in %d seconds" % str(server), reconnect_delay))
+                    log.warn(("Disconnected from %s, reconnecting in %d seconds" % str(server), reconnect_delay))
             elif (server.socket.waiting_throttled_send() and server.socket.throttle_done()):
                 server.socket._fill_throttle()
                 throttle_filled = True

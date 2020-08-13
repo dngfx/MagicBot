@@ -76,7 +76,7 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("Unknown record type '%s'" % record_type_strip)
             except dns.exception.DNSException:
                 message = "Failed to get DNS records"
-                log.warn(log, message)
+                log.warn(message)
                 raise utils.EventError(message)
 
         results_str = ["%s (TTL %s): %s" % (t, ttl, ", ".join(r)) for t, ttl, r in results]

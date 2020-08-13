@@ -28,15 +28,16 @@ class Servers(Table):
             bindhost: str,
             nickname: str,
             username: str = None,
-            realname: str = None
+            realname: str = None,
+            enabled: bool = True
     ):
         username = username or nickname
         realname = realname or nickname
         self.database.execute(
                 """INSERT INTO servers (alias, hostname, port, password, tls,
-                bindhost, nickname, username, realname) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                [alias, hostname, port, password, tls, bindhost, nickname, username, realname]
+                bindhost, nickname, username, realname, enabled) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                [alias, hostname, port, password, tls, bindhost, nickname, username, realname, enabled]
         )
         return self.database.execute_fetchone("SELECT server_id FROM servers ORDER BY server_id DESC LIMIT 1")[0]
 
@@ -46,8 +47,9 @@ class Servers(Table):
         return ids[0] if ids else None
 
 
-    def get_all(self):
-        return self.database.execute_fetchall("SELECT server_id, alias FROM servers")
+    def get_all(self, enabled_only=True):
+        return self.database.execute_fetchall("SELECT server_id, alias FROM servers WHERE enabled=?",
+                                              [int(enabled_only)])
 
 
     def get(
