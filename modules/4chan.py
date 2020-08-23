@@ -7,7 +7,6 @@ import flag
 
 from src import ModuleManager, utils
 
-
 REGEX_LINK = re.compile("https?://boards\.4chan(?:nel)?\.org/(\w+)/thread/(\d+)")
 BOARD_LIST_URL = "https://a.4cdn.org/boards.json"
 THREAD_URL = "https://a.4cdn.org/%s/thread/%s.json"
@@ -25,12 +24,10 @@ CAPCODE_COLOUR = {
 POST_LOCKED_EMOJI = '🔒'
 POST_STICKY_EMOJI = '📌'
 
-
 @utils.export("channelset", utils.BoolSetting("auto-4chan", "Auto parse 4chan URLs to display with info"))
 class Module(ModuleManager.BaseModule):
     _board_list = None
     _name = "4chan"
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -76,7 +73,7 @@ class Module(ModuleManager.BaseModule):
             post_text = info["com"].replace("<br>", " ")
             post_text = utils.http.strip_html(post_text)
             post_text = " — %s%s" % (utils.irc.bold("Post: "),
-                                     ((post_text[:45] + "...") if len(post_text) > 45 else post_text))
+                                     ((post_text[:65] + "...") if len(post_text) > 65 else post_text))
 
         closed = POST_LOCKED_EMOJI if "closed" in info else ""
         sticky = POST_STICKY_EMOJI if "sticky" in info else ""
@@ -114,7 +111,7 @@ class Module(ModuleManager.BaseModule):
 
         if "sub" in info:
             st = info["sub"]
-            st = (st[:25] + "...") if len(st) > 25 else st
+            st = (st[:50] + "...") if len(st) > 50 else st
             subject_text = " — %s" % utils.irc.bold(st)
 
         total_posters = info["unique_ips"]
@@ -138,7 +135,6 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(build_output)
         return
-
 
     def _parse_board_list(self):
         board_list_raw = utils.http.request(BOARD_LIST_URL).json()

@@ -14,7 +14,6 @@ from tweepy.parsers import JSONParser
 from src import ModuleManager, utils
 from . import format
 
-
 _bot = None
 _events = None
 _exports = None
@@ -23,35 +22,28 @@ _log = None
 REGEX_TWITTER_STATUS_URL = re.compile("https?://(?:www\.|mobile\.)?twitter.com/[^/]+/status/(\d+)", re.I)
 REGEX_TWITTER_PROFILE_URL = re.compile("https?://(?:www\.|mobile\.)?twitter.com/(\w+)$", re.I)
 
-
 def _get_follows():
     return _bot.database.channel_settings.find_by_setting("twitter-follow")
-
 
 @utils.export("channelset", utils.BoolSetting("auto-tweet", "Enable/disable automatically getting tweet info"))
 class Module(ModuleManager.BaseModule):
 
-
     def on_load(self):
         auth = self._get_auth()
         api = self._get_api(auth)
-
 
     def _api(self):
         auth = self._get_auth()
         api = self._get_api(auth)
         return api
 
-
     def _get_auth(self):
         auth = tweepy.OAuthHandler(self.bot.config["twitter-api-key"], self.bot.config["twitter-api-secret"])
         auth.set_access_token(self.bot.config["twitter-access-token"], self.bot.config["twitter-access-secret"])
         return auth
 
-
     def _get_api(self, auth):
         return tweepy.API(auth, parser=JSONParser())
-
 
     def _from_id(self, tweet_id):
         api = self._api()
@@ -62,7 +54,6 @@ class Module(ModuleManager.BaseModule):
 
         return status
 
-
     def _get_profile(self, profile_name):
         api = self._api()
 
@@ -72,7 +63,6 @@ class Module(ModuleManager.BaseModule):
             return False
 
         return profile[0]
-
 
     @utils.hook("received.command.tw", alias_of="tweet")
     @utils.hook("received.command.tweet")
@@ -96,13 +86,12 @@ class Module(ModuleManager.BaseModule):
             self.regex_status(event, statusmatch)
             return
 
-
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "tweet")
     @utils.kwarg("pattern", REGEX_TWITTER_STATUS_URL)
     def regex_status(self, event, status=None):
-        if not event["target"].get_setting("auto-tweet", False) and status == None:
+        if not event["target"].get_setting("auto-tweet", False):
             return
 
         event.eat()
@@ -114,7 +103,6 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(tweet_str)
         else:
             event["stderr"].write("Could not find tweet")
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
