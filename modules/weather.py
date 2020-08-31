@@ -4,19 +4,15 @@
 
 from src import ModuleManager, utils
 
-
 URL_WEATHER = "http://api.openweathermap.org/data/2.5/weather"
 
-
 class Module(ModuleManager.BaseModule):
-
 
     def _user_location(self, user):
         user_location = user.get_setting("location", None)
         if user_location is not None:
             name = user_location.get("name", None)
             return [user_location["lat"], user_location["lon"], name]
-
 
     @utils.hook("received.command.w", alias_of="weather")
     @utils.hook("received.command.weather")
@@ -39,10 +35,12 @@ class Module(ModuleManager.BaseModule):
                 location = self._user_location(target_user)
                 if location is not None:
                     nickname = target_user.nickname
+            else:
+                location = event["args_split"][0]
         else:
             location = self._user_location(event["user"])
             nickname = event["user"].nickname
-            if location is not None:
+            if location is None:
                 raise utils.EventError("You don't have a location set")
 
         args = {
@@ -54,7 +52,7 @@ class Module(ModuleManager.BaseModule):
             location_info = self.exports.get_one("get-location")(query)
             if location_info is not None:
                 location = [location_info["lat"], location_info["lon"], location_info.get("name", None)]
-        if location is not None:
+        if location is None:
             raise utils.EventError("Unknown location")
 
         lat, lon, location_name = location
