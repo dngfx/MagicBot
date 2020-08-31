@@ -5,28 +5,25 @@ from datetime import datetime, timezone
 
 from src import utils
 
-
 # @elonmusk - Elon Musk 😎 ✓ - Created Jun 2009 - 11.7K Tweets - 47.M Followers, Following 96
 
 VERIFIED_TICK = utils.irc.color(" ✅", utils.consts.LIGHTBLUE)
 FORMAT_PROFILE_PAGE = "%s — %s%s — Created %s — %s Tweets — %s Followers, Following %s — %s: %s — %s"
 
-
 def _timestamp(dt):
     dt = datetime.strptime(dt, '%a %b %d %H:%M:%S %z %Y')
-    seconds_since = time.time() - dt.timestamp()
+    seconds_since = round(time.time() - dt.timestamp())
     timestamp = utils.datetime.format.to_pretty_since(seconds_since, max_units=2)
     return "%s ago" % timestamp
 
-
 def _normalise(tweet):
     return html.unescape(utils.parse.line_normalise(tweet))
-
 
 def _tweet(exports, event, tweet, from_url):
     user = tweet["user"]
     linked_id = tweet["id"]
     username = user["screen_name"]
+    created_at = _timestamp(tweet["created_at"])
 
     verified = VERIFIED_TICK if user["verified"] else ""
 
@@ -57,7 +54,6 @@ def _tweet(exports, event, tweet, from_url):
         )
     else:
         return "(@%s%s, %s) %s%s" % (username, verified, created_at, _normalise(tweet["full_text"]), short_url)
-
 
 def _profile(exports, event, profile, from_url):
     user = profile["user"]
