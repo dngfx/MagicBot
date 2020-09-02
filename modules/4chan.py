@@ -73,7 +73,7 @@ class Module(ModuleManager.BaseModule):
             post_text = info["com"].replace("<br>", " ")
             post_text = utils.http.strip_html(post_text)
             post_text = " — %s%s" % (utils.irc.bold("Post: "),
-                                     ((post_text[:65] + "...") if len(post_text) > 65 else post_text))
+                                     ((post_text[:125] + "...") if len(post_text) > 128 else post_text))
 
         closed = POST_LOCKED_EMOJI if "closed" in info else ""
         sticky = POST_STICKY_EMOJI if "sticky" in info else ""
@@ -111,7 +111,7 @@ class Module(ModuleManager.BaseModule):
 
         if "sub" in info:
             st = info["sub"]
-            st = (st[:50] + "...") if len(st) > 50 else st
+            st = (st[:50] + "...") if len(st) > 53 else st
             subject_text = " — %s" % utils.irc.bold(st)
 
         total_posters = info["unique_ips"]

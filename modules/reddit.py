@@ -5,7 +5,6 @@ import re
 
 from src import ModuleManager, utils
 
-
 REGEX_LINK = re.compile("https?://(?:\w+\.)?reddit.com/r/([^/]+)/comments/([^/ ]+)")
 REGEX_SUBREDDIT_LINK = re.compile("https?://(?:\w+\.)?reddit.com/r/([^/]+)(?:[ /$])")
 SANE_URL = "https://www.reddit.com/r/%s/comments/%s.json"
@@ -13,10 +12,8 @@ NSFW_TEXT = utils.irc.bold(utils.irc.color(" (NSFW)", utils.consts.RED))
 ARROW_UP = "↑"
 ARROW_DOWN = "↓"
 
-
 @utils.export("channelset", utils.BoolSetting("auto-reddit", "Auto parse Reddit URLs to display with info"))
 class Module(ModuleManager.BaseModule):
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -33,7 +30,7 @@ class Module(ModuleManager.BaseModule):
             thread_info = utils.http.request(SANE_URL % (subreddit, thread_id)).json()
             thread = thread_info[0]["data"]["children"][0]["data"]
 
-            title = (thread["title"][:45] + "...") if len(thread["title"]) > 45 else thread["title"]
+            title = (thread["title"][:125] + "...") if len(thread["title"]) > 128 else thread["title"]
             upvotes = thread["ups"]
             author = thread["author"]
             downvotes = thread["downs"]
