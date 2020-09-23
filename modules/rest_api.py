@@ -144,9 +144,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             permissions = key_setting.get("permissions", [])
 
             if key_setting:
-                log.debug("[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
+                log.debug(log, "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
 
-            if authenticated or path in permissions or "*" in permissions:
+            if authenticated is True or path in permissions or "*" in permissions:
                 event_response = None
                 event_response = _events.on("api").on(method).on(endpoint).call_for_result_unsafe(
                         params=params,
@@ -156,6 +156,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         response=response,
                         url_for=self._url_for(headers)
                 )
+
+                print("event_response")
+                print(event_response)
+                print("params: %s, args: %s, headers: %s, response: %s, url_for: %s" % (params, args, headers, response, self._url_for(headers)))
                 """except Exception as e:
                     log.error("failed to call API endpoint \"%s\"" % (path))
                     response.code = 500"""
@@ -238,8 +242,8 @@ class Module(ModuleManager.BaseModule):
         self.thread.daemon = True
         self.thread.start()
 
-
-    def _stop_httpd(self):
+    @utils.hook("received.command.apishutdown")
+    def _stop_httpd(self, event):
         if self.httpd:
             self.httpd.shutdown()
 

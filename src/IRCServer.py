@@ -303,7 +303,7 @@ class Server(IRCObject.Object):
 
     def _post_read(self, lines: typing.List[str]):
         for line in lines:
-            log.debug(message=("%s (raw recv) | %s" % (str(self), line.replace("<", "\<"))), server=str(self), context="RAW RECV")
+            log.debug(message=("%s (raw recv) | %s" % (str(self), IRCLine.parse_line(line).format().replace("<", "\<"))), server=str(self), context="RAW RECV")
             self.events.on("raw.received").call_unsafe(server=self, line=IRCLine.parse_line(line))
             self.check_users()
 
@@ -346,7 +346,7 @@ class Server(IRCObject.Object):
     def _send(self) -> typing.List[IRCLine.SentLine]:
         lines = self.socket._send()
         for line in lines:
-            log.debug(message=("%s (raw send) | %s" % (str(self), line.parsed_line.format())), server=str(self),
+            log.debug(message=("%s (raw send) | %s" % (str(self), line.parsed_line.format().replace("<", "\<"))), server=str(self),
                       context="RAW SEND")
         return lines
 
