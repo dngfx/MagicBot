@@ -7,20 +7,25 @@ from src import utils
 
 
 class Logger(object):
-    loggen = log.add(
-            logging.StreamHandler(sys.stdout),
-            colorize=True,
-            format=
-            "<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
-            level="INFO"
-    )
+    loggen = ""
 
 
-    def __init__(self):
-        self.set_log()
+    def __init__(self, log_level="INFO"):
+        print("Init log level at: %s" % log_level)
+        log_level = log_level.upper()
+
+        self.loggen = log.add(
+                logging.StreamHandler(sys.stdout),
+                colorize=True,
+                format=
+                "<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
+                level=log_level
+        )
+
+        self.set_log(log_level)
 
 
-    def set_log(self):
+    def set_log(self, curlevel):
         for curlevel in ("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"):
             CurrentLevel = log.level(curlevel)
             color = CurrentLevel.color.replace("<bold>", "")
@@ -50,7 +55,7 @@ class Logger(object):
         return True
 
 
-    def debug(self=log, message="", server="", context="", formatting=False):
+    def debug(self=log, message="", server="", context="", formatting=True):
         if formatting:
             server, context, message = Logger.formatter(self, server, context, message)
         formatted_len = " " * (len(server) + len(context))
@@ -82,8 +87,11 @@ class Logger(object):
 
     def error(self=log, message="", server="", context="", formatting=False):
         if formatting:
-            context, message = Logger.formatter(self, server, context, message)
-        log.error(message)
+            server, context, message = Logger.formatter(self, server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).error(message)
         return True
 
 

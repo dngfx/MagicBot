@@ -17,5 +17,5 @@ class Module(ModuleManager.BaseModule):
 
     def _ack(self, server):
         url = self.bot.get_setting("bot-url", IRCBot.SOURCE)
-        server.send_raw("METADATA * SET bot BitBot")
+        server.send_raw("METADATA * SET bot MagicBot")
         server.send_raw("METADATA * SET homepage :%s" % url)

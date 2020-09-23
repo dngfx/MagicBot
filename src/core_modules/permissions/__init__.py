@@ -61,7 +61,12 @@ class Module(ModuleManager.BaseModule):
 
     @utils.export("is-identified")
     def _is_identified(self, user):
-        return not user._id_override == None
+        if not user._id_override:
+            return True
+
+        if user.nickname_lower in self.whois_nicks and user._whois_sent == False:
+            event["server"].send_whois(user.nickname_lower)
+            user._whois_sent = True
 
 
     def _signout(self, user):
@@ -105,9 +110,8 @@ class Module(ModuleManager.BaseModule):
         user = event["server"].fetch_user(event["user"].nickname_lower)
 
         sent = nick in self.whois_nicks
-        if sent == False:
+        if sent == False and user._whois_sent == False:
             self.whois_nicks.append(nick)
-            event["server"].send_whois(user.nickname_lower)
 
         user._hostmask_account = None
         user._account_override = None

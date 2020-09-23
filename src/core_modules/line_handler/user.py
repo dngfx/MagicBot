@@ -8,8 +8,7 @@ REGEX_307 = re.compile("(plexus-|Unreal3)")
 
 def handle_307(event):
     version = event["server"].version
-    is_307_server = REGEX_307.search(version) is not None
-    if not is_307_server:
+    if REGEX_307.search(version) is None:
         return
 
     line = event["line"]

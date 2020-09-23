@@ -19,8 +19,8 @@ class Module(ModuleManager.BaseModule):
         if messages:
             event["channel"].del_user_setting(event["user"].get_id(), "to")
 
-
     @utils.hook("received.command.to", alias_of="tell")
+    @utils.hook("received.command.notice", alias_of="tell")
     @utils.hook("received.command.tell")
     @utils.kwarg("min_args", 2)
     @utils.kwarg("channel_only", True)
