@@ -157,9 +157,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         url_for=self._url_for(headers)
                 )
 
-                print("event_response")
-                print(event_response)
-                print("params: %s, args: %s, headers: %s, response: %s, url_for: %s" % (params, args, headers, response, self._url_for(headers)))
                 """except Exception as e:
                     log.error("failed to call API endpoint \"%s\"" % (path))
                     response.code = 500"""
