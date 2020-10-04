@@ -329,22 +329,23 @@ class Module(ModuleManager.BaseModule):
         duck_special_lang = ""
         xp_text = ""
 
-        if channel.duck_is_special == True:
+        if channel.duck_is_special:
             duck_special_info = SPECIAL_DUCKS[channel.duck_special_type][0]
             duck_xp_modifier = duck_special_info["xpbonus"]
 
             duck_special_lang = "%s " % SPECIAL_DUCKS[channel.duck_special_type][0]["lang"]
 
-        if channel.get_setting("xp-enabled", False) and channel.get_setting("announce-xp-after-duck", False):
+        if channel.get_setting("xp-enabled", False):
             xp = round(xp_per_duck * duck_xp_modifier)
             channel_id = channel.id
             channel_name = channel.name
+            xp_text = ""
 
             xpfrom, xpto = self.exports.get_one("xpaddinternal")(
                     "%s:%s:%s:%s" % (user_id, channel_id, channel_name, xp)
             )
-
-            xp_text = " Your XP has increased from %s to %s!" % (utils.irc.bold(xpfrom), utils.irc.bold(xpto))
+            if channel.get_setting("announce-xp-after-duck", False):
+                xp_text = " Your XP has increased from %s to %s!" % (utils.irc.bold(xpfrom), utils.irc.bold(xpto))
 
         channel.duck_is_special = False
 
