@@ -284,7 +284,7 @@ class Module(ModuleManager.BaseModule):
 
         # Are we shooting too fast?
         if timenow - ustats["cooldown_time"] < ducks_miss_cooldown:
-            err = "You're exhausted and fail to %s the duck, try again soon" % (action)
+            err = "You're exhausted and fail to %s the duck, try again soon" % action
             event["stderr"].write(err)
             return False
 
@@ -344,7 +344,7 @@ class Module(ModuleManager.BaseModule):
             xpfrom, xpto = self.exports.get_one("xpaddinternal")(
                     "%s:%s:%s:%s" % (user_id, channel_id, channel_name, xp)
             )
-            if channel.get_setting("announce-xp-after-duck", False):
+            if channel.get_setting("announce-xp-after-ducks", False):
                 xp_text = " Your XP has increased from %s to %s!" % (utils.irc.bold(xpfrom), utils.irc.bold(xpto))
 
         channel.duck_is_special = False
