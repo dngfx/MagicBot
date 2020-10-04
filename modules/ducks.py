@@ -339,7 +339,6 @@ class Module(ModuleManager.BaseModule):
             xp = round(xp_per_duck * duck_xp_modifier)
             channel_id = channel.id
             channel_name = channel.name
-            xp_text = ""
 
             xpfrom, xpto = self.exports.get_one("xpaddinternal")(
                     "%s:%s:%s:%s" % (user_id, channel_id, channel_name, xp)
