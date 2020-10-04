@@ -41,7 +41,7 @@ class Module(ModuleManager.BaseModule):
         level = self._getLevel(cur_xp)
         level = 1 if level == 0 else level
 
-        event["stdout"].write("%s has %s XP. They're level %s" % (nick, cur_xp, utils.irc.bold(level)))
+        event["stdout"].write("%s has %s XP. They're level %s" % (nick, cur_xp, utils.irc.bold(str(level))))
 
 
     @utils.hook("received.command.xpaddinternal")

@@ -68,11 +68,15 @@ DEFAULT_SPECIAL_CHANCE = 2  # Special chance in %
 DEFAULT_SPECIAL_ENABLED = False
 
 @utils.export("channelset", utils.BoolSetting("ducks-enabled", "Whether or not to spawn ducks"))
+@utils.export("channelset", utils.BoolSetting("announce-xp-after-ducks", "Whether or not to announce total XP gain after ducks"))
 @utils.export(
         "channelset",
         utils.BoolSetting("ducks-print-missed-time",
                           "Whether or not to show how long in seconds you missed a duck by")
 )
+
+
+
 @utils.export(
         "channelset",
         utils.IntRangeSetting(
@@ -129,6 +133,7 @@ DEFAULT_SPECIAL_ENABLED = False
                 "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
         )
 )
+
 @utils.export(
         "channelset",
         utils.IntSetting("ducks-special-chance",
@@ -330,7 +335,7 @@ class Module(ModuleManager.BaseModule):
 
             duck_special_lang = "%s " % SPECIAL_DUCKS[channel.duck_special_type][0]["lang"]
 
-        if channel.get_setting("xp-enabled", False):
+        if channel.get_setting("xp-enabled", False) and channel.get_setting("announce-xp-after-duck", False):
             xp = round(xp_per_duck * duck_xp_modifier)
             channel_id = channel.id
             channel_name = channel.name

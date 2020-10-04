@@ -6,16 +6,14 @@ from src import ModuleManager, utils
 
 
 CHOICES = [
-    "https://i.imgur.com/xkaaN4S.png",
-    "https://i.imgur.com/3ju3iZC.png",
-    "https://i.imgur.com/sgGTqw8.png",
-    "https://i.imgur.com/8wqcihc.png",
-    "https://i.imgur.com/1C7cCJs.png",
-    "https://i.imgur.com/MpnrZSB.png",
-    "https://i.imgur.com/74c8wdk.jpg",
-    "https://i.imgur.com/MtzwbtJ.jpg",
-    "https://i.imgur.com/7gql1IN.jpg",
-    "https://i.imgur.com/UAsmjLD.jpg"
+    "https://misconfigured.link/bojo/1.jpg",
+    "https://misconfigured.link/bojo/2.jpg",
+    "https://misconfigured.link/bojo/3.jpg",
+    "https://misconfigured.link/bojo/4.jpg",
+    "https://misconfigured.link/bojo/5.jpg",
+    "https://misconfigured.link/bojo/6.jpg",
+    "https://misconfigured.link/bojo/7.jpg",
+
 ]
 
 
