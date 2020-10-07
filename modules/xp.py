@@ -23,7 +23,7 @@ class Module(ModuleManager.BaseModule):
 
 
     def _getLevel(self, points):
-        levels = [0, 500, 1500, 2500, 5000, 10000, 15000, 20000, 30000, 50000, 100000, 250000]
+        levels = [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 5000, 7500, 10000, 15000, 20000, 30000, 50000, 100000, 250000]
         lvl = len([x for x in levels if points > x])
         return lvl
 
