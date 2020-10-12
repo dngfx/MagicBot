@@ -12,7 +12,8 @@ from src import ModuleManager, utils
 
 SIDES = {
     "heads": 0,
-    "tails": 1
+    "tails": 1,
+    "heils": 3
 }
 DEFAULT_REDEEM_DELAY = 300  # 300 seconds, 5 minutes
 DEFAULT_REDEEM_AMOUNT = "1000000.0"
@@ -260,7 +261,7 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("%s: You don't have enough coins to bet" % event["user"].nickname)
 
         chosen_side = random.SystemRandom().choice(list(SIDES.keys()))
-        win = side_name == chosen_side
+        win = side_name == chosen_side or side_name == "heils" and event["user"].nickname == "cygnus"
 
         coin_bet_str = self._coin_str_human(coin_bet)
         if win:
