@@ -145,8 +145,7 @@ class Module(ModuleManager.BaseModule):
 
 
     def _coin_str_human(self, coins):
-        return utils.parse.comma_format(coins)
-        #return "{0:,.2f}".format(coins)
+        return "{0:,.2f}".format(coins)
 
 
     def _parse_coins(self, s, minimum=None):
@@ -228,7 +227,7 @@ class Module(ModuleManager.BaseModule):
                 redeem_amount = self._redeem_amount(event["server"])
                 self._give(event["server"], event["user"], redeem_amount)
 
-                event["stdout"].write("%s: redeemed %s coins" % (event["user"].nickname, self._coin_str(redeem_amount)))
+                event["stdout"].write("%s: redeemed %s coins" % (event["user"].nickname, self._coin_str_human(redeem_amount)))
 
                 redeem_delay = self._redeem_delay(event["server"])
                 self.bot.cache.temporary_cache(cache, True, redeem_delay)
@@ -319,7 +318,7 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write(
                 "%s sent %s coins to %s" % (event["user"].nickname,
-                                            self._coin_str(send_amount),
+                                            self._coin_str_human(send_amount),
                                             target_user.nickname)
         )
 
