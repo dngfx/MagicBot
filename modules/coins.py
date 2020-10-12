@@ -145,7 +145,8 @@ class Module(ModuleManager.BaseModule):
 
 
     def _coin_str_human(self, coins):
-        return "{0:,.2f}".format(coins)
+        return utils.parse.comma_format(coins)
+        #return "{0:,.2f}".format(coins)
 
 
     def _parse_coins(self, s, minimum=None):
@@ -545,7 +546,7 @@ class Module(ModuleManager.BaseModule):
         count = sum(value for nickname, value in lottery.items())
         event["stdout"].write(
                 "%s: The current jackpot is %s" % (event["user"].nickname,
-                                                   utils.parse.comma_format(int(LOTTERY_BUYIN_NODECIMAL)*count))
+                                                   self._coin_str_human(int(LOTTERY_BUYIN_NODECIMAL)*count))
         )
 
 
