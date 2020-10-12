@@ -14,10 +14,11 @@ SIDES = {
     "heads": 0,
     "tails": 1
 }
-DEFAULT_REDEEM_DELAY = 300  # 600 seconds, 10 minutes
-DEFAULT_REDEEM_AMOUNT = "10000.0"
-DEFAULT_INTEREST_RATE = "2.50"
+DEFAULT_REDEEM_DELAY = 300  # 300 seconds, 5 minutes
+DEFAULT_REDEEM_AMOUNT = "1000000.0"
+DEFAULT_INTEREST_RATE = "7.50"
 REGEX_FLOAT = re.compile("(?:\d+(?:\.\d{1,2}|$)|\.\d{1,2})")
+PROHIBITED_WINNERS = ["dfx"]
 
 DECIMAL_ZERO = decimal.Decimal("0")
 DECIMAL_BET_MINIMUM = decimal.Decimal("0.01")
@@ -25,6 +26,7 @@ DECIMAL_BET_MINIMUM = decimal.Decimal("0.01")
 HOUR_SECONDS = (1 * 60) * 60
 LOTTERY_INTERVAL = (60 * 60) * 6  # 6 hours
 LOTTERY_BUYIN = "100.00"
+LOTTERY_BUYIN_NODECIMAL = "100"
 
 RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
 BLACK = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
@@ -303,12 +305,7 @@ class Module(ModuleManager.BaseModule):
 
         if user_coins == DECIMAL_ZERO:
             raise utils.EventError("%s: You have no coins" % event["user"].nickname)
-        elif new_total_coins < redeem_amount:
-            raise utils.EventError(
-                    "%s: You cannot send an amount of money that puts"
-                    " you below %s coins" % (event["user"].nickname,
-                                             self._coin_str(redeem_amount))
-            )
+
 
         target_user_coins = self._get_user_coins(target_user)
         if target_user_coins == None:
@@ -507,13 +504,7 @@ class Module(ModuleManager.BaseModule):
 
         if coin_amount > user_coins:
             raise utils.EventError("%s: You don't have enough coins" % event["user"].nickname)
-        elif new_user_coins < redeem_amount:
-            raise utils.EventError(
-                    "%s: you can't play the lottery if it puts your total coins "
-                    "below %s" % (event["user"].nickname,
-                                  self._coin_str(redeem_amount))
-            )
-
+        
         self._take(event["server"], event["user"], coin_amount)
 
         lottery = event["server"].get_setting("lottery",
@@ -554,7 +545,7 @@ class Module(ModuleManager.BaseModule):
         count = sum(value for nickname, value in lottery.items())
         event["stdout"].write(
                 "%s: The current jackpot is %s" % (event["user"].nickname,
-                                                   decimal.Decimal(LOTTERY_BUYIN) * count)
+                                                   utils.parse.comma_format(int(LOTTERY_BUYIN_NODECIMAL)*count))
         )
 
 
@@ -582,19 +573,24 @@ class Module(ModuleManager.BaseModule):
             lottery = server.get_setting("lottery",
                                          {})
             if lottery:
+                jackpot = sum(value for nickname, value in lottery.items())
+                jackpot = jackpot * int(LOTTERY_BUYIN_NODECIMAL)
                 server.del_setting("lottery")
             else:
                 continue
 
-            users = [(nickname,) * value for nickname, value in lottery.items()]
-            users = functools.reduce(lambda x, y: x + y, users)
-            winner = random.choice(users)
+            users = list(lottery.keys())
+            winner = ""
+
+            i = 0
+            while i < 10 and (winner == "dfx" or winner == ""):
+                winner = random.choice(users)
+                i = i+1
 
             user = server.get_user(winner)
             coins = self._get_user_coins(user)
-            winnings = decimal.Decimal(LOTTERY_BUYIN) * len(users)
+            winnings = jackpot
             new_coins = coins + winnings
-
             self._give(server, user, winnings)
             server.set_setting("lottery-winner", user.nickname)
             user.send_notice(
