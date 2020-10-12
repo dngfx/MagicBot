@@ -207,7 +207,7 @@ class Module(ModuleManager.BaseModule):
     def richest(self, event):
         top_10 = utils.top_10(
                 self._all_coins(event["server"]),
-                convert_key=lambda nickname: event["server"].get_user(nickname).nickname,
+                convert_key=lambda nickname: utils.irc.bold(event["server"].get_user(nickname).nickname),
                 value_format=lambda value: self._coin_str_human(value)
         )
         event["stdout"].write("Richest users: %s" % ", ".join(top_10))
@@ -250,8 +250,10 @@ class Module(ModuleManager.BaseModule):
     def flip(self, event):
         side_name = event["spec"][0]
         coin_bet = event["spec"][1]
+
         if coin_bet == "all":
             coin_bet = self._get_user_coins(event["user"])
+            print(coin_bet)
             if coin_bet <= DECIMAL_ZERO:
                 raise utils.EventError("%s: You have no coins to bet" % event["user"].nickname)
 
@@ -262,7 +264,8 @@ class Module(ModuleManager.BaseModule):
         chosen_side = random.SystemRandom().choice(list(SIDES.keys()))
         win = side_name == chosen_side
 
-        coin_bet_str = self._coin_str_human(coin_bet)
+        coin_bet_str = self._coin_str(coin_bet)
+
         if win:
             new_total = self._give(event["server"], event["user"], coin_bet)
             event["stdout"].write(
@@ -471,23 +474,6 @@ class Module(ModuleManager.BaseModule):
                                      event["user"].nickname,
                                      str(coin_losses))
             )
-
-
-    @utils.hook("cron")
-    @utils.kwarg("schedule", "0 *")
-    def _interest(self, event):
-        for server in self.bot.servers.values():
-            if not server.get_setting("coin-interest", False):
-                continue
-            all_coins = self._all_coins(server)
-
-            interest_rate = decimal.Decimal(server.get_setting("interest-rate", DEFAULT_INTEREST_RATE))
-            redeem_amount = self._redeem_amount(server)
-
-            for nickname, coins in all_coins.items():
-                if coins > redeem_amount:
-                    interest = round(coins * interest_rate, 2)
-                    server.set_user_setting(nickname, "coins", self._coin_str(coins + interest))
 
 
     @utils.hook("received.command.lotterybuy")
