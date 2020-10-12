@@ -207,7 +207,7 @@ class Module(ModuleManager.BaseModule):
     def richest(self, event):
         top_10 = utils.top_10(
                 self._all_coins(event["server"]),
-                convert_key=lambda nickname: utils.irc.bold(event["server"].get_user(nickname).nickname),
+                convert_key=lambda nickname: utils.irc.bold(utils.prevent_highlight(event["server"].get_user(nickname).nickname)),
                 value_format=lambda value: self._coin_str_human(value)
         )
         event["stdout"].write("Richest users: %s" % ", ".join(top_10))
