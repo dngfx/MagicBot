@@ -25,11 +25,12 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.command.jerkcity", channel_only=True)
     def jerkcity(self, event):
-        channel = event["channel"]
+        channel = event["target"]
+
         if not channel.get_setting("jerkcity-enabled", False):
             return
 
-        if not self.JERKCITY_LIST:
+        if len(self.JERKCITY_LIST) == 0:
             jerkcity = open(self.bot.config["jerkcity-filename"])
             self.JERKCITY_LIST =jerkcity.read().splitlines()
             jerkcity.close()
@@ -40,7 +41,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.bojo", alias_of="borisjohnson")
     @utils.hook("received.command.borisjohnson", channel_only=True)
     @utils.kwarg("help", "Receive an image of boris johnson")
-    def decide(self, event):
+    def bojo(self, event):
         event["stdout"].prefix = "BORIS JOHNSON"
-        event["stdout"].write("%s" % utils.irc.bold(random.choice(CHOICES)))
+        event["stdout"].write("%s" % utils.irc.bold(random.choice(BOJO_CHOICES)))
 
