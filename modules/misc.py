@@ -1,7 +1,8 @@
 #--depends-on commands
 #--depends-on config
 
-from src import ModuleManager, utils, random
+from src import ModuleManager, utils
+import random
 
 # BORIS JOHNSON
 BOJO_CHOICES = [
