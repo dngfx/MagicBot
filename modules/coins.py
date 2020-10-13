@@ -5,8 +5,8 @@ import datetime, decimal, functools, math, random, re, time
 from src import ModuleManager, utils
 
 SIDES = {"heads": 0, "tails": 1}
-DEFAULT_REDEEM_DELAY = 300  # 300 seconds, 5 minutes
-DEFAULT_REDEEM_AMOUNT = 1000000
+DEFAULT_REDEEM_DELAY = 150  # 300 seconds, 2.5 minutes
+DEFAULT_REDEEM_AMOUNT = 10000
 
 DECIMAL_ZERO = 0 # Just in case.
 BET_MINIMUM = 1
@@ -37,6 +37,33 @@ class CoinParseException(Exception):
     pass
 
 class Module(ModuleManager.BaseModule):
+    def _coin_spec_parse(self, word):
+        if isinstance(word, str) and word.isdigit():
+            return int(word)
+
+        if isinstance(word, int):
+            if word >= DECIMAL_ZERO:
+                return word
+            else:
+                raise utils.parse.SpecTypeError(
+                        "Please provide a positive coin amount")
+
+        raise utils.parse.SpecTypeError(
+                "Please provide a valid coin amount")
+
+    @utils.export("command-spec.coins")
+    def _coins_spec(self, server, channel, user, args):
+        if args:
+            return self._coin_spec_parse(args[0]), 1
+        else:
+            raise utils.parse.SpecTypeError("No coin amount provided")
+
+    @utils.export("command-spec.coinsmany")
+    def _coins_many_spec(self, server, channel, user, args):
+        out = []
+        for arg in args:
+            out.append(self._coin_spec_parse(arg))
+        return (out or None), 1
 
     def _until_next_hour(self, now=None):
         now = now or datetime.datetime.utcnow()
@@ -174,7 +201,7 @@ class Module(ModuleManager.BaseModule):
         side_name = event["spec"][0]
         coin_bet = event["spec"][1]
 
-        if type(coin_bet) != type(0) and coin_bet != "all":
+        if isinstance(coin_bet, str) and coin_bet != "all":
             return
 
         user_coins = self._get_user_coins(event["user"])
@@ -256,7 +283,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Spin a roulette wheel")
     @utils.kwarg("authenticated", True)
     @utils.spec("!<types>word !'all")
-    @utils.spec("!<types>word !<amounts>coinsmany")
+    @utils.spec("!<types>word !<amount>coins")
     def roulette(self, event):
         bets = event["spec"][0].lower().split(",")
         if not len(bets) <= len(event["spec"][1]):
