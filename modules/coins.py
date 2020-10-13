@@ -283,7 +283,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Spin a roulette wheel")
     @utils.kwarg("authenticated", True)
     @utils.spec("!<types>word !'all")
-    @utils.spec("!<types>word !<amount>coins")
+    @utils.spec("!<types>word !<amounts>coinsmany")
     def roulette(self, event):
         bets = event["spec"][0].lower().split(",")
         if not len(bets) <= len(event["spec"][1]):
