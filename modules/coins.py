@@ -294,7 +294,7 @@ class Module(ModuleManager.BaseModule):
         if choice == 0:
             event["stdout"].write("Roulette spin lands on 0, "
                                   "the house wins, %s loses %s" % (
-                                      event["user"].nickname, bet_amount_total))
+                                      event["user"].nickname, self._coin_str_human(bet_amount_total)))
             self._take(event["server"], event["user"], bet_amount_total)
             return
 
@@ -384,11 +384,12 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("Roulette spin lands on %s, "
                                   "%s wins %s%s; loses %s" % (choice,
                                                               event["user"].nickname, ", ".join(winnings_str),
-                                                              str(total_winnings_str), str(coin_losses)))
+                                                              self._coin_str_human(total_winnings_str),
+                                                              self._coin_str_human(coin_losses)))
         else:
             event["stdout"].write("Roulette spin lands on %s, "
                                   "%s loses %s" % (choice, event["user"].nickname,
-                                                   str(coin_losses)))
+                                                   self._coin_str_human(coin_losses)))
 
 
     @utils.hook("received.command.lotterybuy")
