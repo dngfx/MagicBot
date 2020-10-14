@@ -36,12 +36,6 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.w", alias_of="weather")
     @utils.hook("received.command.weather")
     def weather(self, event):
-        """
-        :help: Get current weather for you or someone else
-        :usage: [nickname]
-        :require_setting: location
-        :require_setting_unless: 1
-        """
         api_key = self.bot.config["openweathermap-api-key"]
 
         location = None
