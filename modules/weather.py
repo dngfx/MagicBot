@@ -16,6 +16,23 @@ class Module(ModuleManager.BaseModule):
             name = user_location.get("name", None)
             return [user_location["lat"], user_location["lon"], name]
 
+    def _weather_colour(self, cel, temp, unit):
+        color = temp
+        temp = "%s%s" % (temp, unit)
+        if cel <= 0:
+            color = utils.irc.color(temp, utils.consts.BLUE)
+        if 0 < cel <= 10:
+            color = utils.irc.color(temp, utils.consts.LIGHTBLUE)
+        if cel > 10 and cel <= 20:
+            color = utils.irc.color(temp, utils.consts.LIGHTGREEN)
+        if cel > 20 and cel <= 25:
+            color = utils.irc.color(temp, utils.consts.GREEN)
+        if cel > 25 and cel <= 30:
+            color = utils.irc.color(temp, utils.consts.ORANGE)
+        if cel > 30:
+            color = utils.irc.color(temp, utils.consts.RED)
+        return color
+
     @utils.hook("received.command.w", alias_of="weather")
     @utils.hook("received.command.weather")
     def weather(self, event):
@@ -77,8 +94,9 @@ class Module(ModuleManager.BaseModule):
                         location_parts.append(page["sys"]["country"])
                     location_str = ", ".join(location_parts)
 
-                celsius = "%dC" % page["main"]["temp"]
-                fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
+                celsius_color = page["main"]["temp"]
+                celsius =  self._weather_colour(celsius_color, page["main"]["temp"], "C")
+                fahrenheit = self._weather_colour(celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F")
                 description = page["weather"][0]["description"].title()
                 humidity = "%s%%" % page["main"]["humidity"]
 
@@ -158,21 +176,24 @@ class Module(ModuleManager.BaseModule):
         forecast = []
         forecast_str = []
         day_last = ""
+        dt = datetime.datetime.fromtimestamp(int(time.time()))
+        today = datetime.datetime.strftime(dt, "%a")
 
         forecast_list = page["list"]
         for page in forecast_list:
 
             dt = datetime.datetime.fromtimestamp(page["dt"])
-            day = datetime.datetime.strftime(dt, "%A")
+            day = datetime.datetime.strftime(dt, "%a")
 
-            if day_last == day:
+            if day_last == day or day == today:
                 continue
             else:
                 day_last = day
 
-
-            celsius = "%dC" % page["main"]["temp"]
-            fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
+            celsius_color = page["main"]["temp"]
+            celsius = self._weather_colour(celsius_color, page["main"]["temp"], "C")
+            fahrenheit = self._weather_colour(celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F")
+            #fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
             description = page["weather"][0]["description"].title()
 
             # wind speed is in metres per second - 3.6* for KMh
@@ -180,7 +201,9 @@ class Module(ModuleManager.BaseModule):
             wind_speed_k = "%sKMh" % round(wind_speed, 1)
             wind_speed_m = "%sMPh" % round(0.6214 * wind_speed, 1)
 
-            forecast_day_str = "%s: %s/%s | %s | Wind: %s/%s" % (utils.irc.bold(day), celsius, fahrenheit, description,
+            forecast_day_str = "%s: %s/%s | %s | Wind: %s/%s" % (utils.irc.bold(day),
+                                                                 celsius,
+                                                                 fahrenheit, description,
                                                                  wind_speed_k, wind_speed_m)
 
             forecast_str.append(forecast_day_str)
