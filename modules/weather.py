@@ -22,11 +22,11 @@ class Module(ModuleManager.BaseModule):
         if cel <= 0:
             color = utils.irc.color(temp, utils.consts.BLUE)
         if 0 < cel <= 10:
-            color = utils.irc.color(temp, utils.consts.LIGHTBLUE)
-        if cel > 10 and cel <= 20:
             color = utils.irc.color(temp, utils.consts.LIGHTGREEN)
-        if cel > 20 and cel <= 25:
+        if cel > 10 and cel <= 20:
             color = utils.irc.color(temp, utils.consts.GREEN)
+        if cel > 20 and cel <= 25:
+            color = utils.irc.color(temp, utils.consts.YELLOW)
         if cel > 25 and cel <= 30:
             color = utils.irc.color(temp, utils.consts.ORANGE)
         if cel > 30:
