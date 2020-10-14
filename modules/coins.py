@@ -487,7 +487,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("cron")
     @utils.kwarg("schedule", "0 */6")
-    def _lottery(self):
+    def _lottery(self, event):
         for server in self.bot.servers.values():
             lottery = server.get_setting("lottery", {})
             if lottery:
