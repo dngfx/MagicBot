@@ -11,6 +11,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Echo a string back")
     @utils.spec("!<message>string")
     def echo(self, event):
+        channel = event["target"]
         if not channel.get_setting("echo-enabled", True):
             return
 
@@ -22,6 +23,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Make the bot send a /me")
     @utils.spec("!<message>string")
     def action(self, event):
+        channel = event["target"]
         if not channel.get_setting("echo-enabled", True):
             return
 
@@ -34,6 +36,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Send a message to a target")
     @utils.spec("!<target>word !<message>string")
     def msg(self, event):
+        channel = event["target"]
         if not channel.get_setting("echo-enabled", True):
             return
 
