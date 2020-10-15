@@ -175,6 +175,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("min_args", 2)
     @utils.kwarg("help", "Reset a specific karma to 0")
     @utils.kwarg("permission", "resetkarma")
+    @utils.kwarg("channel_only", True)
     @utils.spec("!'by !<nickname>ouser")
     @utils.spec("!'for !<target>string")
     def reset_karma(self, event):
@@ -205,13 +206,13 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Unknown subcommand '%s'" % subcommand)
 
 
-    @utils.hook("received.command.topkarma")
+    @utils.hook("received.command.topkarma", channel_only=True)
     @utils.kwarg("help", "Show top 10 people with karma in the channel")
     def topkarma(self, event):
         stats = self._top_karma_stats(event["server"], event["target"], True)
         event["stdout"].write(stats)
 
-    @utils.hook("received.command.bottomkarma")
+    @utils.hook("received.command.bottomkarma", channel_only=True)
     @utils.kwarg("help", "Show bottom 10 people with karma in the channel")
     def bottomkarma(self, event):
         stats = self._top_karma_stats(event["server"], event["target"], False)
@@ -236,13 +237,14 @@ class Module(ModuleManager.BaseModule):
         karma_stats = {}
         for item in stats:
             userid, karma, amount = item
+            amount = int(amount)
             karma_name = karma.split("-")[1]
             if karma_name in karma_stats:
                 karma_stats[karma_name] = karma_stats[karma_name] + amount
             else:
                 karma_stats[karma_name] = amount
 
-        sort_karma = utils.top_10(karma_stats, convert_key=lambda n: utils.irc.bold(n.capitalize()), value_format=lambda n: utils.irc.color(n, color))
+        sort_karma = utils.top_10(karma_stats, convert_key=lambda n: utils.irc.bold(n), value_format=lambda n: utils.irc.color(n, color))
 
         #top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
         return "%s karma: %s" % (sort_order, ", ".join(sort_karma))
