@@ -69,6 +69,9 @@ class Module(ModuleManager.BaseModule):
         nick = target
         target = self._get_target(server, target)
 
+        if sender.nickname.lower() == target.lower():
+            return False, "You cannot set karma for yourself"
+
         setting = "karma-%s" % target
         karma = sender.get_setting(setting, 0)
         karma += 1 if positive else -1
@@ -126,13 +129,17 @@ class Module(ModuleManager.BaseModule):
             success, message = self._change_karma(event["server"], event["user"], target, positive)
             event["stdout" if success else "stderr"].write(message)
 
-
+    @utils.hook("received.command.karma+", alias_of="addpoint")
     @utils.hook("received.command.addpoint")
+    @utils.hook("received.command.karma-", alias_of="rmpoint")
     @utils.hook("received.command.rmpoint")
     @utils.kwarg("min_args", 1)
     @utils.spec("!<target>string")
     def changepoint(self, event):
-        positive = event["command"] == "addpoint"
+        if event["command"] == "addpoint" or event["command"] == "karma+":
+            positive = True
+        else:
+            positive = False
         success, message = self._change_karma(event["server"], event["user"], event["spec"][0], positive)
         event["stdout" if success else "stderr"].write(message)
 
@@ -196,3 +203,46 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No karma to clear for %s" % event["spec"][1])
         else:
             raise utils.EventError("Unknown subcommand '%s'" % subcommand)
+
+
+    @utils.hook("received.command.topkarma")
+    @utils.kwarg("help", "Show top 10 people with karma in the channel")
+    def topkarma(self, event):
+        stats = self._top_karma_stats(event["server"], event["target"], True)
+        event["stdout"].write(stats)
+
+    @utils.hook("received.command.bottomkarma")
+    @utils.kwarg("help", "Show bottom 10 people with karma in the channel")
+    def bottomkarma(self, event):
+        stats = self._top_karma_stats(event["server"], event["target"], False)
+        event["stdout"].write(stats)
+
+    def _karma_target(self, target, is_channel, query):
+        if query:
+            if not query == "*":
+                return query
+        elif is_channel:
+            return target.name
+
+    def _get_all_karma(self, event, order):
+        order = "AND value > 0" if order is True else "AND value < 0"
+        return self.bot.database.execute_fetchall(("SELECT user_id, setting, value from user_settings WHERE setting LIKE 'karma-%%' %s" % order))
+
+    def _top_karma_stats(self, server, target, order):
+        sort_order = "Highest" if order is True else "Lowest"
+        color = utils.irc.consts.GREEN if order is True else utils.irc.consts.RED
+        stats = self._get_all_karma(target, order)
+
+        karma_stats = {}
+        for item in stats:
+            userid, karma, amount = item
+            karma_name = karma.split("-")[1]
+            if karma_name in karma_stats:
+                karma_stats[karma_name] = karma_stats[karma_name] + amount
+            else:
+                karma_stats[karma_name] = amount
+
+        sort_karma = utils.top_10(karma_stats, convert_key=lambda n: utils.irc.bold(n.capitalize()), value_format=lambda n: utils.irc.color(n, color))
+
+        #top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
+        return "%s karma: %s" % (sort_order, ", ".join(sort_karma))

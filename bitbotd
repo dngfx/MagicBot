@@ -6,7 +6,7 @@ import src.utils.consts
 
 
 if sys.version_info < (3, 6):
-    sys.stderr.write("BitBot requires python 3.6.0 or later\n")
+    sys.stderr.write("MagicBot requires python 3.6.0 or later\n")
     sys.exit(src.utils.consts.Exit.WRONGVERSION)
 
 import atexit, argparse, faulthandler, os, platform, typing
@@ -19,7 +19,7 @@ faulthandler.enable()
 
 directory = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser("~")
-default_data = os.path.join(home, ".magicbot")
+default_data = os.path.join(home, ".magicbot-stable")
 
 arg_parser = argparse.ArgumentParser(description="Python3 event-driven modular IRC bot")
 
@@ -59,7 +59,7 @@ if args.version:
 config = Config.Config("bot", args.config)
 config.load()
 
-DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.magicbot"))
+DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.magicbot-stable"))
 LOG_DIR = config.get("log-directory", "{DATA}/logs/").format(DATA=DATA_DIR)
 DATABASE = config.get("database", "sqlite3:{DATA}/bot.db").format(DATA=DATA_DIR)
 LOCK_FILE = config.get("lock-file", "{DATA}/bot.lock").format(DATA=DATA_DIR)
@@ -80,7 +80,7 @@ startup_info = "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %
                                                                                        platform.python_version(),
                                                                                        DATABASE)
 
-log = log()
+log = log(log_level)
 log.info(message=startup_info, server="Startup", context="Server", formatting=True)
 
 lock_file = LockFile.LockFile(LOCK_FILE)
