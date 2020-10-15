@@ -18,6 +18,8 @@ class Module(ModuleManager.BaseModule):
     def _user_channel_ignored(self, channel, user):
         return channel.get_user_setting(user.get_id(), "ignore", False)
 
+    def _channel_command_ignored(self, channel, command):
+        return channel.get_setting("ignore-%s" % command, False)
 
     def _server_command_ignored(self, server, command):
         return server.get_setting("ignore-%s" % command, False)
@@ -47,6 +49,8 @@ class Module(ModuleManager.BaseModule):
         if self._user_ignored(event["user"]):
             return utils.consts.PERMISSION_HARD_FAIL, None
         elif event["is_channel"] and self._user_channel_ignored(event["target"], event["user"]):
+            return utils.consts.PERMISSION_HARD_FAIL, None
+        elif event["is_channel"] and self._channel_command_ignored(event["target"], event["command"]):
             return utils.consts.PERMISSION_HARD_FAIL, None
         elif self._is_command_ignored(event["server"], event["user"], event["command"]):
             return utils.consts.PERMISSION_HARD_FAIL, None
@@ -140,7 +144,6 @@ class Module(ModuleManager.BaseModule):
             event["server"].set_setting(setting, True)
             event["stdout"].write("Now ignoring '%s' for %s" % (command, str(event["server"])))
 
-
     @utils.hook("received.command.serverunignore")
     @utils.kwarg("help", "Unignore a command on the current server")
     @utils.kwarg("permissions", "serverunignore")
@@ -154,3 +157,35 @@ class Module(ModuleManager.BaseModule):
         else:
             event["server"].del_setting(setting)
             event["stdout"].write("No longer ignoring '%s' for %s" % (command, str(event["server"])))
+
+    @utils.hook("received.command.ccignore", alias_of="channelcommandignore")
+    @utils.hook("received.command.channelcommandignore")
+    @utils.kwarg("help", "Ignore a command on the current server")
+    @utils.kwarg("permissions", "channel-command-ignore")
+    @utils.kwarg("channel_only", True)
+    @utils.spec("!<command>wordlower")
+    def channel_command_ignore(self, event):
+        command = event["spec"][0]
+        setting = "ignore-%s" % command
+
+        if event["target"].get_setting(setting, False):
+            event["stderr"].write("I'm already ignoring '%s' for %s" % (command, str(event["target"])))
+        else:
+            event["target"].set_setting(setting, True)
+            event["stdout"].write("Now ignoring '%s' for %s" % (command, str(event["target"])))
+
+    @utils.hook("received.command.ccunignore", alias_of="channelcommandunignore")
+    @utils.hook("received.command.channelcommandunignore")
+    @utils.kwarg("help", "Unignore a command on the current channel")
+    @utils.kwarg("permissions", "channel-command-ignore")
+    @utils.spec("!<command>wordlower")
+    @utils.kwarg("channel_only", True)
+    def channel_command_unignore(self, event):
+        command = event["spec"][0]
+        setting = "ignore-%s" % command
+
+        if not event["target"].get_setting(setting, False):
+            event["stderr"].write("I'm not ignoring '%s' for %s" % (command, str(event["target"])))
+        else:
+            event["target"].del_setting(setting)
+            event["stdout"].write("No longer ignoring '%s' for %s" % (command, str(event["target"])))
