@@ -11,7 +11,6 @@ from src import ModuleManager, utils
 URL_SEARCH = "https://api.spotify.com/v1/search"
 URL_TOKEN = "https://accounts.spotify.com/api/token"
 
-
 class Module(ModuleManager.BaseModule):
 
 
@@ -74,3 +73,7 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No results found")
         else:
             raise utils.EventResultsError()
+
+    #@utils.hook("received.command.spotify", min_args=1)
+    #@utils.kwarg("help", "Receive 5 recommended tracks based on up to 5 artists")
+
