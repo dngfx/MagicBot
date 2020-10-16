@@ -25,8 +25,8 @@ class Module(ModuleManager.BaseModule):
             not_valid_after = (certificate.not_valid_after.date() - today).days
 
             if not_valid_until < 0:
-                self.log.warn("Connecting to %s but client certificate is not valid yet", [str(event["server"])])
+                log.warn("Connecting to %s but client certificate is not valid yet", [str(event["server"])])
             elif not_valid_after < 0:
-                self.log.warn("Connecting to %s but client certificate is no longer " "valid", [str(event["server"])])
+                log.warn("Connecting to %s but client certificate is no longer " "valid", [str(event["server"])])
             elif not_valid_after <= 7:
-                self.log.warn("Connecting to %s but client certificate expires in a week", [str(event["server"])])
+                log.warn("Connecting to %s but client certificate expires in a week", [str(event["server"])])

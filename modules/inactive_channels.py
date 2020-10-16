@@ -70,7 +70,7 @@ class Module(ModuleManager.BaseModule):
                         parts.append([server, channel])
 
         for server, channel in parts:
-            self.log.warn("Leaving %s:%s due to channel inactivity", [str(server), str(channel)])
+            log.warn("Leaving %s:%s due to channel inactivity", [str(server), str(channel)])
             channel.send_part("Channel inactive")
             self._del_timestamp(channel)
 

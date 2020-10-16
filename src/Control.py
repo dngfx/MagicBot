@@ -114,9 +114,9 @@ class Control(PollSource.PollSource):
         #elif command == "log":
         #client.log_level = Logging.LEVELS[data.lower()]
         elif command == "rehash":
-            log.info("Reloading config file")
+            log.info("Rehashing bot config")
             self._bot.config.load()
-            log.info("Reloaded config file")
+            log.info("Bot config rehashed")
             keepalive = False
         elif command == "reload":
             result = self._bot.try_reload_modules()

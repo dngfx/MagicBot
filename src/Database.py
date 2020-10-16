@@ -4,8 +4,9 @@ import time
 import typing
 import urllib.parse
 
-from src import Logging, utils
+from src import utils
 from .DatabaseEngines import DatabaseEngine, DatabaseEngineCursor, SQLite3Engine
+from src.Logging import Logger as log
 
 
 class Table(object):
@@ -433,7 +434,7 @@ class Database(object):
         )
         self._engine.connect()
 
-        self.log = Logging.Logger
+        self.log = log
         self._lock = threading.Lock()
 
         self.make_servers_table()
@@ -471,7 +472,7 @@ class Database(object):
 
         end = time.monotonic()
         total_milliseconds = (end - start) * 1000
-        self.log.trace(
+        log.trace(
                 self.log, "executed query in %fms: \"%s\" (params: %s)" % (total_milliseconds, printable_query, params)
         )
 

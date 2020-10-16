@@ -1,6 +1,6 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
 
 import binascii
 import http.server
@@ -13,13 +13,11 @@ import urllib.parse
 from src import ModuleManager, utils
 from src.Logging import Logger as log
 
-
 DEFAULT_PORT = 5001
 DEFAULT_PUBLIC_PORT = 5000
 
 
 class Response(object):
-
 
     def __init__(self, compact=False):
         self._compact = compact
@@ -28,14 +26,11 @@ class Response(object):
         self.code = 200
         self.content_type = "text/plain"
 
-
     def write(self, data):
         self._data += data
 
-
     def write_text(self, data):
         self._data += data.encode("utf8")
-
 
     def write_json(self, obj):
         if self._compact:
@@ -44,10 +39,8 @@ class Response(object):
             data = json.dumps(obj, sort_keys=True, indent=4)
         self._data += data.encode("utf8")
 
-
     def set_header(self, key: str, value: str):
         self._headers[key] = value
-
 
     def get_headers(self):
         headers = {}
@@ -60,7 +53,6 @@ class Response(object):
             headers["Content-Type"] = self.content_type
         headers["Content-Length"] = len(self._data)
         return headers
-
 
     def get_data(self):
         return self._data
@@ -75,7 +67,6 @@ _log = None
 class Handler(http.server.BaseHTTPRequestHandler):
     timeout = 10
 
-
     def _path_data(self):
         path = urllib.parse.urlparse(self.path).path
         _, _, endpoint = path[1:].partition("/")
@@ -83,17 +74,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         args = list(filter(None, args.split("/")))
         return path, endpoint, args
 
-
     def _url_params(self):
         parsed = urllib.parse.urlparse(self.path)
         query = urllib.parse.parse_qs(parsed.query)
         return dict([(k, v[0]) for k, v in query.items()])
 
-
     def _body(self):
         content_length = int(self.headers.get("content-length", 0))
         return self.rfile.read(content_length)
-
 
     def _respond(self, response):
         self.send_response(response.code)
@@ -102,15 +90,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response.get_data())
 
-
     def _key_settings(self, key):
         return _bot.get_setting("api-key-%s" % key,
                                 {})
 
-
     def _minify_setting(self):
         return _bot.get_setting("rest-api-minify", False)
-
 
     def _url_for(self, headers):
         return (
@@ -124,7 +109,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                                    headers.get("Host",
                                                                None))
         )
-
 
     def _handle(self, method, path, endpoint, args):
         headers = utils.CaseInsensitiveDict(dict(self.headers.items()))
@@ -144,17 +128,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             permissions = key_setting.get("permissions", [])
 
             if key_setting:
-                log.debug(log, "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
+                log.debug("[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
 
             if authenticated is True or path in permissions or "*" in permissions:
                 event_response = None
                 event_response = _events.on("api").on(method).on(endpoint).call_for_result_unsafe(
-                        params=params,
-                        args=args,
-                        data=data,
-                        headers=headers,
-                        response=response,
-                        url_for=self._url_for(headers)
+                    params=params,
+                    args=args,
+                    data=data,
+                    headers=headers,
+                    response=response,
+                    url_for=self._url_for(headers)
                 )
 
                 """except Exception as e:
@@ -168,38 +152,32 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 response.code = 401
         return response
 
-
     def _handle_wrap(self, method):
         path, endpoint, args = self._path_data()
         log.debug(
-                log,
-                "[HTTP] starting _handle for %s from %s:%d: %s" %
-                (method,
-                 self.client_address[0],
-                 self.client_address[1],
-                 path)
+            "[HTTP] starting _handle for %s from %s:%d: %s" %
+            (method,
+             self.client_address[0],
+             self.client_address[1],
+             path)
         )
 
         response = _bot.trigger(lambda: self._handle(method, path, endpoint, args))
         self._respond(response)
 
         log.debug(
-                log,
-                "[HTTP] finishing _handle for %s from %s:%d (%d)" %
-                (method,
-                 self.client_address[0],
-                 self.client_address[1],
-                 response.code)
+            "[HTTP] finishing _handle for %s from %s:%d (%d)" %
+            (method,
+             self.client_address[0],
+             self.client_address[1],
+             response.code)
         )
-
 
     def do_GET(self):
         self._handle_wrap("GET")
 
-
     def do_POST(self):
         self._handle_wrap("POST")
-
 
     def log_message(self, format, *args):
         return
@@ -215,7 +193,6 @@ class BitBotIPv6HTTPd(http.server.HTTPServer):
 class Module(ModuleManager.BaseModule):
     _name = "REST"
 
-
     def on_load(self):
         global _module
         _module = self
@@ -230,7 +207,6 @@ class Module(ModuleManager.BaseModule):
         if self.bot.get_setting("rest-api", False):
             self._start_httpd()
 
-
     def _start_httpd(self):
         port = int(self.bot.config.get("api-port", str(DEFAULT_PORT)))
         self.httpd = BitBotIPv6HTTPd(("::1", port), Handler)
@@ -244,18 +220,14 @@ class Module(ModuleManager.BaseModule):
         if self.httpd:
             self.httpd.shutdown()
 
-
     def on_resume(self):
         self._start_httpd()
-
 
     def unload(self):
         self._stop_httpd()
 
-
     def on_pause(self):
         self._stop_httpd()
-
 
     @utils.hook("received.command.apikey")
     @utils.kwarg("private_only", True)
@@ -281,9 +253,9 @@ class Module(ModuleManager.BaseModule):
                 if not alias in aliases:
                     event["stderr"].write("API key '%s' not found" % alias)
                 event["stdout"].write(
-                        "API key %s ('%s') can access: %s" % (key,
-                                                              alias,
-                                                              " ".join(aliases[alias]["permissions"]))
+                    "API key %s ('%s') can access: %s" % (key,
+                                                          alias,
+                                                          " ".join(aliases[alias]["permissions"]))
                 )
             else:
                 event["stdout"].write("API keys: %s" % ", ".join(sorted(aliases.keys())))
@@ -292,7 +264,7 @@ class Module(ModuleManager.BaseModule):
                 new_key = binascii.hexlify(os.urandom(16)).decode("ascii")
                 self.bot.set_setting("api-key-%s" % new_key,
                                      {
-                                         "comment":     alias,
+                                         "comment": alias,
                                          "permissions": event["spec"][2] or []
                                      })
                 event["stdout"].write("New API key '%s': %s" % (alias, new_key))
@@ -308,7 +280,6 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write("Deleted API key %s ('%s')" % (key, alias))
             else:
                 event["stderr"].write("Count not find API key '%s'" % alias)
-
 
     @utils.export("url-for")
     def _url_for(self,

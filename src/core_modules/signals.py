@@ -67,16 +67,16 @@ class Module(ModuleManager.BaseModule):
 
 
     def _reload_config(self):
-        log.info(message="Reloading config file")
+        log.info()
         self.bot.config.load()
-        log.info(message="Reloaded config file")
+        log.info()
 
 
     def _reload_modules(self):
-        log.info(message="Reloading modules")
+        log.info()
 
         result = self.bot.try_reload_modules()
         if result.success:
-            log.info(message=result.message)
+            log.info()
         else:
             log.warn(message=result.message)

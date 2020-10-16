@@ -8,7 +8,7 @@ import time
 from src import EventManager, ModuleManager, utils
 
 
-KARMA_DELAY_SECONDS = 3
+KARMA_DELAY_SECONDS = 10
 
 REGEX_WORD = re.compile(r"^([^(\s,:]+)(?:[:,])?\s*(\+\+|--)\s*$")
 REGEX_WORD_START = re.compile(r"^(\+\+|--)(?:\s*)([^(\s,:]+)\s*$")
@@ -37,15 +37,15 @@ class Module(ModuleManager.BaseModule):
 
     def _check_throttle(self, user, positive):
         bypass_throttle = user.get_setting("permissions", None)
-        if bypass_throttle != None and "*" in bypass_throttle:
-            return True
+        #if bypass_throttle != None and "*" in bypass_throttle:
+            #return [True, KARMA_DELAY_SECONDS]
 
         timestamp = None
         if positive:
             timestamp = user._last_positive_karma
         else:
             timestamp = user._last_negative_karma
-        return timestamp == None or (time.time() - timestamp) >= KARMA_DELAY_SECONDS
+        return [(timestamp == None or (time.time() - timestamp) >= KARMA_DELAY_SECONDS), (KARMA_DELAY_SECONDS if timestamp is None else (KARMA_DELAY_SECONDS - int(time.time()-timestamp)))]
 
 
     def _set_throttle(self, user, positive):
@@ -63,11 +63,17 @@ class Module(ModuleManager.BaseModule):
 
 
     def _change_karma(self, server, sender, target, positive):
-        if not self._check_throttle(sender, positive):
-            return False, "Try again in a couple of seconds"
+        throttle, wait = self._check_throttle(sender, positive)
+        print(throttle, wait)
+        if not throttle:
+            return False, "Try again in about %d seconds" % wait
 
+        target = utils.irc.strip_font(target)
         nick = target
         target = self._get_target(server, target)
+
+        if target == "":
+            return False, "You cannot set karma for nothing!"
 
         if sender.nickname.lower() == target.lower():
             return False, "You cannot set karma for yourself"
