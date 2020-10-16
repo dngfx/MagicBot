@@ -11,7 +11,7 @@ This is a fork / slowly becoming a rewrite of the fantastic https://git.io/bitbo
 
 When starting the bot, make sure to use this command:
 
-`LOGURU_AUTOINIT=no ./bitbotd`
+`LOGURU_AUTOINIT=no ./magicbotd`
 
 You do _not_ want LOGURU_AUTOINIT enabled.
 
