@@ -53,6 +53,16 @@ class Logger(object):
         return True
 
     @staticmethod
+    def success(message="", server="", context="", formatting=False):
+        if formatting:
+            server, context, message = formatter(server, context, message)
+        formatted_len = " " * (len(server) + len(context))
+        log.padding = max(0, (20 - len(formatted_len)))
+        context = {"server": server, "context": context, "padding": " " * log.padding}
+        log.bind(**context).opt(colors=True, depth=1).log("SUCCESS", message)
+        return True
+
+    @staticmethod
     def debug(message="", server="", context="", formatting=True):
         if formatting:
             server, context, message = formatter(server, context, message)

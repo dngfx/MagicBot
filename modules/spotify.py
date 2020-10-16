@@ -26,6 +26,8 @@ class Module(ModuleManager.BaseModule):
         else:
             client_id = self.bot.config["spotify-client-id"]
             client_secret = self.bot.config["spotify-client-secret"]
+
+            print(client_id)
             bearer = "%s:%s" % (client_id, client_secret)
             bearer = base64.b64encode(bearer.encode("utf8")).decode("utf8")
 

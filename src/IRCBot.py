@@ -102,6 +102,9 @@ class Bot(object):
     def add_poll_hook(self, hook: PollHook.PollHook):
         self._poll_timeouts.append(hook)
 
+    def update_config(self, config):
+        self.config = config
+
     def add_poll_source(self, source: PollSource.PollSource):
         self._poll_sources.append(source)
 

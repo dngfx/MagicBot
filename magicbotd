@@ -76,7 +76,7 @@ log_level_files = config.get("log-levels", "TRACE,INFO,WARN").split(",")
 
 #log = log.info(not args.no_logging, log_level, LOG_DIR, log_level_files)
 
-startup_info = "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %s)" % (IRCBot.VERSION,
+startup_info = "Starting MagicBot %s (Running on Python v%s, db %s)" % (IRCBot.VERSION,
                                                                                        platform.python_version(),
                                                                                        DATABASE)
 

@@ -8,7 +8,6 @@ from src import utils
 
 class Config(object):
 
-
     def __init__(self, name: str, location: str):
         self._name = name
         self.location = location

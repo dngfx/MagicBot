@@ -1,10 +1,10 @@
 #--depends-on commands
 #--depends-on permissions
 
-import sys
+import sys, pprint
 
-from src import IRCLine, ModuleManager, utils
-
+from src import IRCBot, IRCLine, ModuleManager, utils, Config
+from src.Logging import Logger as log
 
 class Module(ModuleManager.BaseModule):
 
@@ -59,6 +59,22 @@ class Module(ModuleManager.BaseModule):
     @utils.spec("!r~channel")
     def part(self, event):
         event["server"].send_part(event["spec"][0].name)
+
+    @utils.hook("received.command.rehashconfig")
+    @utils.kwarg("help", "Reloads the config file of the bot")
+    @utils.kwarg("permission", "rehash-config")
+    def rehash(self, event):
+        # idek
+        print(self.bot.config["spotify-client-id"])
+
+        log.info("Now Rehashing Bot Config")
+        config = self.bot.get_config("bot")
+
+        config_array = vars(config)["_config"].items()
+        for item, value in config_array:
+            self.bot.config[item] = value
+
+        log.success("Config updated!", formatting=True)
 
 
     def _id_from_alias(self, alias):
