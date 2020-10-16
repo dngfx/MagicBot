@@ -55,7 +55,7 @@ sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 try:
     sock.connect(args.socket)
 except ConnectionRefusedError:
-    _die(2, "Failed to connect to MagicBot instance. Is bitbotd running?")
+    _die(2, "Failed to connect to MagicBot instance. Is magicbotd running?")
 
 
 def _send(s):
