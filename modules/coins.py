@@ -212,7 +212,7 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("%s: You have no coins to bet" %
                                        event["user"].nickname)
         if coin_bet < 0:
-            return
+            raise utils.EventError("%s: You cant bet less than 0 coins", event["user"].nickname)
 
         if coin_bet > user_coins:
             raise utils.EventError("%s: You don't have enough coins to bet" %
@@ -290,14 +290,14 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("%s: Please provide an amount for each bet" %
                                    event["user"].nickname)
 
-        if "0" in bets:
+        if "0" == bets:
             raise utils.EventError("%s: You can't bet on 0" %
                                    event["user"].nickname)
         bet_amounts = []
         if event["spec"][1] == "all":
             all_coins = self._get_user_coins(event["user"])
             if all_coins <= 0:
-                self._set_user_coins(event["user"], 0)
+                all_coins = self._set_user_coins(event["user"], 0)
                 raise utils.EventError("%s: You have no coins to bet" %
                                        event["user"].nickname)
 
@@ -305,7 +305,7 @@ class Module(ModuleManager.BaseModule):
         else:
             bet_amounts = event["spec"][1]
 
-        bet_amount_total = sum(bet_amounts)
+        bet_amount_total = sum(all_coins)
 
         user_coins = self._get_user_coins(event["user"])
         if bet_amount_total > user_coins:
