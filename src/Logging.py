@@ -47,7 +47,7 @@ class Logger(object):
         if formatting:
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
-        log.padding = max(0, (15 - len(formatted_len)))
+        log.padding = max(0, (20 - len(formatted_len)))
         context = {"server": server, "context": context, "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("INFO", message)
         return True
@@ -57,7 +57,7 @@ class Logger(object):
         if formatting:
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
-        log.padding = max(0, (15 - len(formatted_len)))
+        log.padding = max(0, (20 - len(formatted_len)))
         context = {"server": server, "context": context, "padding": " " * log.padding}
         log.level("DEBUG")
         log.bind(**context).opt(colors=True, depth=1).log("DEBUG", message)
@@ -68,7 +68,7 @@ class Logger(object):
         if formatting:
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
-        log.padding = max(0, (15 - len(formatted_len)))
+        log.padding = max(0, (20 - len(formatted_len)))
         context = {"server": server, "context": context, "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("WARNING", message)
         return True
@@ -80,7 +80,7 @@ class Logger(object):
         if formatting:
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
-        log.padding = max(0, (15 - len(formatted_len)))
+        log.padding = max(0, (20 - len(formatted_len)))
         context = {"server": server, "context": context, "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("ERROR", message)
         return True
