@@ -68,6 +68,7 @@ class Module(ModuleManager.BaseModule):
         if not throttle:
             return False, "Try again in about %d seconds" % wait
 
+        target = utils.irc.strip_font(target)
         nick = target
         target = self._get_target(server, target)
 
