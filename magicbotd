@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+
+import sys
+
+import src.utils.consts
+
+
+if sys.version_info < (3, 6):
+    sys.stderr.write("MagicBot requires python 3.6.0 or later\n")
+    sys.exit(src.utils.consts.Exit.WRONGVERSION)
+
+import atexit, argparse, faulthandler, os, platform, typing
+from src import Cache, Config, Control, Database, EventManager, Exports, IRCBot
+from src import LockFile, ModuleManager, Timers, utils
+from src.Logging import Logger as log
+
+
+faulthandler.enable()
+
+directory = os.path.dirname(os.path.realpath(__file__))
+home = os.path.expanduser("~")
+default_data = os.path.join(home, ".magicbot-stable")
+
+arg_parser = argparse.ArgumentParser(description="Python3 event-driven modular IRC bot")
+
+arg_parser.add_argument("--version", "-v", action="store_true")
+
+arg_parser.add_argument(
+        "--config",
+        "-c",
+        help="Location of config file",
+        default=os.path.join(default_data,
+                             "bot.conf")
+)
+
+arg_parser.add_argument("--add-server", "-a", help="Add a new server", action="store_true")
+
+arg_parser.add_argument("--verbose", "-V", action="store_true")
+arg_parser.add_argument("--log-level", "-L")
+arg_parser.add_argument("--no-logging", "-N", action="store_true")
+
+arg_parser.add_argument("--external", "-e", help="External modules directory")
+
+arg_parser.add_argument(
+        "--startup-disconnects",
+        "-D",
+        help="Tolerate failed connections on startup",
+        action="store_true"
+)
+
+arg_parser.add_argument("--remove-server", "-R", help="Remove a server by it's alias")
+
+args = arg_parser.parse_args()
+
+if args.version:
+    print("MagicBot %s (Running on bitbot " % IRCBot.VERSION)
+    sys.exit(0)
+
+config = Config.Config("bot", args.config)
+config.load()
+
+DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.magicbot-stable"))
+LOG_DIR = config.get("log-directory", "{DATA}/logs/").format(DATA=DATA_DIR)
+DATABASE = config.get("database", "sqlite3:{DATA}/bot.db").format(DATA=DATA_DIR)
+LOCK_FILE = config.get("lock-file", "{DATA}/bot.lock").format(DATA=DATA_DIR)
+SOCK_FILE = config.get("sock-file", "{DATA}/bot.sock").format(DATA=DATA_DIR)
+
+if not os.path.isdir(LOG_DIR):
+    os.mkdir(LOG_DIR)
+
+log_level = args.log_level
+if not log_level:
+    log_level = "debug" if args.verbose else "info"
+
+log_level_files = config.get("log-levels", "TRACE,INFO,WARN").split(",")
+
+#log = log.info(not args.no_logging, log_level, LOG_DIR, log_level_files)
+
+startup_info = "Starting MagicBot %s (Based on BitBot v1.19.0) (Python v%s, db %s)" % (IRCBot.VERSION,
+                                                                                       platform.python_version(),
+                                                                                       DATABASE)
+
+log = log(log_level)
+log.info(message=startup_info, server="Startup", context="Server", formatting=True)
+
+lock_file = LockFile.LockFile(LOCK_FILE)
+if not lock_file.available():
+    log.critical("Database is locked. Is BitBot already running?")
+    sys.exit(utils.consts.Exit.LOCKED)
+
+atexit.register(lock_file.unlock)
+lock_file.lock()
+
+database = Database.Database(log, DATABASE)
+
+if args.remove_server:
+    alias = args.remove_server
+    srv_id = database.servers.by_alias(alias)
+    if not srv_id is None:
+        database.servers.delete(typing.cast(int, srv_id))
+        print("Deleted server '%s'" % alias)
+    else:
+        sys.stderr.write("Unknown server '%s'\n" % alias)
+    sys.exit(0)
+
+
+def _add_server():
+    details = utils.cli.add_server()
+
+    database.servers.add(
+            details.alias,
+            details.hostname,
+            details.port,
+            details.password,
+            details.tls,
+            details.bindhost,
+            details.nickname,
+            details.username,
+            details.realname,
+            True
+    )
+
+
+if args.add_server:
+    print("Adding a new server")
+    _add_server()
+    sys.exit(0)
+
+cache = Cache.Cache()
+events = EventManager.EventRoot(log).wrap()
+exports = Exports.Exports()
+timers = Timers.Timers(database, events, log)
+
+core_modules = os.path.join(directory, "src", "core_modules")
+extra_modules = [os.path.join(directory, "modules")]
+if args.external:
+    extra_modules.append(os.path.abspath(args.external))
+if "external-modules" in config:
+    extra_modules.append(os.path.abspath(config["external-modules"]))
+
+modules = ModuleManager.ModuleManager(events, exports, timers, config, log, core_modules, extra_modules)
+
+bot = IRCBot.Bot(directory, DATA_DIR, args, cache, config, database, events, exports, log, modules, timers)
+bot.add_poll_hook(cache)
+bot.add_poll_hook(lock_file)
+bot.add_poll_hook(timers)
+
+control = Control.Control(bot, SOCK_FILE)
+control.bind()
+bot.add_poll_source(control)
+
+server_configs = bot.database.servers.get_all()
+
+if len(server_configs):
+    bot.load_modules()
+
+    servers = []
+    for server_id, alias in server_configs:
+        server = bot.add_server(server_id, connect=False)
+        if not server is None and server.get_setting("connect", True):
+            server.from_init = True
+            servers.append(server)
+
+    bot.get_events().on("boot.done").call()
+
+    timers.setup(bot.find_settings(prefix="timer-"))
+
+    for server in servers:
+        if not bot.connect(server):
+            log.error( "Failed to connect to '%s'" % (str(server)))
+            if not args.startup_disconnects:
+                sys.exit(utils.consts.Exit.DISCONNECT)
+
+    try:
+        bot.run()
+    except Exception as e:
+        log.critical( "Unhandled exception: %s" % str(e).replace("<", "\<"))
+        sys.exit(utils.consts.Exit.FATAL)
+else:
+    try:
+        if utils.cli.bool_input("no servers found, add one?"):
+            _add_server()
+    except KeyboardInterrupt:
+        print()
+        pass
