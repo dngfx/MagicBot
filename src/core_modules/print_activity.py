@@ -26,7 +26,7 @@ class Module(ModuleManager.BaseModule):
         context = event["context"] if (event["context"] not in ["*", ""]) and (
                 event["context"] is not None) else "Server"
 
-        log.info(message=line, server=server, context=context, formatting=True)
+        log.info(line, server=server, context=context, formatting=True)
 
 
     @utils.hook("formatted.message.channel")

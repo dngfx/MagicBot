@@ -144,7 +144,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             permissions = key_setting.get("permissions", [])
 
             if key_setting:
-                log.debug(log, "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
+                log.debug( "[HTTP] %s to %s with API key %s (%s)" % (method, path, key, key_setting["comment"]))
 
             if authenticated is True or path in permissions or "*" in permissions:
                 event_response = None

@@ -13,7 +13,7 @@ class Module(ModuleManager.BaseModule):
         try:
             self._catch_cron(event["schedule"])
         except Exception as e:
-            self.log.error("Failed to call cron reminders: %s", [str(e)], exc_info=True)
+            log.error("Failed to call cron reminders: %s", [str(e)], exc_info=True)
 
 
     def _catch_cron(self, schedule_check):

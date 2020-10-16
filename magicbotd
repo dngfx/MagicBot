@@ -167,14 +167,14 @@ if len(server_configs):
 
     for server in servers:
         if not bot.connect(server):
-            log.error(log, "Failed to connect to '%s'" % (str(server)))
+            log.error( "Failed to connect to '%s'" % (str(server)))
             if not args.startup_disconnects:
                 sys.exit(utils.consts.Exit.DISCONNECT)
 
     try:
         bot.run()
     except Exception as e:
-        log.critical(log, "Unhandled exception: %s" % str(e).replace("<", "\<"))
+        log.critical( "Unhandled exception: %s" % str(e).replace("<", "\<"))
         sys.exit(utils.consts.Exit.FATAL)
 else:
     try:

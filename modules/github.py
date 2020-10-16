@@ -62,7 +62,7 @@ class Module(ModuleManager.BaseModule):
                                       post_data={"url": url})
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
-            self.log.warn("HTTPTimeoutException while waiting for github short URL", [])
+            log.warn("HTTPTimeoutException while waiting for github short URL", [])
             return url
 
 

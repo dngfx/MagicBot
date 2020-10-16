@@ -190,7 +190,7 @@ class Module(ModuleManager.BaseModule):
             )
         except Exception as e:
             event["stderr"].write("Failed to add server")
-            self.log.error("failed to add server \"%s\"", [alias], exc_info=True)
+            log.error("failed to add server \"%s\"", [alias], exc_info=True)
             return
         event["stdout"].write("Added server '%s'" % alias)
 

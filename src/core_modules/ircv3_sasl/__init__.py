@@ -188,7 +188,7 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.903")
     def sasl_success(self, event):
-        log.info(message=("SASL authentication succeeded for %s" % (str(event["server"]))), server=str(event["server"]), context="SASL")
+        log.info(server=str(event["server"]), context="SASL")
         self._end_sasl(event["server"])
 
 
@@ -209,12 +209,12 @@ class Module(ModuleManager.BaseModule):
         if server.get_setting("sasl-hard-fail", self.bot.get_setting("sasl-hard-fail", False)):
             message = "SASL panic for %s: %s" % (str(server), message)
             log.error(message=message,
-                     server=str(event["server"]), context="SASL")
+                     server=str(server), context="SASL")
 
             self.bot.disconnect(server)
         else:
             message = "SASL failure for %s: %s" % (str(server), message)
             log.warning(message=message,
-                     server=str(event["server"]), context="SASL")
+                     server=str(server), context="SASL")
 
             self._end_sasl(server)
