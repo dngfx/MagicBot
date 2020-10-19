@@ -8,8 +8,6 @@ from src.Logging import Logger as log
 
 
 class ControlClient(object):
-
-
     def __init__(self, sock: socket.socket):
         self._socket = sock
         self._read_buffer = b""
@@ -17,10 +15,8 @@ class ControlClient(object):
         self.version = -1
         self.log_level = None  # type: typing.Optional[int]
 
-
     def fileno(self) -> int:
         return self._socket.fileno()
-
 
     def read_lines(self) -> typing.Optional[typing.List[str]]:
         try:
@@ -34,10 +30,8 @@ class ControlClient(object):
         self._read_buffer = lines.pop(-1)
         return [line.decode("utf8") for line in lines]
 
-
     def write_line(self, line: str):
         self._socket.send(("%s\n" % line).encode("utf8"))
-
 
     def disconnect(self):
         try:
@@ -51,23 +45,18 @@ class ControlClient(object):
 
 
 class Control(PollSource.PollSource):
-
-
     def __init__(self, bot: IRCBot.Bot, filename: str):
         self._bot = bot
-        #self._bot.log.hook(self._on_log)
+        # self._bot.log.hook(self._on_log)
 
         self._filename = filename
         self._socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self._clients: typing.Dict[int,
-                                   ControlClient] = {}
-
+        self._clients: typing.Dict[int, ControlClient] = {}
 
     def _on_log(self, levelno: int, line: str):
         for client in self._clients.values():
             if client.log_level is not None and client.log_level <= levelno:
                 self._send_action(client, "log", line)
-
 
     def bind(self):
         if os.path.exists(self._filename):
@@ -75,10 +64,8 @@ class Control(PollSource.PollSource):
         self._socket.bind(self._filename)
         self._socket.listen(1)
 
-
     def get_readables(self) -> typing.List[int]:
         return [self._socket.fileno()] + list(self._clients.keys())
-
 
     def is_readable(self, fileno: int):
         if fileno == self._socket.fileno():
@@ -95,7 +82,6 @@ class Control(PollSource.PollSource):
                 for line in lines:
                     response = self._parse_line(client, line)
 
-
     def _parse_line(self, client: ControlClient, line: str):
         id, _, command = line.partition(" ")
         command, _, data = command.partition(" ")
@@ -111,8 +97,8 @@ class Control(PollSource.PollSource):
 
         if command == "version":
             client.version = int(data)
-        #elif command == "log":
-        #client.log_level = Logging.LEVELS[data.lower()]
+        # elif command == "log":
+        # client.log_level = Logging.LEVELS[data.lower()]
         elif command == "rehash":
             log.info("Rehashing bot config")
             self._bot.config.load()
@@ -126,7 +112,11 @@ class Control(PollSource.PollSource):
             self._bot.stop()
         elif command == "command" and data:
             subcommand, _, data = data.partition(" ")
-            output = self._bot._events.on("control").on(subcommand).call_for_result(data=data)
+            output = (
+                self._bot._events.on("control")
+                .on(subcommand)
+                .call_for_result(data=data)
+            )
             if not output == None:
                 response_data = output
             keepalive = False
@@ -135,19 +125,14 @@ class Control(PollSource.PollSource):
         if not keepalive:
             client.disconnect()
 
-
     def _send_action(
-            self,
-            client: ControlClient,
-            action: str,
-            data: typing.Optional[str],
-            id: typing.Optional[str] = None
+        self,
+        client: ControlClient,
+        action: str,
+        data: typing.Optional[str],
+        id: typing.Optional[str] = None,
     ):
         try:
-            client.write_line(json.dumps({
-                "action": action,
-                "data":   data,
-                "id":     id
-            }))
+            client.write_line(json.dumps({"action": action, "data": data, "id": id}))
         except:
             pass

@@ -17,4 +17,6 @@ def add_server():
     realname = input("realname: ")
     bindhost = input("bindhost?: ")
 
-    return irc.IRCConnectionParameters(-1, alias, hostname, port, password, tls, bindhost, nickname, username, realname)
+    return irc.IRCConnectionParameters(
+        -1, alias, hostname, port, password, tls, bindhost, nickname, username, realname
+    )

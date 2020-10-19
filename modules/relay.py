@@ -1,25 +1,29 @@
-#--depends-on commands
-#--depends-on format_activity
-#--depends-on permissions
+# --depends-on commands
+# --depends-on format_activity
+# --depends-on permissions
 
 from src import EventManager, ModuleManager, utils
 
 
-@utils.export("channelset", utils.BoolSetting("relay-extras", "Whether or not to relay joins/parts/quits/modes/etc"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "relay-extras", "Whether or not to relay joins/parts/quits/modes/etc"
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("new.server")
     def new_server(self, event):
         event["server"]._relay_ignore = []
 
-
     def _get_relays(self, channel):
         return channel.get_setting("channel-relays", [])
 
-
     def _relay(self, event, channel):
-        if ("parsed_line" in event and event["parsed_line"].id in event["server"]._relay_ignore):
+        if (
+            "parsed_line" in event
+            and event["parsed_line"].id in event["server"]._relay_ignore
+        ):
             event["server"]._relay_ignore.remove(event["parsed_line"].id)
             return
 
@@ -42,28 +46,32 @@ class Module(ModuleManager.BaseModule):
                 if not relay_channel.name == channel.name:
                     relay_prefix_channel = channel.name
 
-                server_name = utils.irc.color(str(event["server"]), utils.consts.LIGHTBLUE)
+                server_name = utils.irc.color(
+                    str(event["server"]), utils.consts.LIGHTBLUE
+                )
                 server_name = "%s%s" % (server_name, utils.consts.RESET)
-                relay_message = "[%s%s] %s" % (server_name, relay_prefix_channel, event["minimal"])
+                relay_message = "[%s%s] %s" % (
+                    server_name,
+                    relay_prefix_channel,
+                    event["minimal"],
+                )
 
-                self.bot.trigger(self._send_factory(server, relay_channel.name, relay_message))
-
+                self.bot.trigger(
+                    self._send_factory(server, relay_channel.name, relay_message)
+                )
 
     def _send_factory(self, server, channel_name, message):
         def _():
             line = server.send_message(channel_name, message)
             server._relay_ignore.append(line.parsed_line.id)
 
-
         return _
-
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
     @utils.kwarg("priority", EventManager.PRIORITY_LOW)
     def formatted(self, event):
         self._relay(event, event["channel"])
-
 
     @utils.hook("formatted.join")
     @utils.hook("formatted.part")
@@ -81,7 +89,6 @@ class Module(ModuleManager.BaseModule):
             for channel in event["user"].channels:
                 if channel.get_setting("relay-extras", False):
                     self._relay(event, channel)
-
 
     @utils.hook("received.command.relaygroup")
     @utils.kwarg("help", "Edit configured relay groups")
@@ -120,7 +127,11 @@ class Module(ModuleManager.BaseModule):
             message = "Joined"
 
         elif event["spec"][0] == "leave":
-            if (not name in groups or not current_channel in groups[name] or not name in channel_groups):
+            if (
+                not name in groups
+                or not current_channel in groups[name]
+                or not name in channel_groups
+            ):
                 raise utils.EventError("Not in group '%s'" % name)
 
             groups[name].remove(current_channel)

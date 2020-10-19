@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 from src import ModuleManager, utils
 from src.Logging import Logger as log
@@ -7,13 +7,11 @@ from src.Logging import Logger as log
 class Module(ModuleManager.BaseModule):
     _name = "Filter"
 
-
     def _get_filters(self, server, target):
         filters = self.bot.get_setting("message-filters", [])
         filters.extend(server.get_setting("message-filters", []))
         filters.extend(target.get_setting("message-filters", []))
         return list(set(filters))
-
 
     @utils.hook("preprocess.send.privmsg")
     @utils.hook("preprocess.send.notice")
@@ -46,7 +44,6 @@ class Module(ModuleManager.BaseModule):
         if not message == original_message:
             event["line"].args[1] = message
 
-
     @utils.hook("received.command.cfilter", channel_only=True)
     @utils.hook("received.command.filter")
     @utils.hook("received.command.bfilter")
@@ -71,8 +68,13 @@ class Module(ModuleManager.BaseModule):
         if event["spec"][0] == "list":
             if event["spec"][1]:
                 if not len(filters) > event["spec"][1]:
-                    raise utils.EventError("Filter index %d doesn't exist" % event["spec"][1])
-                event["stdout"].write("Message filter %d: %s" % (event["spec"][1], filters[event["spec"][1]]))
+                    raise utils.EventError(
+                        "Filter index %d doesn't exist" % event["spec"][1]
+                    )
+                event["stdout"].write(
+                    "Message filter %d: %s"
+                    % (event["spec"][1], filters[event["spec"][1]])
+                )
             else:
                 s = ", ".join(f"({i}) {s}" for i, s in enumerate(filters))
                 event["stdout"].write("Message filters: %s" % s)

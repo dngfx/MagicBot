@@ -8,12 +8,10 @@ TAG = utils.irc.MessageTag(None, "draft/multiline-concat")
 
 @utils.export("cap", CAP)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("preprocess.send.privmsg")
     def preprocess_send_privmsg(self, event):
         if len(event["line"].args) > 1:
-            if ("\n" in event["line"].args[1] and event["server"].has_capability(CAP)):
+            if "\n" in event["line"].args[1] and event["server"].has_capability(CAP):
                 event["line"].invalidate()
 
                 target = event["line"].args[0]
@@ -24,7 +22,6 @@ class Module(ModuleManager.BaseModule):
                     batch.add_line(line)
                 for line in batch.get_lines():
                     event["server"].send(line)
-
 
     @utils.hook("received.batch.end")
     def batch_end(self, event):
@@ -42,4 +39,8 @@ class Module(ModuleManager.BaseModule):
 
             target = event["batch"].args[0]
             message = "\n".join(messages)
-            return [IRCLine.ParsedLine("PRIVMSG", [target, message], source=event["batch"].source)]
+            return [
+                IRCLine.ParsedLine(
+                    "PRIVMSG", [target, message], source=event["batch"].source
+                )
+            ]

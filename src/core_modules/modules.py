@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on permissions
+# --depends-on commands
+# --depends-on permissions
 
 from src import ModuleManager, utils
 
@@ -9,8 +9,6 @@ DO_NOT_RELOAD = ["rest_api"]
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _catch(self, name, func):
         try:
             return func()
@@ -22,7 +20,6 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Module '%s' not loaded: %s" % (name, str(warning)))
         except Exception as e:
             raise utils.EventError(("Failed to reload module '%s'" % (name)))
-
 
     @utils.hook("received.command.modinfo")
     @utils.spec("!<module>word")
@@ -45,14 +42,9 @@ class Module(ModuleManager.BaseModule):
             loaded_at = "%s (git @%s)" % (loaded_at, module.commit)
 
         event["stdout"].write(
-                "%s: '%s' was loaded at %s and has handled %d %s" %
-                (event["user"].nickname,
-                 module.name,
-                 loaded_at,
-                 event_calls,
-                 event_str)
+            "%s: '%s' was loaded at %s and has handled %d %s"
+            % (event["user"].nickname, module.name, loaded_at, event_calls, event_str)
         )
-
 
     @utils.hook("received.command.loadmodule")
     @utils.kwarg("help", "Load a module")
@@ -67,7 +59,6 @@ class Module(ModuleManager.BaseModule):
         self._catch(name, lambda: self.bot.modules.load_module(self.bot, definition))
         event["stdout"].write("Loaded '%s'" % name)
 
-
     @utils.hook("received.command.unloadmodule")
     @utils.kwarg("help", "Unload a module")
     @utils.kwarg("permission", "unloadmodule")
@@ -80,7 +71,6 @@ class Module(ModuleManager.BaseModule):
         self._catch(name, lambda: self.bot.modules.unload_module(name))
         event["stdout"].write("Unloaded '%s'" % name)
 
-
     @utils.hook("received.command.reloadmodule")
     @utils.kwarg("help", "Reload a module")
     @utils.kwarg("permission", "reloadmodule")
@@ -89,11 +79,13 @@ class Module(ModuleManager.BaseModule):
         name = event["spec"][0]
         if name in DO_NOT_RELOAD:
             module_name = DO_NOT_RELOAD[DO_NOT_RELOAD.index(name)]
-            event["stderr"].write("Cannot reload %s due to compatibility issues. Please restart the bot." % module_name)
+            event["stderr"].write(
+                "Cannot reload %s due to compatibility issues. Please restart the bot."
+                % module_name
+            )
             return
         self._catch(name, lambda: self.bot.modules.try_reload_module(self.bot, name))
         event["stdout"].write("Reloaded '%s'" % name)
-
 
     @utils.hook("received.command.reloadallmodules")
     @utils.kwarg("help", "Reload all modules")
@@ -105,16 +97,13 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write(result.message)
 
-
     def _get_blacklist(self):
         config = self.bot.get_config("modules")
         return config, config.get_list("blacklist")
 
-
     def _save_blacklist(self, config, modules):
         config.set_list("blacklist", sorted(modules))
         config.save()
-
 
     @utils.hook("received.command.enablemodule")
     @utils.kwarg("min_args", 1)
@@ -130,8 +119,9 @@ class Module(ModuleManager.BaseModule):
 
         blacklist.remove(name)
         self._save_blacklist(config, blacklist)
-        event["stdout"].write("Module '%s' has been enabled and can now " "be loaded" % name)
-
+        event["stdout"].write(
+            "Module '%s' has been enabled and can now " "be loaded" % name
+        )
 
     @utils.hook("received.command.disablemodule")
     @utils.kwarg("min_args", 1)

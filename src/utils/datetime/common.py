@@ -40,7 +40,9 @@ def utcnow() -> _datetime.datetime:
 
 
 def timestamp(seconds: float) -> _datetime.datetime:
-    return _datetime.datetime.fromtimestamp(seconds).replace(tzinfo=_datetime.timezone.utc)
+    return _datetime.datetime.fromtimestamp(seconds).replace(
+        tzinfo=_datetime.timezone.utc
+    )
 
 
 def seconds_since(dt: _datetime.datetime) -> float:

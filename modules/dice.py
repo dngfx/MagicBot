@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import random
 import re
@@ -15,8 +15,6 @@ MAX_SIDES = 100
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.roll")
     @utils.hook("received.command.dice", alias_of="roll")
     @utils.kwarg("help", "Roll dice DND-style")

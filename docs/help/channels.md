@@ -12,12 +12,4 @@ or
 
 > /msg &lt;bot> raw JOIN #channel :&lt;password here>
 
-After using either of these to get MagicBot initially in to a channel, he will go about recording and updating the channel's key as described above.
-
-### Disabling join-on-invite
-> /msg &lt;bot> config server accept-invites off
-
-### Perform commands on join
-From the channel you wish him to perform commands for, do:
-
-> !cperform add PRIVMSG {CHAN} :hello, I'm {NICK}
+After using either of these to get MagicBot initially in to a cha

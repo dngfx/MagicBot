@@ -23,7 +23,9 @@ def date_human(s: str):
         return None
 
 
-REGEX_PRETTYTIME = re.compile(r"(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?", re.I)
+REGEX_PRETTYTIME = re.compile(
+    r"(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?", re.I
+)
 
 
 def from_pretty_time(pretty_time: str) -> typing.Optional[int]:

@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import re
 import socket
@@ -20,14 +20,26 @@ def _parse(value):
     return None
 
 
-@utils.export("botset",
-              utils.BoolSetting("configurable-nameservers",
-                                "Whether or not users can configure their own nameservers"))
-@utils.export("serverset", utils.FunctionSetting(_parse, "dns-nameserver", "Set DNS nameserver", example="8.8.8.8"))
-@utils.export("channelset", utils.FunctionSetting(_parse, "dns-nameserver", "Set DNS nameserver", example="8.8.8.8"))
+@utils.export(
+    "botset",
+    utils.BoolSetting(
+        "configurable-nameservers",
+        "Whether or not users can configure their own nameservers",
+    ),
+)
+@utils.export(
+    "serverset",
+    utils.FunctionSetting(
+        _parse, "dns-nameserver", "Set DNS nameserver", example="8.8.8.8"
+    ),
+)
+@utils.export(
+    "channelset",
+    utils.FunctionSetting(
+        _parse, "dns-nameserver", "Set DNS nameserver", example="8.8.8.8"
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.dig", alias_of="dns")
     @utils.hook("received.command.dns", min_args=1)
     def dns(self, event):
@@ -39,9 +51,9 @@ class Module(ModuleManager.BaseModule):
         args = event["args_split"][:]
         nameserver = None
         if self.bot.get_setting("configurable-nameservers", True):
-            nameserver = event["target"].get_setting("dns-nameserver",
-                                                     event["server"].get_setting("dns-nameserver",
-                                                                                 None))
+            nameserver = event["target"].get_setting(
+                "dns-nameserver", event["server"].get_setting("dns-nameserver", None)
+            )
             for i, arg in enumerate(args):
                 if arg[0] == "@":
                     nameserver = args.pop(i)[1:]
@@ -66,12 +78,16 @@ class Module(ModuleManager.BaseModule):
             try:
                 query_result = resolver.resolve(hostname, record_type_strip, lifetime=4)
                 query_results = [q.to_text() for q in query_result]
-                results.append([record_type_strip, query_result.rrset.ttl, query_results])
+                results.append(
+                    [record_type_strip, query_result.rrset.ttl, query_results]
+                )
             except dns.resolver.NXDOMAIN:
                 raise utils.EventError("Domain not found")
             except dns.resolver.NoAnswer:
                 if not record_type.endswith("?"):
-                    raise utils.EventError("Domain does not have a '%s' record" % record_type_strip)
+                    raise utils.EventError(
+                        "Domain does not have a '%s' record" % record_type_strip
+                    )
             except dns.rdatatype.UnknownRdatatype:
                 raise utils.EventError("Unknown record type '%s'" % record_type_strip)
             except dns.exception.DNSException:
@@ -79,9 +95,10 @@ class Module(ModuleManager.BaseModule):
                 log.warn(message)
                 raise utils.EventError(message)
 
-        results_str = ["%s (TTL %s): %s" % (t, ttl, ", ".join(r)) for t, ttl, r in results]
+        results_str = [
+            "%s (TTL %s): %s" % (t, ttl, ", ".join(r)) for t, ttl, r in results
+        ]
         event["stdout"].write("(%s) %s" % (hostname, " | ".join(results_str)))
-
 
     @utils.hook("received.command.geoip", min_args=1)
     def geoip(self, event):
@@ -105,7 +122,6 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No geoip data found")
         else:
             raise utils.EventResultsError()
-
 
     @utils.hook("received.command.rdns")
     def rdns(self, event):

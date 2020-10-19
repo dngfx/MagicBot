@@ -8,14 +8,16 @@ def _parse(value):
     return None
 
 
-@utils.export("serverset",
-              utils.FunctionSetting(_parse,
-                                    "throttle",
-                                    "Configure lines:seconds throttle for the current server",
-                                    example="4:2"))
+@utils.export(
+    "serverset",
+    utils.FunctionSetting(
+        _parse,
+        "throttle",
+        "Configure lines:seconds throttle for the current server",
+        example="4:2",
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.001")
     def connect(self, event):
         throttle = event["server"].get_setting("throttle", None)

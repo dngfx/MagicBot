@@ -5,15 +5,12 @@ CAP = utils.irc.Capability(None, "draft/metadata", alias="metadata")
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.cap.new")
     @utils.hook("received.cap.ls")
     def on_cap(self, event):
         cap = CAP.copy()
         cap.on_ack(lambda: self._ack(event["server"]))
         return cap
-
 
     def _ack(self, server):
         url = self.bot.get_setting("bot-url", IRCBot.SOURCE)

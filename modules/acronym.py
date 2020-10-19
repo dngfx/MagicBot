@@ -5,8 +5,6 @@ API = "http://acronyms.silmaril.ie/cgi-bin/xaa?%s"
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.acronym")
     @utils.kwarg("min_args", 1)
     @utils.kwarg("help", "Find possible acronym meanings")
@@ -20,6 +18,8 @@ class Module(ModuleManager.BaseModule):
             acronyms.append(element.expan.string)
 
         if acronyms:
-            event["stdout"].write("%s: %s" % (utils.irc.bold(query), ", ".join(acronyms)))
+            event["stdout"].write(
+                "%s: %s" % (utils.irc.bold(query), ", ".join(acronyms))
+            )
         else:
             raise utils.EventResultsError()

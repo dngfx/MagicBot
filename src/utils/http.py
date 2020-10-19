@@ -56,22 +56,16 @@ class HTTPException(Exception):
 
 
 class HTTPTimeoutException(HTTPException):
-
-
     def __init__(self):
         Exception.__init__(self, "HTTP request timed out")
 
 
 class HTTPParsingException(HTTPException):
-
-
     def __init__(self, message: str, data: str):
         Exception.__init__(self, "%s\n%s" % ((message or "HTTP parsing failed"), data))
 
 
 class HTTPWrongContentTypeException(HTTPException):
-
-
     def __init__(self, message: str = None):
         Exception.__init__(self, message or "HTTP request gave wrong content type")
 
@@ -102,12 +96,10 @@ class Request(object):
 
     timeout: int = 5
 
-
     def validate(self):
         self.id = self.id or str(uuid.uuid4())
         self.set_url(self.url)
         self.method = self.method.upper()
-
 
     def set_url(self, url: str):
         parts = urllib.parse.urlparse(url)
@@ -119,8 +111,7 @@ class Request(object):
         query = "" if not parts.query else ("?%s" % parts.query)
         fragment = "" if not parts.fragment else ("#%s" % parts.fragment)
 
-        self.url = (f"{parts.scheme}://{netloc}{parts.path}{params}{query}{fragment}")
-
+        self.url = f"{parts.scheme}://{netloc}{parts.path}{params}{query}{fragment}"
 
     def get_headers(self) -> typing.Dict[str, str]:
         headers = self.headers.copy()
@@ -131,7 +122,6 @@ class Request(object):
         if not "Content-Type" in headers and self.content_type:
             headers["Content-Type"] = self.content_type
         return headers
-
 
     def get_body(self) -> typing.Any:
         if not self.post_data == None:
@@ -144,17 +134,13 @@ class Request(object):
 
 
 class Response(object):
-
-
     def __init__(
-            self,
-            code: int,
-            data: bytes,
-            encoding: str,
-            headers: typing.Dict[str,
-                                 str],
-            cookies: typing.Dict[str,
-                                 str]
+        self,
+        code: int,
+        data: bytes,
+        encoding: str,
+        headers: typing.Dict[str, str],
+        cookies: typing.Dict[str, str],
     ):
         self.code = code
         self.data = data
@@ -163,14 +149,11 @@ class Response(object):
         self.headers = headers
         self.cookies = cookies
 
-
     def decode(self, encoding: typing.Optional[str] = None) -> str:
         return self.data.decode(encoding or self.encoding)
 
-
     def json(self) -> typing.Any:
         return _json.loads(self.data)
-
 
     def soup(self, parser: str = "html5lib") -> bs4.BeautifulSoup:
         return bs4.BeautifulSoup(self.decode(), parser)
@@ -196,8 +179,9 @@ def _find_encoding(headers: typing.Dict[str, str], data: bytes) -> typing.Option
         if not meta_charset == None:
             return meta_charset
 
-        meta_content_type = soup.findAll("meta",
-                                         {"http-equiv": lambda v: (v or "").lower() == "content-type"})
+        meta_content_type = soup.findAll(
+            "meta", {"http-equiv": lambda v: (v or "").lower() == "content-type"}
+        )
         if meta_content_type:
             meta_content = _split_content(meta_content_type[0].get("content"))
             if "charset" in meta_content:
@@ -219,18 +203,17 @@ def request(request_obj: typing.Union[str, Request], **kwargs) -> Response:
 def _request(request_obj: Request) -> Response:
     request_obj.validate()
 
-
     def _wrap() -> Response:
         headers = request_obj.get_headers()
         response = requests.request(
-                request_obj.method,
-                request_obj.url,
-                headers=headers,
-                params=request_obj.get_params,
-                data=request_obj.get_body(),
-                allow_redirects=request_obj.allow_redirects,
-                stream=True,
-                cookies=request_obj.cookies
+            request_obj.method,
+            request_obj.url,
+            headers=headers,
+            params=request_obj.get_params,
+            data=request_obj.get_body(),
+            allow_redirects=request_obj.allow_redirects,
+            stream=True,
+            cookies=request_obj.cookies,
         )
         response_content = response.raw.read(RESPONSE_MAX, decode_content=True)
         if not response.raw.read(1) == b"":
@@ -238,14 +221,13 @@ def _request(request_obj: Request) -> Response:
 
         headers = utils.CaseInsensitiveDict(dict(response.headers))
         our_response = Response(
-                response.status_code,
-                response_content,
-                encoding=response.encoding,
-                headers=headers,
-                cookies=response.cookies.get_dict()
+            response.status_code,
+            response_content,
+            encoding=response.encoding,
+            headers=headers,
+            cookies=response.cookies.get_dict(),
         )
         return our_response
-
 
     try:
         response = utils.deadline_process(_wrap, seconds=request_obj.timeout)
@@ -260,7 +242,7 @@ def _request(request_obj: Request) -> Response:
         else:
             encoding = "iso-8859-1"
 
-    if (response.content_type and response.content_type in SOUP_CONTENT_TYPES):
+    if response.content_type and response.content_type in SOUP_CONTENT_TYPES:
         encoding = _find_encoding(response.headers, response.data) or encoding
     response.encoding = encoding
 
@@ -268,20 +250,14 @@ def _request(request_obj: Request) -> Response:
 
 
 class Session(object):
-
-
     def __init__(self):
-        self._cookies: typing.Dict[str,
-                                   str] = {}
-
+        self._cookies: typing.Dict[str, str] = {}
 
     def __enter__(self):
         pass
 
-
     def __exit__(self):
         self._cookies.clear()
-
 
     def request(self, request: Request) -> Response:
         request.cookies.update(self._cookies)
@@ -297,7 +273,6 @@ class RequestManyException(Exception):
 def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
     responses = {}
 
-
     async def _request(request):
         request.validate()
         client = tornado.httpclient.AsyncHTTPClient()
@@ -306,13 +281,13 @@ def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
             url = "%s?%s" % (url, urllib.parse.urlencode(request.get_params))
 
         t_request = tornado.httpclient.HTTPRequest(
-                request.url,
-                connect_timeout=2,
-                request_timeout=2,
-                method=request.method,
-                body=request.get_body(),
-                headers=request.get_headers(),
-                follow_redirects=request.allow_redirects,
+            request.url,
+            connect_timeout=2,
+            request_timeout=2,
+            method=request.method,
+            body=request.get_body(),
+            headers=request.get_headers(),
+            follow_redirects=request.allow_redirects,
         )
 
         try:
@@ -322,12 +297,9 @@ def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
 
         headers = utils.CaseInsensitiveDict(dict(response.headers))
         encoding = _find_encoding(headers, response.body) or "utf8"
-        responses[request.id] = Response(response.code,
-                                         response.body,
-                                         encoding,
-                                         headers,
-                                         {})
-
+        responses[request.id] = Response(
+            response.code, response.body, encoding, headers, {}
+        )
 
     loop = asyncio.new_event_loop()
     awaits = []
@@ -374,7 +346,9 @@ def host_permitted(hostname: str) -> bool:
     for interface in netifaces.interfaces():
         links = netifaces.ifaddresses(interface)
 
-        for link in links.get(netifaces.AF_INET, []) + links.get(netifaces.AF_INET6, []):
+        for link in links.get(netifaces.AF_INET, []) + links.get(
+            netifaces.AF_INET6, []
+        ):
             address = ipaddress.ip_address(link["addr"].split("%", 1)[0])
             if address in ips and str(address) != "139.162.246.127":
                 return False
@@ -382,7 +356,7 @@ def host_permitted(hostname: str) -> bool:
         if ip.version == 6 and ip.ipv4_mapped:
             ip = ip.ipv4_mapped
 
-        if (ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_private):
+        if ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_private:
             return False
 
     return True

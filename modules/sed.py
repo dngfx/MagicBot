@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 import re
 import traceback
@@ -11,15 +11,18 @@ REGEX_SED = re.compile("^(?:(\\S+)[:,] )?s/")
 
 
 @utils.export("channelset", utils.BoolSetting("sed", "Disable/Enable sed in a channel"))
-@utils.export("channelset",
-              utils.BoolSetting("sed-sender-only",
-                                "Disable/Enable sed only looking at the messages sent by the user"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "sed-sender-only",
+        "Disable/Enable sed only looking at the messages sent by the user",
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     def _closest_setting(self, event, setting, default):
-        return event["target"].get_setting(setting, event["server"].get_setting(setting, default))
-
+        return event["target"].get_setting(
+            setting, event["server"].get_setting(setting, default)
+        )
 
     @utils.hook("command.regex")
     @utils.kwarg("command", "sed")

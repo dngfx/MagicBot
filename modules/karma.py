@@ -1,9 +1,10 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
 
 import re
 import time
+import ircstyle
 
 from src import EventManager, ModuleManager, utils
 
@@ -15,10 +16,11 @@ REGEX_WORD_START = re.compile(r"^(\+\+|--)(?:\s*)([^(\s,:]+)\s*$")
 REGEX_PARENS = re.compile(r"\(([^)]+)\)(\+\+|--)")
 
 
-@utils.export("channelset", utils.BoolSetting("karma-pattern", "Enable/disable parsing ++/-- karma format"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting("karma-pattern", "Enable/disable parsing ++/-- karma format"),
+)
 class Module(ModuleManager.BaseModule):
-
-
     def _karma_str(self, karma):
         karma_str = str(karma)
         if karma < 0:
@@ -28,25 +30,29 @@ class Module(ModuleManager.BaseModule):
         else:
             return utils.irc.color(str(karma), utils.consts.YELLOW)
 
-
     @utils.hook("new.user")
     def new_user(self, event):
         event["user"]._last_positive_karma = None
         event["user"]._last_negative_karma = None
 
-
     def _check_throttle(self, user, positive):
         bypass_throttle = user.get_setting("permissions", None)
-        #if bypass_throttle != None and "*" in bypass_throttle:
-            #return [True, KARMA_DELAY_SECONDS]
+        # if bypass_throttle != None and "*" in bypass_throttle:
+        # return [True, KARMA_DELAY_SECONDS]
 
         timestamp = None
         if positive:
             timestamp = user._last_positive_karma
         else:
             timestamp = user._last_negative_karma
-        return [(timestamp == None or (time.time() - timestamp) >= KARMA_DELAY_SECONDS), (KARMA_DELAY_SECONDS if timestamp is None else (KARMA_DELAY_SECONDS - int(time.time()-timestamp)))]
-
+        return [
+            (timestamp == None or (time.time() - timestamp) >= KARMA_DELAY_SECONDS),
+            (
+                KARMA_DELAY_SECONDS
+                if timestamp is None
+                else (KARMA_DELAY_SECONDS - int(time.time() - timestamp))
+            ),
+        ]
 
     def _set_throttle(self, user, positive):
         if positive:
@@ -54,16 +60,24 @@ class Module(ModuleManager.BaseModule):
         else:
             user._last_negative_karma = time.time()
 
-
     def _get_target(self, server, target):
         target = target.strip()
         if not " " in target and server.has_user(target):
             return server.get_user_nickname(server.get_user(target).get_id())
         return target.lower()
 
+    def _strip(self, text):
+        return utils.irc.strip_all(text)
 
     def _change_karma(self, server, sender, target, positive):
-        throttle, wait = self._check_throttle(sender, positive)
+        target = self._strip(target)
+        if len(target) is 0:
+            return (
+                False,
+                "You need to enter a positive number of non-stripped characters",
+            )
+
+        throttle, wait = self._check_throttle(user=sender, positive=positive)
         print(throttle, wait)
         if not throttle:
             return False, "Try again in about %d seconds" % wait
@@ -92,8 +106,12 @@ class Module(ModuleManager.BaseModule):
 
         karma_total = self._karma_str(self._get_karma(server, target))
 
-        return True, "%s now has %s karma (%s from %s)" % (nick, karma_total, karma_str, sender.nickname)
-
+        return True, "%s now has %s karma (%s from %s)" % (
+            nick,
+            karma_total,
+            karma_str,
+            sender.nickname,
+        )
 
     @utils.hook("received.command.setkarma")
     @utils.kwarg("min_args", 2)
@@ -110,7 +128,6 @@ class Module(ModuleManager.BaseModule):
 
         event["stdout"].write("Set %s karma to %s" % (karma_text, amount))
 
-
     @utils.hook("command.regex", pattern=REGEX_WORD)
     @utils.hook("command.regex", pattern=REGEX_PARENS)
     @utils.kwarg("command", "karma")
@@ -122,9 +139,10 @@ class Module(ModuleManager.BaseModule):
 
             target = event["match"].group(1)
             positive = event["match"].group(2) == "++"
-            success, message = self._change_karma(event["server"], event["user"], target, positive)
+            success, message = self._change_karma(
+                event["server"], event["user"], target, positive
+            )
             event["stdout" if success else "stderr"].write(message)
-
 
     @utils.hook("command.regex", pattern=REGEX_WORD_START)
     @utils.kwarg("command", "karma")
@@ -132,7 +150,9 @@ class Module(ModuleManager.BaseModule):
         if event["target"].get_setting("karma-pattern", False):
             target = event["match"].group(2)
             positive = event["match"].group(1) == "++"
-            success, message = self._change_karma(event["server"], event["user"], target, positive)
+            success, message = self._change_karma(
+                event["server"], event["user"], target, positive
+            )
             event["stdout" if success else "stderr"].write(message)
 
     @utils.hook("received.command.karma+", alias_of="addpoint")
@@ -146,9 +166,10 @@ class Module(ModuleManager.BaseModule):
             positive = True
         else:
             positive = False
-        success, message = self._change_karma(event["server"], event["user"], event["spec"][0], positive)
+        success, message = self._change_karma(
+            event["server"], event["user"], event["spec"][0], positive
+        )
         event["stdout" if success else "stderr"].write(message)
-
 
     @utils.hook("received.command.karma")
     def karma(self, event):
@@ -163,14 +184,15 @@ class Module(ModuleManager.BaseModule):
 
         target = self._strip(target)
         if not target:
-            event["stderr"].write("You need to enter a positive number of non-stripped characters")
+            event["stderr"].write(
+                "You need to enter a positive number of non-stripped characters"
+            )
             return
 
         target = self._get_target(event["server"], target)
         karma = self._karma_str(self._get_karma(event["server"], target))
 
         event["stdout"].write("%s has %s karma" % (target, karma))
-
 
     def _get_karma(self, server, target):
         settings = dict(server.get_all_user_settings("karma-%s" % target))
@@ -180,7 +202,6 @@ class Module(ModuleManager.BaseModule):
             del settings[target_lower]
 
         return sum(settings.values())
-
 
     @utils.hook("received.command.resetkarma")
     @utils.kwarg("min_args", 2)
@@ -216,7 +237,6 @@ class Module(ModuleManager.BaseModule):
         else:
             raise utils.EventError("Unknown subcommand '%s'" % subcommand)
 
-
     @utils.hook("received.command.topkarma", channel_only=True)
     @utils.kwarg("help", "Show top 10 people with karma in the channel")
     def topkarma(self, event):
@@ -238,7 +258,12 @@ class Module(ModuleManager.BaseModule):
 
     def _get_all_karma(self, event, order):
         order = "AND value > 0" if order is True else "AND value < 0"
-        return self.bot.database.execute_fetchall(("SELECT user_id, setting, value from user_settings WHERE setting LIKE 'karma-%%' %s" % order))
+        return self.bot.database.execute_fetchall(
+            (
+                "SELECT user_id, setting, value from user_settings WHERE setting LIKE 'karma-%%' %s"
+                % order
+            )
+        )
 
     def _top_karma_stats(self, server, target, order):
         sort_order = "Highest" if order is True else "Lowest"
@@ -255,7 +280,11 @@ class Module(ModuleManager.BaseModule):
             else:
                 karma_stats[karma_name] = amount
 
-        sort_karma = utils.top_10(karma_stats, convert_key=lambda n: utils.irc.bold(n), value_format=lambda n: utils.irc.color(n, color))
+        sort_karma = utils.top_10(
+            karma_stats,
+            convert_key=lambda n: utils.irc.bold(n),
+            value_format=lambda n: utils.irc.color(n, color),
+        )
 
-        #top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
+        # top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
         return "%s karma: %s" % (sort_order, ", ".join(sort_karma))

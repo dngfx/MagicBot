@@ -7,14 +7,12 @@ SETTING = "cron-reminders"
 class Module(ModuleManager.BaseModule):
     _name = "cron"
 
-
     @utils.hook("cron")
     def cron(self, event):
         try:
             self._catch_cron(event["schedule"])
         except Exception as e:
             log.error("Failed to call cron reminders: %s", [str(e)], exc_info=True)
-
 
     def _catch_cron(self, schedule_check):
         all = []
@@ -38,7 +36,6 @@ class Module(ModuleManager.BaseModule):
         for target, nickname, text in all:
             target.send_message("%s, reminder: %s" % (nickname, text))
 
-
     @utils.hook("received.command.cron")
     @utils.kwarg("permission", "cron")
     @utils.spec("!'add !<schedule>word !<reminder>string")
@@ -53,11 +50,13 @@ class Module(ModuleManager.BaseModule):
 
         elif event["spec"][0] == "remove":
             if len(r) <= event["spec"][1]:
-                raise utils.EventError("%s: invalid index (max %d)" % (event["user"].nickname, len(r) - 1))
+                raise utils.EventError(
+                    "%s: invalid index (max %d)" % (event["user"].nickname, len(r) - 1)
+                )
             schedule, text = r.pop(event["spec"][1])
-            event["stdout"].write("%s: removed reminder %d: %s (%s)" % (event["user"].nickname,
-                                                                        event["spec"][1],
-                                                                        schedule,
-                                                                        text))
+            event["stdout"].write(
+                "%s: removed reminder %d: %s (%s)"
+                % (event["user"].nickname, event["spec"][1], schedule, text)
+            )
 
         event["target"].set_user_setting(user_id, SETTING, r)

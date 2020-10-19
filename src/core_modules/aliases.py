@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 from src import ModuleManager, utils
 
 
@@ -6,8 +6,6 @@ SETTING_PREFIX = "command-alias-"
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _arg_replace(self, s, args_split, kwargs):
         vars = {}
         for i in range(len(args_split)):
@@ -17,15 +15,15 @@ class Module(ModuleManager.BaseModule):
         vars.update(kwargs)
         return utils.parse.format_token_replace(s, vars)
 
-
     def _get_alias(self, server, target, command):
         setting = "%s%s" % (SETTING_PREFIX, command)
-        command = self.bot.get_setting(setting, server.get_setting(setting, target.get_setting(setting, None)))
+        command = self.bot.get_setting(
+            setting, server.get_setting(setting, target.get_setting(setting, None))
+        )
         if not command == None:
             command, _, args = command.partition(" ")
             return command, args
         return None
-
 
     def _get_aliases(self, targets):
         alias_list = []
@@ -39,10 +37,11 @@ class Module(ModuleManager.BaseModule):
                 aliases[alias] = command
         return aliases
 
-
     @utils.hook("get.command")
     def get_command(self, event):
-        alias = self._get_alias(event["server"], event["target"], event["command"].command)
+        alias = self._get_alias(
+            event["server"], event["target"], event["command"].command
+        )
         if not alias == None:
             alias, alias_args = alias
 
@@ -51,12 +50,15 @@ class Module(ModuleManager.BaseModule):
                 given_args = event["command"].args.split(" ")
 
             event["command"].command = alias
-            event["command"].args = self._arg_replace(alias_args, given_args, event["kwargs"])
-
+            event["command"].args = self._arg_replace(
+                alias_args, given_args, event["kwargs"]
+            )
 
     @utils.hook("received.command.alias", permission="alias")
     @utils.hook("received.command.balias", permission="balias")
-    @utils.hook("received.command.calias", require_mode="o", require_access="high,alias")
+    @utils.hook(
+        "received.command.calias", require_mode="o", require_access="high,alias"
+    )
     @utils.spec("!'list ?<alias>wordlower")
     @utils.spec("!'add !<alias>wordlower !<command>wordlower ?<args>string")
     @utils.spec("!'remove !<alias>wordlower")
@@ -65,7 +67,9 @@ class Module(ModuleManager.BaseModule):
         target = event["server"]
         if event["command"] == "calias":
             if not event["is_channel"]:
-                raise utils.EventError("%scalias can only be used in-channel" % event["command_prefix"])
+                raise utils.EventError(
+                    "%scalias can only be used in-channel" % event["command_prefix"]
+                )
             target = event["target"]
         elif event["command"] == "balias":
             target = self.bot
@@ -82,7 +86,9 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write(f"{prefix}{alias}: {prefix}{setting}")
             else:
                 aliases = self._get_aliases([target])
-                event["stdout"].write("Available aliases: %s" % ", ".join(sorted(aliases.keys())))
+                event["stdout"].write(
+                    "Available aliases: %s" % ", ".join(sorted(aliases.keys()))
+                )
 
         elif subcommand == "add":
             command = event["spec"][2].lower()

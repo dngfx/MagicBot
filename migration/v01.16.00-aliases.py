@@ -14,8 +14,10 @@ import json, sqlite3
 database = sqlite3.connect(args.database)
 
 cursor = database.cursor()
-cursor.execute("""SELECT server_id, value FROM server_settings
-       WHERE setting='command-aliases'""")
+cursor.execute(
+    """SELECT server_id, value FROM server_settings
+       WHERE setting='command-aliases'"""
+)
 results = cursor.fetchall()
 
 cursor.execute("SELECT server_id, alias FROM servers")
@@ -25,10 +27,10 @@ for server_id, value in results:
     aliases = json.loads(value)
     for alias, command in aliases.items():
         print("[%s] Migrating '%s' ('%s')" % (servers[server_id], alias, command))
-        cursor.execute("INSERT INTO server_settings VALUES (?, ?, ?)",
-                       [server_id,
-                        "command-alias-%s" % alias,
-                        json.dumps(command)])
+        cursor.execute(
+            "INSERT INTO server_settings VALUES (?, ?, ?)",
+            [server_id, "command-alias-%s" % alias, json.dumps(command)],
+        )
 database.commit()
 database.close()
 

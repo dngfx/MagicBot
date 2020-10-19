@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on permissions
+# --depends-on commands
+# --depends-on permissions
 
 import time
 
@@ -10,8 +10,6 @@ SILENCE_TIME = 60 * 5  # 5 minutes
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _is_silenced(self, target):
         silence_until = target.get_setting("silence-until", None)
         if not silence_until == None:
@@ -21,9 +19,11 @@ class Module(ModuleManager.BaseModule):
                 target.del_setting("silence-until")
         return False
 
-
     @utils.hook("received.command.silence")
-    @utils.kwarg("help", "Prevent me saying anything for a period of time " "(default: 5 minutes)")
+    @utils.kwarg(
+        "help",
+        "Prevent me saying anything for a period of time " "(default: 5 minutes)",
+    )
     @utils.kwarg("require_mode", "high")
     @utils.kwarg("require_access", "low,silence")
     @utils.kwarg("permission", "silence")
@@ -33,7 +33,6 @@ class Module(ModuleManager.BaseModule):
         silence_until = time.time() + duration
         event["target"].set_setting("silence-until", silence_until)
         event["stdout"].write("Ok, I'll be back")
-
 
     @utils.hook("received.command.unsilence")
     @utils.kwarg("help", "Unsilence me")
@@ -50,7 +49,6 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("I am not silenced")
 
-
     @utils.hook("preprocess.command", priority=EventManager.PRIORITY_HIGH)
     def preprocess_command(self, event):
         if event["is_channel"] and not event["hook"].get_kwarg("unsilence", False):
@@ -58,7 +56,6 @@ class Module(ModuleManager.BaseModule):
             if silence_until:
                 if self._is_silenced(event["target"]):
                     return utils.consts.PERMISSION_HARD_FAIL, None
-
 
     @utils.hook("unknown.command")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)

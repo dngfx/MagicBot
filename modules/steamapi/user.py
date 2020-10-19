@@ -1,7 +1,7 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
-#--require-config steam-api-key
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
+# --require-config steam-api-key
 
 import re
 
@@ -61,7 +61,9 @@ def get_id_from_url(url, api):
 
         return SteamID(steam_id)
 
-    steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)["response"]
+    steam_id = api.call("ISteamUser.ResolveVanityURL", vanityurl=url, url_type=1)[
+        "response"
+    ]
 
     if steam_id["success"] == 42:
         return consts.NO_STEAMID
@@ -81,7 +83,9 @@ def get_id_from_nick(event, nick, api):
     steam_id = user.get_setting("steamid", None)
 
     if steam_id == None:
-        event["stderr"].write(("%s does not have a steam account associated with their account" % nick))
+        event["stderr"].write(
+            ("%s does not have a steam account associated with their account" % nick)
+        )
         return consts.NO_STEAMID
 
     check = str(steam_id)

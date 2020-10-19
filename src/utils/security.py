@@ -7,7 +7,9 @@ import ssl
 import typing
 
 
-def ssl_context(cert: str = None, key: str = None, verify: bool = True) -> ssl.SSLContext:
+def ssl_context(
+    cert: str = None, key: str = None, verify: bool = True
+) -> ssl.SSLContext:
     context = ssl.SSLContext(ssl.PROTOCOL_TLS)
     context.options |= ssl.OP_NO_SSLv2
     context.options |= ssl.OP_NO_SSLv3
@@ -22,12 +24,14 @@ def ssl_context(cert: str = None, key: str = None, verify: bool = True) -> ssl.S
     return context
 
 
-def ssl_wrap(sock: socket.socket,
-             cert: str = None,
-             key: str = None,
-             verify: bool = True,
-             server_side: bool = False,
-             hostname: str = None) -> ssl.SSLSocket:
+def ssl_wrap(
+    sock: socket.socket,
+    cert: str = None,
+    key: str = None,
+    verify: bool = True,
+    server_side: bool = False,
+    hostname: str = None,
+) -> ssl.SSLSocket:
     context = ssl_context(cert=cert, key=key, verify=verify)
     return context.wrap_socket(sock, server_side=server_side, server_hostname=hostname)
 
@@ -67,10 +71,13 @@ def rsa_encrypt(key_filename: str, data: bytes) -> str:
         key_content = key_file.read()
     key = serialization.load_pem_public_key(key_content, backend=default_backend())
     out = key.encrypt(
-            data,
-            a_padding.OAEP(mgf=a_padding.MGF1(algorithm=hashes.SHA256()),
-                           algorithm=hashes.SHA256(),
-                           label=None))
+        data,
+        a_padding.OAEP(
+            mgf=a_padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None,
+        ),
+    )
     return base64.b64encode(out).decode("latin-1")
 
 
@@ -87,7 +94,9 @@ def aes_encrypt(key: bytes, data: str) -> str:
     padder = padding.PKCS7(256).padder()
 
     data_bytes = padder.update(data.encode("utf8")) + padder.finalize()
-    encryptor = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend()).encryptor()
+    encryptor = Cipher(
+        algorithms.AES(key), modes.CBC(iv), backend=default_backend()
+    ).encryptor()
 
     ct = encryptor.update(data_bytes) + encryptor.finalize()
     return base64.b64encode(iv + ct).decode("latin-1")

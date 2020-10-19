@@ -1,7 +1,7 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
-#--require-config steam-api-key
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
+# --require-config steam-api-key
 
 import datetime
 
@@ -29,7 +29,7 @@ def short_user_summary(event, **kwargs):
         steam_name,
         utils.irc.bold(display_name),
         utils.irc.bold(status),
-        utils.irc.bold(profile_url)
+        utils.irc.bold(profile_url),
     )
 
     return message
@@ -42,21 +42,26 @@ def extended_user_summary(event, **kwargs):
     steam_name = bold(names["steam"])
     display_name = names["display"]
     status_kwarg = fmt["status"]
-    status = ("Status: %s" % bold(status_kwarg))
+    status = "Status: %s" % bold(status_kwarg)
     visibility_kwarg = fmt["visibility"]
-    visibility = ("Visibility: %s" % bold(visibility_kwarg))
+    visibility = "Visibility: %s" % bold(visibility_kwarg)
     game_count_kwarg = fmt["game_count"]
-    game_count = ("Games Owned: %s" % bold(game_count_kwarg))
+    game_count = "Games Owned: %s" % bold(game_count_kwarg)
     top_game_args = fmt["top_game"]
-    top_game = ("Top Game: %s with %s played" % (bold(top_game_args["name"]), bold(top_game_args["time"])))
+    top_game = "Top Game: %s with %s played" % (
+        bold(top_game_args["name"]),
+        bold(top_game_args["time"]),
+    )
     total_playtime_kwarg = fmt["total_playtime"]
-    total_playtime = ("Total Played: %s" % bold(total_playtime_kwarg))
+    total_playtime = "Total Played: %s" % bold(total_playtime_kwarg)
     last_seen = fmt["last_seen"]
     currently_playing = fmt["currently_playing"]
 
     if last_seen != "":
         formatted_time = utils.datetime.format.to_pretty_time(
-                (datetime.datetime.now() - datetime.datetime.fromtimestamp(last_seen)).total_seconds()
+            (
+                datetime.datetime.now() - datetime.datetime.fromtimestamp(last_seen)
+            ).total_seconds()
         )
         print(formatted_time)
 
@@ -77,7 +82,7 @@ def extended_user_summary(event, **kwargs):
         total_playtime,
         last_seen,
         playing,
-        profile_url
+        profile_url,
     )
 
     return message

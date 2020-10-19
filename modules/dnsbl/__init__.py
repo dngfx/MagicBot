@@ -9,7 +9,6 @@ from . import lists as _lists
 class Module(ModuleManager.BaseModule):
     _name = "DNSBL"
 
-
     @utils.hook("received.command.dnsbl")
     def dnsbl(self, event):
         args = event["args_split"]
@@ -30,10 +29,11 @@ class Module(ModuleManager.BaseModule):
         failed = self._check_lists(lists, address)
         if failed:
             failed = ["%s (%s)" % item for item in failed]
-            event["stderr"].write("%s matched for lists: %s" % (address, ", ".join(failed)))
+            event["stderr"].write(
+                "%s matched for lists: %s" % (address, ", ".join(failed))
+            )
         else:
             event["stdout"].write("%s not found in blacklists" % address)
-
 
     def _check_lists(self, lists, address):
         address_obj = ipaddress.ip_address(address)
@@ -52,11 +52,12 @@ class Module(ModuleManager.BaseModule):
                 failed.append((list.hostname, reason))
         return failed
 
-
     def _check_list(self, list, address):
         list_address = "%s.%s" % (address, list)
         try:
             return dns.resolver.query(list_address, "A")[0].to_text()
         except dns.resolver.NXDOMAIN:
             return None
-            event["stderr"].write("%s matched for lists: %s" % (address, ", ".join(failed)))
+            event["stderr"].write(
+                "%s matched for lists: %s" % (address, ", ".join(failed))
+            )

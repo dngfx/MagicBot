@@ -1,17 +1,21 @@
-#--depends-on config
+# --depends-on config
 
 from src import ModuleManager, utils
 
 
-@utils.export("serverset",
-              utils.BoolSetting("strip-color",
-                                "Set whether I strip colors from my messages on this server"))
-@utils.export("channelset",
-              utils.BoolSetting("strip-color",
-                                "Set whether I strip colors from my messages on in this channel"))
+@utils.export(
+    "serverset",
+    utils.BoolSetting(
+        "strip-color", "Set whether I strip colors from my messages on this server"
+    ),
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "strip-color", "Set whether I strip colors from my messages on in this channel"
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("preprocess.send.privmsg")
     @utils.hook("preprocess.send.notice")
     def preprocess(self, event):

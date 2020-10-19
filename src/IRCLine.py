@@ -7,8 +7,8 @@ from src import EventManager, IRCObject, utils
 # this should be 510 (RFC1459, 512 with \r\n) but a server BitBot uses is broken
 LINE_MAX = 510
 
-class IRCArgs(object):
 
+class IRCArgs(object):
     def __init__(self, args: typing.List[str]):
         self._args = args
 
@@ -35,8 +35,8 @@ class IRCArgs(object):
     def append(self, value: str):
         self._args.append(value)
 
-class Hostmask(object):
 
+class Hostmask(object):
     def __init__(self, nickname: str, username: str, hostname: str, hostmask: str):
         self.nickname = nickname
         self.username = username
@@ -49,30 +49,33 @@ class Hostmask(object):
     def __str__(self):
         return self.hostmask
 
+
 def parse_hostmask(hostmask: str) -> Hostmask:
     nickname, _, username = hostmask.partition("!")
     username, _, hostname = username.partition("@")
     return Hostmask(nickname, username, hostname, hostmask)
 
+
 MESSAGE_TAG_ESCAPED = [r"\:", r"\s", r"\\", r"\r", r"\n"]
 MESSAGE_TAG_UNESCAPED = [";", " ", "\\", "\r", "\n"]
 
+
 def message_tag_escape(s):
     return utils.irc.multi_replace(s, MESSAGE_TAG_UNESCAPED, MESSAGE_TAG_ESCAPED)
+
 
 def message_tag_unescape(s):
     unescaped = utils.irc.multi_replace(s, MESSAGE_TAG_ESCAPED, MESSAGE_TAG_UNESCAPED)
     return unescaped.replace("\\", "")
 
-class ParsedLine(object):
 
+class ParsedLine(object):
     def __init__(
-            self,
-            command: str,
-            args: typing.List[str],
-            source: Hostmask = None,
-            tags: typing.Dict[str,
-                              str] = None
+        self,
+        command: str,
+        args: typing.List[str],
+        source: Hostmask = None,
+        tags: typing.Dict[str, str] = None,
     ):
         self.id = str(uuid.uuid4())
         self.command = command
@@ -167,7 +170,7 @@ class ParsedLine(object):
         tags_formatted, line_formatted = self._format()
         for i, char in enumerate(line_formatted):
             encoded_char = char.encode("utf8")
-            if (len(valid_bytes) + len(encoded_char) > line_max or encoded_char == b"\n"):
+            if len(valid_bytes) + len(encoded_char) > line_max or encoded_char == b"\n":
                 break
             else:
                 valid_bytes += encoded_char
@@ -182,6 +185,7 @@ class ParsedLine(object):
             overflow = overflow[1:]
 
         return valid, overflow
+
 
 def parse_line(line: str) -> ParsedLine:
     tags = {}  # type: typing.Dict[str, typing.Any]
@@ -218,8 +222,10 @@ def parse_line(line: str) -> ParsedLine:
         args.append(typing.cast(str, trailing))
     return ParsedLine(command, args, source, tags)
 
+
 def is_human(line: str):
     return len(line) > 1 and line[0] == "/"
+
 
 def parse_human(line: str) -> typing.Optional[ParsedLine]:
     command, _, args = line[1:].partition(" ")
@@ -228,9 +234,15 @@ def parse_human(line: str) -> typing.Optional[ParsedLine]:
         return ParsedLine("PRIVMSG", [target, message])
     return None
 
-class SentLine(IRCObject.Object):
 
-    def __init__(self, events: "EventManager.Events", send_time: datetime.datetime, hostmask: str, line: ParsedLine):
+class SentLine(IRCObject.Object):
+    def __init__(
+        self,
+        events: "EventManager.Events",
+        send_time: datetime.datetime,
+        hostmask: str,
+        line: ParsedLine,
+    ):
         self.events = events
         self.send_time = send_time
         self._hostmask = hostmask
@@ -248,16 +260,15 @@ class SentLine(IRCObject.Object):
     def for_wire(self) -> bytes:
         return b"%s\r\n" % self._for_wire().encode("utf8")
 
-class IRCBatch(object):
 
+class IRCBatch(object):
     def __init__(
-            self,
-            identifier: str,
-            batch_type: str,
-            args: typing.List[str],
-            tags: typing.Dict[str,
-                              str] = None,
-            source: Hostmask = None
+        self,
+        identifier: str,
+        batch_type: str,
+        args: typing.List[str],
+        tags: typing.Dict[str, str] = None,
+        source: Hostmask = None,
     ):
         self.identifier = identifier
         self.type = batch_type
@@ -272,9 +283,14 @@ class IRCBatch(object):
     def get_lines(self) -> typing.List[ParsedLine]:
         return self._lines
 
-class IRCSendBatch(IRCBatch):
 
-    def __init__(self, batch_type: str, args: typing.List[str], tags: typing.Dict[str, str] = None):
+class IRCSendBatch(IRCBatch):
+    def __init__(
+        self,
+        batch_type: str,
+        args: typing.List[str],
+        tags: typing.Dict[str, str] = None,
+    ):
         IRCBatch.__init__(self, str(uuid.uuid4()), batch_type, args, tags)
 
     def get_lines(self) -> typing.List[ParsedLine]:

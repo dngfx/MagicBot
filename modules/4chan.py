@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import datetime
 import re
@@ -13,25 +13,29 @@ THREAD_URL = "https://a.4cdn.org/%s/thread/%s.json"
 NSFW_TEXT = utils.irc.color(utils.irc.bold("(NSFW) "), utils.consts.RED)
 
 CAPCODE_COLOUR = {
-    "mod":             utils.consts.PURPLE,
-    "admin":           utils.consts.RED,
+    "mod": utils.consts.PURPLE,
+    "admin": utils.consts.RED,
     "admin_highlight": utils.consts.RED,
-    "developer":       utils.consts.BLUE,
-    "founder":         utils.consts.LIGHTGREEN,
-    "manager":         utils.consts.PINK
+    "developer": utils.consts.BLUE,
+    "founder": utils.consts.LIGHTGREEN,
+    "manager": utils.consts.PINK,
 }
 
-POST_LOCKED_EMOJI = '🔒'
-POST_STICKY_EMOJI = '📌'
+POST_LOCKED_EMOJI = "🔒"
+POST_STICKY_EMOJI = "📌"
 
-@utils.export("channelset", utils.BoolSetting("auto-4chan", "Auto parse 4chan URLs to display with info"))
+
+@utils.export(
+    "channelset",
+    utils.BoolSetting("auto-4chan", "Auto parse 4chan URLs to display with info"),
+)
 class Module(ModuleManager.BaseModule):
     _board_list = None
     _name = "4chan"
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
-    #@utils.kwarg("priority", EventManager.PRIORITY_MONITOR)
+    # @utils.kwarg("priority", EventManager.PRIORITY_MONITOR)
     @utils.kwarg("command", "4chan")
     @utils.kwarg("pattern", REGEX_LINK)
     def channel_message(self, event):
@@ -72,8 +76,10 @@ class Module(ModuleManager.BaseModule):
         if "com" in info:
             post_text = info["com"].replace("<br>", " ")
             post_text = utils.http.strip_html(post_text)
-            post_text = " — %s%s" % (utils.irc.bold("Post: "),
-                                     ((post_text[:125] + "...") if len(post_text) > 128 else post_text))
+            post_text = " — %s%s" % (
+                utils.irc.bold("Post: "),
+                ((post_text[:125] + "...") if len(post_text) > 128 else post_text),
+            )
 
         closed = POST_LOCKED_EMOJI if "closed" in info else ""
         sticky = POST_STICKY_EMOJI if "sticky" in info else ""
@@ -104,9 +110,18 @@ class Module(ModuleManager.BaseModule):
         if "id" in info:
             poster_id = " (%s %s)" % (utils.irc.bold("ID:"), info["id"])
 
-        name = "%s%s%s%s" % (utils.irc.bold(info["name"]), tripcode, capcode, country_flag)
+        name = "%s%s%s%s" % (
+            utils.irc.bold(info["name"]),
+            tripcode,
+            capcode,
+            country_flag,
+        )
 
-        color = CAPCODE_COLOUR[capcode_text] if "capcode" in info else utils.irc.consts.GREEN
+        color = (
+            CAPCODE_COLOUR[capcode_text]
+            if "capcode" in info
+            else utils.irc.consts.GREEN
+        )
         name = utils.irc.color(name, color) + poster_id
 
         if "sub" in info:
@@ -117,21 +132,33 @@ class Module(ModuleManager.BaseModule):
         total_posters = info["unique_ips"]
         total_replies = info["replies"]
 
-        replies_text = utils.irc.bold(total_replies) + " repl" + ("ies" if total_replies != 1 else "y")
-        unique_posters = utils.irc.bold(total_posters) + " poster" + ("s" if total_posters != 1 else "")
+        replies_text = (
+            utils.irc.bold(total_replies)
+            + " repl"
+            + ("ies" if total_replies != 1 else "y")
+        )
+        unique_posters = (
+            utils.irc.bold(total_posters)
+            + " poster"
+            + ("s" if total_posters != 1 else "")
+        )
 
-        time = datetime.datetime.utcfromtimestamp(info["time"]).strftime("%a, %b %-d, %Y at %H:%M UTC")
+        time = datetime.datetime.utcfromtimestamp(info["time"]).strftime(
+            "%a, %b %-d, %Y at %H:%M UTC"
+        )
 
-        build_output = "%s%s — %s/%s/%s%s — %s%s — %s by %s" % (nsfw,
-                                                                name,
-                                                                closed_sticky,
-                                                                board,
-                                                                post_number,
-                                                                subject_text,
-                                                                time,
-                                                                post_text,
-                                                                replies_text,
-                                                                unique_posters)
+        build_output = "%s%s — %s/%s/%s%s — %s%s — %s by %s" % (
+            nsfw,
+            name,
+            closed_sticky,
+            board,
+            post_number,
+            subject_text,
+            time,
+            post_text,
+            replies_text,
+            unique_posters,
+        )
 
         event["stdout"].write(build_output)
         return

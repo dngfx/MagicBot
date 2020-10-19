@@ -7,7 +7,7 @@ from src import utils
 from . import ap_actor
 
 
-LD_TYPE = ("application/ld+json; " "profile=\"https://www.w3.org/ns/activitystreams\"")
+LD_TYPE = "application/ld+json; " 'profile="https://www.w3.org/ns/activitystreams"'
 JRD_TYPE = "application/jrd+json"
 ACTIVITY_TYPE = "application/activity+json"
 
@@ -23,27 +23,23 @@ def split_username(s):
     return None, None
 
 
-def activity_request(url,
-                     data=None,
-                     method="GET",
-                     type=ACTIVITY_TYPE,
-                     headers={}):
+def activity_request(url, data=None, method="GET", type=ACTIVITY_TYPE, headers={}):
     content_type = None
 
     if method == "POST":
         content_type = type
     else:
-        headers = {
-            "Accept": type
-        }
+        headers = {"Accept": type}
 
-    request = utils.http.Request(url,
-                                 headers=headers,
-                                 content_type=content_type,
-                                 post_data=data,
-                                 method=method,
-                                 json_body=True,
-                                 fallback_encoding="utf8")
+    request = utils.http.Request(
+        url,
+        headers=headers,
+        content_type=content_type,
+        post_data=data,
+        method=method,
+        json_body=True,
+        fallback_encoding="utf8",
+    )
     return utils.http.request(request)
 
 
@@ -72,7 +68,9 @@ def find_actor(username, instance):
 
     if not webfinger_url:
         webfinger_url = WEBFINGER_TEMPLATE % instance
-    webfinger_url = webfinger_url.replace("{uri}", "acct:%s@%s" % (username, instance), 1)
+    webfinger_url = webfinger_url.replace(
+        "{uri}", "acct:%s@%s" % (username, instance), 1
+    )
 
     try:
         webfinger = activity_request(webfinger_url, type=JRD_TYPE)

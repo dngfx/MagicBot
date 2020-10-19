@@ -1,7 +1,7 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
-#--require-config steam-api-key
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
+# --require-config steam-api-key
 
 from steam.webapi import WebAPI
 
@@ -18,10 +18,12 @@ SERVICEWORKER_URL = "https://api.steampowered.com/%s/%s/v%s/"
 
 
 @utils.export(
-        "set",
-        utils.Setting("steamid",
-                      "Set your steam id",
-                      example="1234567, https://steamcommunity.com/id/user")
+    "set",
+    utils.Setting(
+        "steamid",
+        "Set your steam id",
+        example="1234567, https://steamcommunity.com/id/user",
+    ),
 )
 class Module(ModuleManager.BaseModule):
     _name = "Steam"
@@ -30,11 +32,9 @@ class Module(ModuleManager.BaseModule):
     stdout = None
     stderr = None
 
-
     def connect(self):
         self.api_key = self.bot.config["steam-api-key"]
         self.api = WebAPI(self.api_key, format="json")
-
 
     def get_api(self) -> WebAPI:
         if not self.api_loaded:
@@ -42,22 +42,20 @@ class Module(ModuleManager.BaseModule):
 
         return self.api
 
-
     def on_load(self):
         self.connect()
-
 
     def call(self, method, **kwargs):
         call = self.get_api().call(method, **kwargs)
         return call["response"]
 
-
     def get_service_worker(self, method, json, version="0001"):
         interface, method = method.split(".")
 
-        page = utils.http.request(SERVICEWORKER_URL % (interface, method, version), get_params=json).json()
+        page = utils.http.request(
+            SERVICEWORKER_URL % (interface, method, version), get_params=json
+        ).json()
         return page["response"]
-
 
     @utils.hook("received.command.steamstats", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
@@ -83,15 +81,17 @@ class Module(ModuleManager.BaseModule):
         status = consts.user_state(summary["personastate"])
         steam_name = summary["personaname"]
         display_name = steam_name if "realname" not in summary else summary["realname"]
-        currently_playing = False if "gameextrainfo" not in summary else summary["gameextrainfo"]
+        currently_playing = (
+            False if "gameextrainfo" not in summary else summary["gameextrainfo"]
+        )
 
         if short == True:
             message = formatter.short_user_summary(
-                    event,
-                    sname=steam_name,
-                    name=display_name,
-                    status=status,
-                    url=summary["profileurl"]
+                event,
+                sname=steam_name,
+                name=display_name,
+                status=status,
+                url=summary["profileurl"],
             )
 
             event["stdout"].write(message)
@@ -113,27 +113,20 @@ class Module(ModuleManager.BaseModule):
         last_seen = "" if (lastlogoff == "") else lastlogoff
 
         message = formatter.extended_user_summary(
-                event,
-                names={
-                    "steam":   steam_name,
-                    "display": display_name
-                },
-                status=status,
-                visibility=visibility,
-                game_count=game_count,
-                top_game={
-                    "name": top_game_name,
-                    "time": top_game_time
-                },
-                total_playtime=total_playtime,
-                last_seen=last_seen,
-                currently_playing=currently_playing,
-                url=summary["profileurl"]
+            event,
+            names={"steam": steam_name, "display": display_name},
+            status=status,
+            visibility=visibility,
+            game_count=game_count,
+            top_game={"name": top_game_name, "time": top_game_time},
+            total_playtime=total_playtime,
+            last_seen=last_seen,
+            currently_playing=currently_playing,
+            url=summary["profileurl"],
         )
 
         event["stdout"].write(message)
         return True
-
 
     @utils.hook("received.command.topgames", channel_only=True)
     @utils.kwarg("help", "Get users steam summary")
@@ -141,7 +134,11 @@ class Module(ModuleManager.BaseModule):
     def top_games(self, event):
         nick = event["spec"][0] if event["spec"][0] != None else event["user"].nickname
         amount = event["spec"][1] if event["spec"][1] != None else 5
-        amount = amount if str(event["spec"][1]).isdigit() == False else int(event["spec"][1])
+        amount = (
+            amount
+            if str(event["spec"][1]).isdigit() == False
+            else int(event["spec"][1])
+        )
 
         max_amount = 8
         amount = max_amount if amount > max_amount else amount
@@ -174,21 +171,24 @@ class Module(ModuleManager.BaseModule):
 
         lang = list()
 
-        total_user_playtime_parsed = utils.datetime.format.to_pretty_time(total_user_playtime)
+        total_user_playtime_parsed = utils.datetime.format.to_pretty_time(
+            total_user_playtime
+        )
 
         i = 1
         for time, name in games_parsed:
             parsed = "%s. %s (%s)" % (
                 utils.irc.bold(i),
-                utils.irc.color(utils.irc.bold(name),
-                                utils.consts.GREEN),
-                time
+                utils.irc.color(utils.irc.bold(name), utils.consts.GREEN),
+                time,
             )
             lang.append(parsed)
             i = i + 1
 
-        event["stdout"].write("%s's top %d games: %s" % (summary["personaname"], amount, "  —  ".join(lang)))
-
+        event["stdout"].write(
+            "%s's top %d games: %s"
+            % (summary["personaname"], amount, "  —  ".join(lang))
+        )
 
     @utils.hook("received.command.recentgames", channel_only=True)
     @utils.kwarg("help", "Get users recent game history")
@@ -211,7 +211,9 @@ class Module(ModuleManager.BaseModule):
         total_count = page["total_count"]
 
         if total_count == 0:
-            event["stderr"].write("No games played by %s in the last 2 weeks" % steam_name)
+            event["stderr"].write(
+                "No games played by %s in the last 2 weeks" % steam_name
+            )
             return False
 
         recent_games = page["games"]
@@ -221,34 +223,42 @@ class Module(ModuleManager.BaseModule):
             game = recent_games[i]
 
             appid = game["appid"]
-            playtime = (game["playtime_2weeks"] * 60)
+            playtime = game["playtime_2weeks"] * 60
             playtime_parsed = utils.datetime.format.to_pretty_time(playtime)
-            name = ("Unknown Game (ID: %d)" % appid) if "name" not in game else game["name"]
+            name = (
+                ("Unknown Game (ID: %d)" % appid)
+                if "name" not in game
+                else game["name"]
+            )
 
             fgames.append([playtime_parsed, name])
 
         lang = list()
         for time, name in fgames:
-            parsed = "%s (%s)" % (utils.irc.color(utils.irc.bold(name), utils.consts.GREEN), time)
+            parsed = "%s (%s)" % (
+                utils.irc.color(utils.irc.bold(name), utils.consts.GREEN),
+                time,
+            )
             lang.append(parsed)
 
-        formatted_string = "%s %s" % (utils.irc.bold(display_name + "'s 2wk activity:"), "  —  ".join(lang))
+        formatted_string = "%s %s" % (
+            utils.irc.bold(display_name + "'s 2wk activity:"),
+            "  —  ".join(lang),
+        )
         event["stdout"].write(formatted_string)
-
 
     def get_owned_games(self, id):
         api_key = self.api_key
 
         json = {
-            "steamid":                   id,
-            "include_appinfo":           True,
+            "steamid": id,
+            "include_appinfo": True,
             "include_played_free_games": True,
-            "key":                       api_key
+            "key": api_key,
         }
 
         page = self.get_service_worker("IPlayerService.GetOwnedGames", json)
         return page
-
 
     def get_total_playtime(self, gamelist):
         total = 0
@@ -258,7 +268,6 @@ class Module(ModuleManager.BaseModule):
         total = utils.datetime.format.to_pretty_time(total)
 
         return total
-
 
     def get_top_game(self, id, games_list=None):
         gamelist = games_list if games_list != None else self.get_owned_games(id)
@@ -278,18 +287,13 @@ class Module(ModuleManager.BaseModule):
 
         return [pretty_time, games[1]]
 
-
     def get_player_summary(self, id):
         return self.call("ISteamUser.GetPlayerSummaries", steamids=id)
-
 
     def get_recent_games(self, id):
         api_key = self.api_key
 
-        json = {
-            "steamid": id,
-            "key":     api_key
-        }
+        json = {"steamid": id, "key": api_key}
 
         page = self.get_service_worker("IPlayerService.GetRecentlyPlayedGames", json)
         return page

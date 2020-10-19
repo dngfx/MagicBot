@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import re
 
@@ -10,8 +10,6 @@ FACTOID_DEPTH_MAX = 8
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _get_factoid(self, targets, factoid):
         setting = "factoid-%s" % factoid
         for target_type, target in targets:
@@ -19,7 +17,6 @@ class Module(ModuleManager.BaseModule):
             if not value == None:
                 return target_type, value
         return None
-
 
     def _all_factoids(self, targets):
         factoids = {}
@@ -30,14 +27,11 @@ class Module(ModuleManager.BaseModule):
                     factoids[factoid] = value
         return factoids
 
-
     def _set_factoid(self, target, factoid, value):
         target.set_setting("factoid-%s" % factoid, value)
 
-
     def _del_factoid(self, target, factoid):
         target.del_setting("factoid-%s" % factoid)
-
 
     def _format_factoid(self, s, targets, depth=0):
         if depth == FACTOID_DEPTH_MAX:
@@ -52,9 +46,10 @@ class Module(ModuleManager.BaseModule):
                 s = s.replace(match.group(0), value, 1)
         return s
 
-
     @utils.hook("received.command.factoid", permission="factoid")
-    @utils.hook("received.command.cfactoid", require_mode="o", require_access="low,factoid")
+    @utils.hook(
+        "received.command.cfactoid", require_mode="o", require_access="low,factoid"
+    )
     @utils.kwarg("help", "Set or get a factoid")
     @utils.spec("!'list")
     @utils.spec("!'get !<name>wordlower")
@@ -76,7 +71,10 @@ class Module(ModuleManager.BaseModule):
 
         if event["spec"][0] == "list":
             all_factoids = self._all_factoids([target])
-            event["stdout"].write("Available %s factoids: %s" % (target_desc, ", ".join(sorted(all_factoids.keys()))))
+            event["stdout"].write(
+                "Available %s factoids: %s"
+                % (target_desc, ", ".join(sorted(all_factoids.keys())))
+            )
 
         elif event["spec"][0] == "get":
             targets = [["server", event["server"]], ["channel", event["target"]]]
@@ -88,16 +86,19 @@ class Module(ModuleManager.BaseModule):
 
         elif event["spec"][0] == "add":
             if exists:
-                raise utils.EventError("%s factoid '%s' already exists" % (target_desc.title(), factoid))
+                raise utils.EventError(
+                    "%s factoid '%s' already exists" % (target_desc.title(), factoid)
+                )
             self._set_factoid(target, factoid, event["spec"][2])
             event["stdout"].write("Set %s factoid '%s'" % (target_desc, factoid))
 
         elif event["spec"][0] == "remove":
             if not exists:
-                raise utils.EventError("%s factoid '%s' doesn't exist" % (target_desc.title(), factoid))
+                raise utils.EventError(
+                    "%s factoid '%s' doesn't exist" % (target_desc.title(), factoid)
+                )
             self._del_factoid(target, factoid)
             event["stdout"].write("Removed %s factoid '%s'" % (target_desc, factoid))
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

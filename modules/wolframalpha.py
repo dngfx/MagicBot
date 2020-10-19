@@ -1,5 +1,5 @@
-#--depends-on commands
-#--require-config wolframalpha-api-key
+# --depends-on commands
+# --require-config wolframalpha-api-key
 
 from src import ModuleManager, utils
 
@@ -10,7 +10,6 @@ URL_WA = "https://api.wolframalpha.com/v2/query"
 class Module(ModuleManager.BaseModule):
     _name = "Wolfram|Alpha"
 
-
     @utils.hook("received.command.wa", alias_of="wolframalpha")
     @utils.hook("received.command.wolframalpha", min_args=1)
     def wa(self, event):
@@ -20,16 +19,18 @@ class Module(ModuleManager.BaseModule):
         """
         query = event["args"].strip()
         try:
-            page = utils.http.request(URL_WA,
-                                      timeout=10,
-                                      get_params={
-                                          "input":       query,
-                                          "format":      "plaintext",
-                                          "output":      "JSON",
-                                          "reinterpret": "true",
-                                          "units":       "metric",
-                                          "appid":       self.bot.config["wolframalpha-api-key"]
-                                      }).json()
+            page = utils.http.request(
+                URL_WA,
+                timeout=10,
+                get_params={
+                    "input": query,
+                    "format": "plaintext",
+                    "output": "JSON",
+                    "reinterpret": "true",
+                    "units": "metric",
+                    "appid": self.bot.config["wolframalpha-api-key"],
+                },
+            ).json()
         except utils.http.HTTPTimeoutException:
             page = None
 

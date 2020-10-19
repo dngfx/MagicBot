@@ -1,10 +1,10 @@
 from src import EventManager, ModuleManager, utils
 
 
-@utils.export("channelset", utils.BoolSetting("blacklist", "Refuse to join a given channel"))
+@utils.export(
+    "channelset", utils.BoolSetting("blacklist", "Refuse to join a given channel")
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("preprocess.send.join")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def preprocess_send_join(self, event):
@@ -16,7 +16,9 @@ class Module(ModuleManager.BaseModule):
             channels_out = []
             for channel_name in filter(None, channels):
                 id = event["server"].channels.get_id(channel_name, create=False)
-                if not id == None and self.bot.database.channel_settings.get(id, "blacklist", False):
+                if not id == None and self.bot.database.channel_settings.get(
+                    id, "blacklist", False
+                ):
                     changed = True
                     if keys:
                         keys.pop(0)
@@ -34,7 +36,6 @@ class Module(ModuleManager.BaseModule):
                     keys = [c[1] for c in channels_out if c[1]]
                     event["line"].args[0] = ",".join(channels)
                     event["line"].args[1:] = keys
-
 
     @utils.hook("received.join")
     def on_join(self, event):

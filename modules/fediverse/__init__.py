@@ -1,4 +1,4 @@
-#--depends-on rest_api
+# --depends-on rest_api
 
 from src import ModuleManager, utils
 from . import ap_actor, ap_security, ap_server, ap_utils
@@ -15,19 +15,26 @@ def _setting_parse(s):
     return None
 
 
-@utils.export("botset",
-              utils.FunctionSetting(_setting_parse,
-                                    "fediverse-server",
-                                    "The bot's local fediverse server username",
-                                    example="@bot@bitbot.dev"))
-@utils.export("set",
-              utils.FunctionSetting(_setting_parse,
-                                    "fediverse",
-                                    help="Set your fediverse account",
-                                    example="@gargron@mastodon.social"))
+@utils.export(
+    "botset",
+    utils.FunctionSetting(
+        _setting_parse,
+        "fediverse-server",
+        "The bot's local fediverse server username",
+        example="@bot@bitbot.dev",
+    ),
+)
+@utils.export(
+    "set",
+    utils.FunctionSetting(
+        _setting_parse,
+        "fediverse",
+        help="Set your fediverse account",
+        example="@gargron@mastodon.social",
+    ),
+)
 class Module(ModuleManager.BaseModule):
     _name = "Fedi"
-
 
     def on_load(self):
         server_username = self.bot.get_setting("fediverse-server", None)
@@ -38,18 +45,26 @@ class Module(ModuleManager.BaseModule):
                 raise ValueError("`tls-certificate` not provided in bot config")
 
             server_username, instance = ap_utils.split_username(server_username)
-            self.server = ap_server.Server(self.bot, self.exports, server_username, instance)
+            self.server = ap_server.Server(
+                self.bot, self.exports, server_username, instance
+            )
 
-            self.events.on("api.get.ap-webfinger").hook(self.server.ap_webfinger, authenticated=False)
-            self.events.on("api.get.ap-user").hook(self.server.ap_user, authenticated=False)
-            self.events.on("api.post.ap-inbox").hook(self.server.ap_inbox, authenticated=False)
-            self.events.on("api.get.ap-outbox").hook(self.server.ap_outbox, authenticated=False)
-
+            self.events.on("api.get.ap-webfinger").hook(
+                self.server.ap_webfinger, authenticated=False
+            )
+            self.events.on("api.get.ap-user").hook(
+                self.server.ap_user, authenticated=False
+            )
+            self.events.on("api.post.ap-inbox").hook(
+                self.server.ap_inbox, authenticated=False
+            )
+            self.events.on("api.get.ap-outbox").hook(
+                self.server.ap_outbox, authenticated=False
+            )
 
     def unload(self):
         if not self.server == None:
             self.server.unload()
-
 
     @utils.hook("received.command.fediverse")
     @utils.hook("received.command.fedi", alias_of="fediverse")
@@ -102,7 +117,9 @@ class Module(ModuleManager.BaseModule):
             note = note["object"]
 
         cw, author, content, url = ap_utils.parse_note(actor, note, type)
-        shorturl = self.exports.get_one("shorturl")(event["server"], url, context=event["target"])
+        shorturl = self.exports.get_one("shorturl")(
+            event["server"], url, context=event["target"]
+        )
 
         if cw:
             if strict_cw:
@@ -112,7 +129,6 @@ class Module(ModuleManager.BaseModule):
         else:
             out = "%s: %s - %s" % (author, content, shorturl)
         event["stdout"].write(out)
-
 
     def _get_from_outbox(self, username, instance):
         try:
@@ -128,7 +144,11 @@ class Module(ModuleManager.BaseModule):
         nonreply = [actor.followers]
         first_item = None
         for item in items:
-            if (item["type"] == "Announce" or not "cc" in item["object"] or item["object"]["cc"] == nonreply):
+            if (
+                item["type"] == "Announce"
+                or not "cc" in item["object"]
+                or item["object"]["cc"] == nonreply
+            ):
                 first_item = item
                 break
 

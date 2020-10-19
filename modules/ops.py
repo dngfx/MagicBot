@@ -1,15 +1,16 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 from src import ModuleManager, utils
 
 
-@utils.export("channelset",
-              utils.BoolSetting("op-ping",
-                                "Enable/disable command that highlights all online channel ops"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "op-ping", "Enable/disable command that highlights all online channel ops"
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.ops")
     @utils.kwarg("channel_only", True)
     @utils.kwarg("permission", "op-ping")

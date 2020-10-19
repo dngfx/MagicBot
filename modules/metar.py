@@ -1,8 +1,8 @@
-#--depends-on commands
-#--depends-on config
-#--require-config avwx-api-key
+# --depends-on commands
+# --depends-on config
+# --require-config avwx-api-key
 
-#https://avwx.rest/api/metar/location?options=&airport=true&reporting=true&format=json&onfail=cache
+# https://avwx.rest/api/metar/location?options=&airport=true&reporting=true&format=json&onfail=cache
 
 METAR_URL = "https://avwx.rest/api/metar/%s"
 
@@ -12,7 +12,6 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "METAR"
 
-
     @utils.hook("received.command.metar")
     @utils.kwarg("help", "Get a METAR report")
     @utils.spec("!<icao>lstring")
@@ -20,12 +19,14 @@ class Module(ModuleManager.BaseModule):
         location = event["spec"][0]
         print(location)
 
-        page = utils.http.request(METAR_URL % location,
-                                  get_params={
-                                      "options": "info",
-                                      "format":  "json",
-                                      "token":   self.bot.config["avwx-api-key"]
-                                  }).json()
+        page = utils.http.request(
+            METAR_URL % location,
+            get_params={
+                "options": "info",
+                "format": "json",
+                "token": self.bot.config["avwx-api-key"],
+            },
+        ).json()
 
         if "error" in page:
             event["stderr"].write(page["error"])
@@ -51,10 +52,7 @@ class Module(ModuleManager.BaseModule):
         readout = "%s: %s" % (utils.irc.bold("Readout"), page["sanitized"])
         dewpoint = "%s: %s%s" % (utils.irc.bold("Dew Point"), dew, temp_unit)
 
-        event["stdout"].write("Information for %s: %s — %s — %s — %s — %s — %s" % (name,
-                                                                                   visibility,
-                                                                                   temperature,
-                                                                                   windspeed,
-                                                                                   altimiter,
-                                                                                   dewpoint,
-                                                                                   readout))
+        event["stdout"].write(
+            "Information for %s: %s — %s — %s — %s — %s — %s"
+            % (name, visibility, temperature, windspeed, altimiter, dewpoint, readout)
+        )

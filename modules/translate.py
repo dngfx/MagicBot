@@ -1,5 +1,5 @@
-#--depends-on commands
-#--require-config google-translate-api-key
+# --depends-on commands
+# --require-config google-translate-api-key
 
 import re
 
@@ -12,8 +12,6 @@ REGEX_LANGUAGES = re.compile("(\w+)?[:| ](\w+)? ")
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.tr", alias_of="translate")
     @utils.hook("received.command.translate")
     @utils.spec("?<from:to>lstring !<phrase>lstring")
@@ -35,21 +33,30 @@ class Module(ModuleManager.BaseModule):
                 target_language = language_match.group(2)
             phrase = phrase.split(" ", 1)[1]
 
-        page = utils.http.request(URL_TRANSLATE,
-                                  method="POST",
-                                  post_data={
-                                      "q":      phrase,
-                                      "format": "text",
-                                      "source": source_language,
-                                      "target": target_language,
-                                      "key":    self.bot.config["google-translate-api-key"]
-                                  }).json()
+        page = utils.http.request(
+            URL_TRANSLATE,
+            method="POST",
+            post_data={
+                "q": phrase,
+                "format": "text",
+                "source": source_language,
+                "target": target_language,
+                "key": self.bot.config["google-translate-api-key"],
+            },
+        ).json()
 
         if "data" in page:
             translation = page["data"]["translations"][0]["translatedText"]
-            event["stdout"].write("(%s -> %s) %s" % (utils.irc.bold(source_language),
-                                                     utils.irc.bold(target_language),
-                                                     translation))
+            event["stdout"].write(
+                "(%s -> %s) %s"
+                % (
+                    utils.irc.bold(source_language),
+                    utils.irc.bold(target_language),
+                    translation,
+                )
+            )
         else:
-            event["stderr"].write("Failed to translate, try checking "
-                                  "source/target languages (" + URL_LANGUAGES + ")")
+            event["stderr"].write(
+                "Failed to translate, try checking "
+                "source/target languages (" + URL_LANGUAGES + ")"
+            )

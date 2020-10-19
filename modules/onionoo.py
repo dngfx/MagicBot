@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 import re
 
@@ -13,10 +13,7 @@ URL_RELAY_SEARCH_DETAILS = "https://metrics.torproject.org/rs.html#details/"
 
 
 def _get_relays_details(search):
-    page = utils.http.request(URL_ONIONOO_DETAILS,
-                              get_params={
-                                  "search": search
-                              }).json()
+    page = utils.http.request(URL_ONIONOO_DETAILS, get_params={"search": search}).json()
     if page and "relays" in page:
         return page["relays"]
     raise utils.EventResultsError()
@@ -24,8 +21,10 @@ def _get_relays_details(search):
 
 def _format_relay_summary_message(relays, search):
     if len(relays) > 1:
-        raise utils.EventError(f"There were {len(relays)} relays found for "
-                               f"this query. {URL_RELAY_SEARCH_SEARCH}{search}")
+        raise utils.EventError(
+            f"There were {len(relays)} relays found for "
+            f"this query. {URL_RELAY_SEARCH_SEARCH}{search}"
+        )
     if not relays:
         raise utils.EventError("There were no relays found for this query.")
     details = relays[0]
@@ -36,12 +35,15 @@ def _format_relay_summary_message(relays, search):
     return f"{nickname} - CW: {consensus_weight} [{flags}] {url}"
 
 
-@utils.export("channelset",
-              utils.BoolSetting("auto-torrelay",
-                                "Disable/Enable automatically getting Tor relay info from fingerprints"))
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "auto-torrelay",
+        "Disable/Enable automatically getting Tor relay info from fingerprints",
+    ),
+)
 class Module(ModuleManager.BaseModule):
     _name = "Onionoo"
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -57,7 +59,6 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write(_format_relay_summary_message(relays, search))
             except utils.EventError:
                 pass
-
 
     @utils.hook("received.command.torrelay", min_args=1)
     def torrelay(self, event):

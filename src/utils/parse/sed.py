@@ -20,7 +20,6 @@ def _tokens(s: str, token: str) -> typing.List[int]:
 class Sed(object):
     type: str
 
-
     def match(self, s: str) -> typing.Optional[str]:
         return None
 
@@ -32,11 +31,10 @@ class SedReplace(Sed):
     replace: str
     count: int
 
-
     def match(self, s):
         replace_copy = self.replace
         for token in reversed(_tokens(replace_copy, "&")):
-            replace_copy = replace_copy[:token] + r"\g<0>" + replace_copy[token + 1:]
+            replace_copy = replace_copy[:token] + r"\g<0>" + replace_copy[token + 1 :]
         s = re.sub(self.pattern, replace_copy, s, self.count)
         return s
 
@@ -45,7 +43,6 @@ class SedReplace(Sed):
 class SedMatch(Sed):
     type: str
     pattern: typing.Pattern
-
 
     def match(self, s):
         match = self.pattern.search(s)

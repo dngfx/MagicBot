@@ -4,17 +4,13 @@ from . import _consts_256_color
 
 
 class IRCColor(object):
-
-
     def __init__(self, irc: int, ansi: int, is_256):
         self.irc = irc
         self.ansi = ansi
         self.is_256 = is_256
 
-
     def to_irc(self):
         return str(self.irc)
-
 
     def to_ansi(self, background=False):
         if not self.is_256:
@@ -79,12 +75,12 @@ PERMISSION_FORCE_SUCCESS = 1
 PERMISSION_ERROR = 2
 
 LOG_LEVELS = {
-    "DEBUG":    10,
-    "INFO":     20,
-    "NOTICE":   30,
-    "WARNING":  40,
-    "ERROR":    50,
-    "CRITICAL": 60
+    "DEBUG": 10,
+    "INFO": 20,
+    "NOTICE": 30,
+    "WARNING": 40,
+    "ERROR": 50,
+    "CRITICAL": 60,
 }
 
 

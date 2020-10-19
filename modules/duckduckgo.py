@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 from src import ModuleManager, utils
 
@@ -8,7 +8,6 @@ URL_DDG = "https://api.duckduckgo.com"
 
 class Module(ModuleManager.BaseModule):
     _name = "DDG"
-
 
     @utils.hook("received.command.duckduckgo", alias_of="ddg")
     @utils.hook("received.command.ddg", min_args=1)
@@ -21,13 +20,13 @@ class Module(ModuleManager.BaseModule):
         phrase = event["args"] or event["target"].buffer.get()
         if phrase:
             page = utils.http.request(
-                    URL_DDG,
-                    get_params={
-                        "q":           phrase,
-                        "format":      "json",
-                        "no_html":     "1",
-                        "no_redirect": "1"
-                    }
+                URL_DDG,
+                get_params={
+                    "q": phrase,
+                    "format": "json",
+                    "no_html": "1",
+                    "no_redirect": "1",
+                },
             ).json()
 
             if page and page["AbstractURL"]:

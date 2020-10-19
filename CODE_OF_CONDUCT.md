@@ -1,1 +1,0 @@
-# BE A NICE PERSON

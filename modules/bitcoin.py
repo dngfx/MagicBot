@@ -1,11 +1,10 @@
-#--depends-on commands
+# --depends-on commands
 
 from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
     _name = "BTC"
-
 
     @utils.hook("received.command.btc")
     def btc(self, event):
@@ -19,8 +18,14 @@ class Module(ModuleManager.BaseModule):
             if currency in page:
                 conversion = page[currency]
                 buy, sell = conversion["buy"], conversion["sell"]
-                event["stdout"].write("1 BTC = %.2f %s (buy) %.2f %s " "(sell)" % (buy, currency, sell, currency))
+                event["stdout"].write(
+                    "1 BTC = %.2f %s (buy) %.2f %s "
+                    "(sell)" % (buy, currency, sell, currency)
+                )
             else:
-                event["stderr"].write("Unknown currency, available " "currencies: %s" % ", ".join(page.keys()))
+                event["stderr"].write(
+                    "Unknown currency, available "
+                    "currencies: %s" % ", ".join(page.keys())
+                )
         else:
             raise utils.EventResultsError()

@@ -2,12 +2,9 @@ import collections
 
 
 class DNSBL(object):
-
-
     def __init__(self, hostname=None):
         if not hostname == None:
             self.hostname = hostname
-
 
     def process(self, result: str):
         return "unknown"
@@ -15,7 +12,6 @@ class DNSBL(object):
 
 class ZenSpamhaus(DNSBL):
     hostname = "zen.spamhaus.org"
-
 
     def process(self, result):
         result = result.rsplit(".", 1)[1]
@@ -27,7 +23,6 @@ class ZenSpamhaus(DNSBL):
 
 class EFNetRBL(DNSBL):
     hostname = "rbl.efnetrbl.org"
-
 
     def process(self, result):
         result = result.rsplit(".", 1)[1]
@@ -43,7 +38,6 @@ class EFNetRBL(DNSBL):
 
 class DroneBL(DNSBL):
     hostname = "dnsbl.dronebl.org"
-
 
     def process(self, result):
         result = result.rsplit(".", 1)[1]

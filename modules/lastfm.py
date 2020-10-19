@@ -1,6 +1,6 @@
-#--depends-on commands
-#--depends-on config
-#--require-config lastfm-api-key
+# --depends-on commands
+# --depends-on config
+# --require-config lastfm-api-key
 
 from src import ModuleManager, utils
 
@@ -11,7 +11,6 @@ URL_SCROBBLER = "http://ws.audioscrobbler.com/2.0/"
 @utils.export("set", utils.Setting("lastfm", "Set last.fm username", example="jesopo"))
 class Module(ModuleManager.BaseModule):
     _name = "last.fm"
-
 
     @utils.hook("received.command.np", alias_of="nowplaying")
     @utils.hook("received.command.listening", alias_of="nowplaying")
@@ -39,14 +38,14 @@ class Module(ModuleManager.BaseModule):
             shown_username = user.nickname
 
         page = utils.http.request(
-                URL_SCROBBLER,
-                get_params={
-                    "method":  "user.getrecenttracks",
-                    "user":    lastfm_username,
-                    "api_key": self.bot.config["lastfm-api-key"],
-                    "format":  "json",
-                    "limit":   "1"
-                }
+            URL_SCROBBLER,
+            get_params={
+                "method": "user.getrecenttracks",
+                "user": lastfm_username,
+                "api_key": self.bot.config["lastfm-api-key"],
+                "format": "json",
+                "limit": "1",
+            },
         ).json()
         if page:
             if "recenttracks" in page and len(page["recenttracks"]["track"]):
@@ -57,7 +56,7 @@ class Module(ModuleManager.BaseModule):
                 track_name = now_playing["name"]
                 artist = now_playing["artist"]["#text"]
 
-                if '@attr' in now_playing:
+                if "@attr" in now_playing:
                     np = True
                 else:
                     played = int(now_playing["date"]["uts"])
@@ -66,26 +65,27 @@ class Module(ModuleManager.BaseModule):
 
                 time_language = "is listening to" if np else "last listened to"
 
-                yt_url = self.exports.get_one("search-youtube")("%s - %s" % (artist, track_name))
+                yt_url = self.exports.get_one("search-youtube")(
+                    "%s - %s" % (artist, track_name)
+                )
                 yt_url_str = ""
                 if yt_url:
                     yt_url_str = " - %s" % yt_url
 
                 info_page = utils.http.request(
-                        URL_SCROBBLER,
-                        get_params={
-                            "method":      "track.getInfo",
-                            "artist":      artist,
-                            "track":       track_name,
-                            "autocorrect": "1",
-                            "api_key":     self.bot.config["lastfm-api-key"],
-                            "user":        lastfm_username,
-                            "format":      "json"
-                        }
+                    URL_SCROBBLER,
+                    get_params={
+                        "method": "track.getInfo",
+                        "artist": artist,
+                        "track": track_name,
+                        "autocorrect": "1",
+                        "api_key": self.bot.config["lastfm-api-key"],
+                        "user": lastfm_username,
+                        "format": "json",
+                    },
                 ).json()
 
-                track = info_page.get("track",
-                                      {})
+                track = info_page.get("track", {})
 
                 tags_str = ""
                 if "toptags" in track and track["toptags"]["tag"]:
@@ -96,20 +96,27 @@ class Module(ModuleManager.BaseModule):
                 if "userplaycount" in track:
                     play_count = int(track["userplaycount"])
                     if play_count > 0:
-                        play_count_str = " (%d play%s)" % (play_count, "" if play_count == 1 else "s")
+                        play_count_str = " (%d play%s)" % (
+                            play_count,
+                            "" if play_count == 1 else "s",
+                        )
 
                 track_name = utils.irc.bold("%s - %s" % (artist, track_name))
 
                 event["stdout"].write(
-                        "%s %s: %s%s%s%s" %
-                        (utils.irc.bold(shown_username),
-                         time_language,
-                         track_name,
-                         play_count_str,
-                         tags_str,
-                         yt_url_str)
+                    "%s %s: %s%s%s%s"
+                    % (
+                        utils.irc.bold(shown_username),
+                        time_language,
+                        track_name,
+                        play_count_str,
+                        tags_str,
+                        yt_url_str,
+                    )
                 )
             else:
-                event["stderr"].write("The user '%s' has never scrobbled before" % (shown_username))
+                event["stderr"].write(
+                    "The user '%s' has never scrobbled before" % (shown_username)
+                )
         else:
             raise utils.EventResultsError()

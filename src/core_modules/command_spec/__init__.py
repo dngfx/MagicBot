@@ -33,8 +33,6 @@ from . import types
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _spec_value(self, server, channel, user, argument_types, args):
         options = []
         first_error = None
@@ -63,7 +61,6 @@ class Module(ModuleManager.BaseModule):
             options.append([argument_type, value, n, error])
         return options
 
-
     def _argument_types(self, options, args):
         errors = []
         current_error = first_error = None
@@ -76,7 +73,6 @@ class Module(ModuleManager.BaseModule):
                 errors.append("Not enough arguments")
 
         return [None, -1, errors[0] if len(errors) == 1 else "Invalid arguments"]
-
 
     @utils.hook("preprocess.command")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
@@ -92,17 +88,19 @@ class Module(ModuleManager.BaseModule):
             for spec_arguments in specs:
                 out = {}
                 args = event["args_split"].copy()
-                kwargs = {
-                    "channel": channel
-                }
+                kwargs = {"channel": channel}
                 failed = False
 
                 current_error = None
                 count = 0
                 spec_index = 0
                 for spec_argument in spec_arguments:
-                    argument_type_multi = len(set(t.type for t in spec_argument.types)) > 1
-                    options = self._spec_value(server, kwargs["channel"], user, spec_argument.types, args)
+                    argument_type_multi = (
+                        len(set(t.type for t in spec_argument.types)) > 1
+                    )
+                    options = self._spec_value(
+                        server, kwargs["channel"], user, spec_argument.types, args
+                    )
 
                     argument_type, n, value = self._argument_types(options, args)
                     if n > -1:

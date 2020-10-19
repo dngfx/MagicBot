@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import urllib.parse
 
@@ -10,7 +10,6 @@ EVAL_URL = "http://dotpy3.herokuapp.com/"
 
 class Module(ModuleManager.BaseModule):
     _name = "Python"
-
 
     @utils.hook("received.command.py", alias_of="python")
     @utils.hook("received.command.python")
@@ -24,6 +23,8 @@ class Module(ModuleManager.BaseModule):
             pass
 
         if page and page.data:
-            event["stdout"].write("%s: %s" % (event["user"].nickname, page.decode("utf8").rstrip("\n")))
+            event["stdout"].write(
+                "%s: %s" % (event["user"].nickname, page.decode("utf8").rstrip("\n"))
+            )
         else:
             event["stderr"].write("%s: failed to eval" % event["user"].nickname)

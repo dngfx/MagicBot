@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 import datetime
 
@@ -27,7 +27,11 @@ def _parse(s):
 
 
 def _format_year(dt):
-    return "%s-%s-%s" % (str(dt.year).zfill(4), str(dt.month).zfill(2), str(dt.day).zfill(2))
+    return "%s-%s-%s" % (
+        str(dt.year).zfill(4),
+        str(dt.month).zfill(2),
+        str(dt.day).zfill(2),
+    )
 
 
 def _format_noyear(dt):
@@ -47,9 +51,10 @@ def _parse_setting(value):
         years, parsed = parsed
         return _format(years, parsed)
     else:
-        raise utils.settings.SettingParseException("Please provide either yyyy-mm-dd or dd-mmm (e.g. %s or %s)" %
-                                                   (EXAMPLE_DATE_YEAR,
-                                                    EXAMPLE_DATE))
+        raise utils.settings.SettingParseException(
+            "Please provide either yyyy-mm-dd or dd-mmm (e.g. %s or %s)"
+            % (EXAMPLE_DATE_YEAR, EXAMPLE_DATE)
+        )
 
 
 def _apostrophe(nickname):
@@ -58,10 +63,13 @@ def _apostrophe(nickname):
     return "%s's" % nickname
 
 
-@utils.export("set", utils.FunctionSetting(_parse_setting, "birthday", "Set your birthday", example=EXAMPLE_DATE_YEAR))
+@utils.export(
+    "set",
+    utils.FunctionSetting(
+        _parse_setting, "birthday", "Set your birthday", example=EXAMPLE_DATE_YEAR
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.birthday")
     def birthday(self, event):
         """
@@ -81,7 +89,9 @@ class Module(ModuleManager.BaseModule):
             birthday_parsed = birthday_parsed.date()
             now = datetime.datetime.utcnow().date()
 
-            next_birthday = datetime.date(year=now.year, month=birthday_parsed.month, day=birthday_parsed.day)
+            next_birthday = datetime.date(
+                year=now.year, month=birthday_parsed.month, day=birthday_parsed.day
+            )
             if next_birthday < now:
                 next_birthday = next_birthday.replace(year=next_birthday.year + 1)
             days = (next_birthday - now).days
@@ -90,19 +100,26 @@ class Module(ModuleManager.BaseModule):
 
             if days > 0:
                 if years:
-                    event["stdout"].write("%s is %d in %d %s" % (target_user.nickname, age, days, days_str))
+                    event["stdout"].write(
+                        "%s is %d in %d %s"
+                        % (target_user.nickname, age, days, days_str)
+                    )
                 else:
-                    event["stdout"].write("%s birthday is in %d %s" % (_apostrophe(target_user.nickname),
-                                                                       days,
-                                                                       days_str))
+                    event["stdout"].write(
+                        "%s birthday is in %d %s"
+                        % (_apostrophe(target_user.nickname), days, days_str)
+                    )
             else:
                 if years:
-                    event["stdout"].write("%s is %d today! ??" % (target_user.nickname, age))
+                    event["stdout"].write(
+                        "%s is %d today! ??" % (target_user.nickname, age)
+                    )
                 else:
-                    event["stdout"].write("%s birthday is today! ??" % _apostrophe(target_user.nickname))
+                    event["stdout"].write(
+                        "%s birthday is today! ??" % _apostrophe(target_user.nickname)
+                    )
         else:
             event["stderr"].write("No birthday set for %s" % target_user.nickname)
-
 
     @utils.hook("received.command.birthdays")
     def birthdays(self, event):

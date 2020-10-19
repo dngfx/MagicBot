@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import difflib
 
@@ -11,17 +11,15 @@ SETTING = utils.BoolSetting("command-suggestions", "Disable/enable command sugge
 @utils.export("serverset", SETTING)
 @utils.export("channelset", SETTING)
 class Module(ModuleManager.BaseModule):
-
-
     def _all_command_hooks(self):
         return self.events.on("received.command").get_children()
 
-
     @utils.hook("unknown.command")
     def unknown_command(self, event):
-        if not event["server"].get_setting("command-suggestions",
-                                           event["target"].get_setting("command-suggestions",
-                                                                       True)):
+        if not event["server"].get_setting(
+            "command-suggestions",
+            event["target"].get_setting("command-suggestions", True),
+        ):
             return
 
         all_commands = self._all_command_hooks()
@@ -31,6 +29,7 @@ class Module(ModuleManager.BaseModule):
             if event["is_channel"]:
                 nickname = "%s: " % event["user"].nickname
 
-            event["target"].send_message("%sUnknown command. Did you mean %s%s?" % (nickname,
-                                                                                    event["command_prefix"],
-                                                                                    match[0]))
+            event["target"].send_message(
+                "%sUnknown command. Did you mean %s%s?"
+                % (nickname, event["command_prefix"], match[0])
+            )

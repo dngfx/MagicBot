@@ -10,7 +10,12 @@ import typing
 
 from . import cli, consts, datetime, decorators, http, io, irc, parse, security
 from .decorators import export, hook, kwarg, spec
-from .errors import (EventError, EventNotEnoughArgsError, EventResultsError, EventUsageError)
+from .errors import (
+    EventError,
+    EventNotEnoughArgsError,
+    EventResultsError,
+    EventUsageError,
+)
 from .settings import (
     BoolSetting,
     FunctionSetting,
@@ -19,7 +24,7 @@ from .settings import (
     OptionsSetting,
     sensitive_format,
     SensitiveSetting,
-    Setting
+    Setting,
 )
 
 
@@ -33,35 +38,26 @@ def prevent_highlight(nickname: str) -> str:
 
 
 class MultiCheck(object):
-
-
     def __init__(self, requests: typing.List[typing.Tuple[str, typing.List[str]]]):
         self._requests = requests
-
 
     def to_multi(self):
         return self
 
-
     def requests(self):
         return self._requests[:]
-
 
     def __or__(self, other: "Check"):
         return MultiCheck(self._requests + [(other.request, other.args)])
 
 
 class Check(object):
-
-
     def __init__(self, request: str, *args: str):
         self.request = request
         self.args = list(args)
 
-
     def to_multi(self):
         return MultiCheck([(self.request, self.args)])
-
 
     def __or__(self, other: "Check"):
         return MultiCheck([(self.request, self.args), (other.request, other.args)])
@@ -71,10 +67,9 @@ TOP_10_CALLABLE = typing.Callable[[typing.Any], typing.Any]
 
 
 def top_10(
-        items: typing.Dict[typing.Any,
-                           typing.Any],
-        convert_key: TOP_10_CALLABLE = lambda x: x,
-        value_format: TOP_10_CALLABLE = lambda x: x
+    items: typing.Dict[typing.Any, typing.Any],
+    convert_key: TOP_10_CALLABLE = lambda x: x,
+    value_format: TOP_10_CALLABLE = lambda x: x,
 ):
     top_10 = sorted(items.keys())
     top_10 = sorted(top_10, key=items.get, reverse=True)[:10]
@@ -87,26 +82,20 @@ def top_10(
 
 
 class CaseInsensitiveDict(dict):
-
-
     def __init__(self, other: typing.Dict[str, typing.Any]):
         dict.__init__(self, ((k.lower(), v) for k, v in other.items()))
-
 
     def __getitem__(self, key: str) -> typing.Any:
         return dict.__getitem__(self, key.lower())
 
-
     def __setitem__(self, key: str, value: typing.Any) -> typing.Any:
         return dict.__setitem__(self, key.lower(), value)
-
 
     def __contains__(self, key: typing.Any) -> bool:
         if isinstance(key, str):
             return dict.__contains__(self, key.lower())
         else:
             raise TypeError("Expected string, not %r" % key)
-
 
     def get(self, key: str, default: typing.Any = None):
         return dict.get(self, key.lower(), default)
@@ -139,7 +128,10 @@ def deadline(seconds: int = 10):
 
     try:
         if not old_seconds == 0.0 and seconds > old_seconds:
-            raise ValueError("Deadline timeout larger than parent deadline (%s > %s)" % (seconds, old_seconds))
+            raise ValueError(
+                "Deadline timeout larger than parent deadline (%s > %s)"
+                % (seconds, old_seconds)
+            )
 
         yield
     finally:
@@ -151,19 +143,17 @@ DeadlineProcessReturnType = typing.TypeVar("DeadlineProcessReturnType")
 
 
 def deadline_process(
-        func: typing.Callable[[],
-                              DeadlineProcessReturnType],
-        seconds: int = 10
+    func: typing.Callable[[], DeadlineProcessReturnType], seconds: int = 10
 ) -> DeadlineProcessReturnType:
-    q: multiprocessing.Queue[typing.Tuple[bool, DeadlineProcessReturnType]] = multiprocessing.Queue()
-
+    q: multiprocessing.Queue[
+        typing.Tuple[bool, DeadlineProcessReturnType]
+    ] = multiprocessing.Queue()
 
     def _wrap(func, q):
         try:
             q.put([True, func()])
         except Exception as e:
             q.put([False, e])
-
 
     p = multiprocessing.Process(target=_wrap, args=(func, q))
     p.start()
@@ -186,7 +176,9 @@ def deadline_process(
         raise out  # type: ignore
 
 
-def git_commit(bot_directory: str) -> typing.Tuple[typing.Optional[str], typing.Optional[str]]:
+def git_commit(
+    bot_directory: str,
+) -> typing.Tuple[typing.Optional[str], typing.Optional[str]]:
     git_dir = os.path.join(bot_directory, ".git")
     head_filepath = os.path.join(git_dir, "HEAD")
     if os.path.isfile(head_filepath):

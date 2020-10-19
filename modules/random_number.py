@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import random
 import uuid
@@ -11,7 +11,6 @@ COIN_SIDES = ["heads", "tails"]
 
 class Module(ModuleManager.BaseModule):
     _name = "Random"
-
 
     @utils.hook("received.command.rand", alias_of="random")
     @utils.hook("received.command.random")
@@ -35,15 +34,13 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Both start and end must be valid integers")
 
-
     @utils.hook("received.command.cointoss")
     def coin_toss(self, event):
         chosen_side = random.SystemRandom().choice(COIN_SIDES)
         event["stdout"].write(
-                "%s tosses a coin and gets %s" % (utils.irc.bold(event["user"].nickname),
-                                                  utils.irc.bold(chosen_side))
+            "%s tosses a coin and gets %s"
+            % (utils.irc.bold(event["user"].nickname), utils.irc.bold(chosen_side))
         )
-
 
     @utils.hook("received.command.uuid", alias_of="uuid4")
     @utils.hook("received.command.uuid4")

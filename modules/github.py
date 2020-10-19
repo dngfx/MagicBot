@@ -1,5 +1,5 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 import re
 
@@ -13,7 +13,9 @@ COLOR_NEUTRAL = utils.consts.LIGHTGREY
 COLOR_NEGATIVE = utils.consts.RED
 COLOR_ID = utils.consts.PINK
 
-REGEX_ISSUE = re.compile(r"https?://github.com/([^/]+)/([^/]+)/(pull|issues)/(\d+)", re.I)
+REGEX_ISSUE = re.compile(
+    r"https?://github.com/([^/]+)/([^/]+)/(pull|issues)/(\d+)", re.I
+)
 REGEX_ISSUE_REF = re.compile(r"(?:\S+(?:\/\S+)?)?#\d+")
 REGEX_COMMIT_REF = re.compile(r"(?:\S+(?:\/\S+)?)?@[0-9a-fA-F]+")
 
@@ -22,20 +24,29 @@ API_ISSUE_URL = "https://api.github.com/repos/%s/%s/issues/%s"
 API_PULL_URL = "https://api.github.com/repos/%s/%s/pulls/%s"
 
 
-@utils.export("channelset",
-              utils.Setting("github-default-repo",
-                            "Set the default github repo for the current channel",
-                            example="jesopo/bitbot"))
-@utils.export("channelset",
-              utils.BoolSetting("auto-github",
-                                "Enable/disable automatically getting github issue/PR info"))
-@utils.export("channelset",
-              utils.IntSetting("auto-github-cooldown",
-                               "Set amount of seconds between auto-github duplicates",
-                               example="300"))
+@utils.export(
+    "channelset",
+    utils.Setting(
+        "github-default-repo",
+        "Set the default github repo for the current channel",
+        example="jesopo/bitbot",
+    ),
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "auto-github", "Enable/disable automatically getting github issue/PR info"
+    ),
+)
+@utils.export(
+    "channelset",
+    utils.IntSetting(
+        "auto-github-cooldown",
+        "Set amount of seconds between auto-github duplicates",
+        example="300",
+    ),
+)
 class Module(ModuleManager.BaseModule):
-
-
     def _parse_ref(self, channel, ref, sep):
         repo, _, number = ref.rpartition(sep)
         org, _, repo = repo.partition("/")
@@ -54,33 +65,27 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Please provide username/repo#number")
         return org, repo, number
 
-
     def _short_url(self, url):
         try:
-            page = utils.http.request("https://git.io",
-                                      method="POST",
-                                      post_data={"url": url})
+            page = utils.http.request(
+                "https://git.io", method="POST", post_data={"url": url}
+            )
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
             log.warn("HTTPTimeoutException while waiting for github short URL", [])
             return url
 
-
     def _change_count(self, n, symbol, color):
         return utils.irc.color("%s%d" % (symbol, n), color) + utils.irc.bold("")
-
 
     def _added(self, n):
         return self._change_count(n, "+", COLOR_POSITIVE)
 
-
     def _removed(self, n):
         return self._change_count(n, "-", COLOR_NEGATIVE)
 
-
     def _modified(self, n):
         return self._change_count(n, "~", utils.consts.PURPLE)
-
 
     def _get(self, url):
         oauth2_token = self.bot.config.get("github-token", None)
@@ -90,24 +95,23 @@ class Module(ModuleManager.BaseModule):
         request = utils.http.Request(url, headers=headers)
         return utils.http.request(request)
 
-
     def _commit(self, username, repository, commit):
         page = self._get(API_COMMIT_URL % (username, repository, commit))
         if page and page.code == 200:
             page = page.json()
             repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
             sha = utils.irc.color(page["sha"][:8], COLOR_ID)
-            return "(%s@%s) %s - %s %s" % (repo,
-                                           sha,
-                                           page["author"]["login"],
-                                           page["commit"]["message"],
-                                           self._short_url(page["html_url"]))
-
+            return "(%s@%s) %s - %s %s" % (
+                repo,
+                sha,
+                page["author"]["login"],
+                page["commit"]["message"],
+                self._short_url(page["html_url"]),
+            )
 
     def _parse_commit(self, target, ref):
         username, repository, commit = self._parse_ref(target, ref, "@")
         return self._commit(username, repository, commit)
-
 
     @utils.hook("received.command.ghcommit")
     @utils.kwarg("min_args", 1)
@@ -119,7 +123,6 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(out)
         else:
             event["stderr"].write("Commit not found")
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -138,7 +141,6 @@ class Module(ModuleManager.BaseModule):
                 if out:
                     event["stdout"].write(out)
 
-
     def _parse_issue(self, page, username, repository, number):
         repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
         number = utils.irc.color("#%s" % number, COLOR_ID)
@@ -155,12 +157,17 @@ class Module(ModuleManager.BaseModule):
         elif state == "closed":
             state = utils.irc.color("closed", COLOR_NEGATIVE)
 
-        return "(%s issue%s, %s) %s %s%s" % (repo, number, state, page["title"], labels_str, url)
-
+        return "(%s issue%s, %s) %s %s%s" % (
+            repo,
+            number,
+            state,
+            page["title"],
+            labels_str,
+            url,
+        )
 
     def _get_issue(self, username, repository, number):
         return self._get(API_ISSUE_URL % (username, repository, number))
-
 
     @utils.hook("received.command.ghissue", min_args=1)
     def github_issue(self, event):
@@ -168,7 +175,9 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].prefix = None
             event["stderr"].prefix = None
 
-        username, repository, number = self._parse_ref(event["target"], event["args_split"][0], "#")
+        username, repository, number = self._parse_ref(
+            event["target"], event["args_split"][0], "#"
+        )
         if not number.isdigit():
             raise utils.EventError("Issue number must be a number")
 
@@ -177,7 +186,6 @@ class Module(ModuleManager.BaseModule):
             self._parse_issue(page.json(), username, repository, number)
         else:
             event["stderr"].write("Could not find issue")
-
 
     def _parse_pull(self, page, username, repository, number):
         repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
@@ -196,20 +204,20 @@ class Module(ModuleManager.BaseModule):
         elif state == "closed":
             state = utils.irc.color("closed", COLOR_NEGATIVE)
 
-        return "(%s PR%s, %s) %s â†’ %s [%s/%s] %s %s" % (repo,
-                                                          number,
-                                                          state,
-                                                          branch_from,
-                                                          branch_to,
-                                                          added,
-                                                          removed,
-                                                          page["title"],
-                                                          url)
-
+        return "(%s PR%s, %s) %s â†’ %s [%s/%s] %s %s" % (
+            repo,
+            number,
+            state,
+            branch_from,
+            branch_to,
+            added,
+            removed,
+            page["title"],
+            url,
+        )
 
     def _get_pull(self, username, repository, number):
         return self._get(API_PULL_URL % (username, repository, number))
-
 
     @utils.hook("received.command.ghpull", min_args=1)
     def github_pull(self, event):
@@ -217,7 +225,9 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].prefix = None
             event["stderr"].prefix = None
 
-        username, repository, number = self._parse_ref(event["target"], event["args_split"][0], "#")
+        username, repository, number = self._parse_ref(
+            event["target"], event["args_split"][0], "#"
+        )
         if not number.isdigit():
             raise utils.EventError("PR number must be a number")
 
@@ -227,7 +237,6 @@ class Module(ModuleManager.BaseModule):
             self._parse_pull(page.json(), username, repository, number)
         else:
             event["stderr"].write("Could not find pull request")
-
 
     def _get_info(self, target, ref):
         username, repository, number = self._parse_ref(target, ref, "#")
@@ -245,7 +254,6 @@ class Module(ModuleManager.BaseModule):
         else:
             return None
 
-
     @utils.hook("received.command.gh", alias_of="github")
     @utils.hook("received.command.github", min_args=1)
     def github(self, event):
@@ -258,10 +266,8 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Issue/PR not found")
 
-
     def _cache_ref(self, ref):
         return "auto-github-%s" % ref.lower()
-
 
     def _auto_github_cooldown(self, channel, ref):
         cooldown = channel.get_setting("auto-github-cooldown", None)
@@ -275,7 +281,6 @@ class Module(ModuleManager.BaseModule):
         else:
             return True
 
-
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "github")
@@ -283,7 +288,11 @@ class Module(ModuleManager.BaseModule):
     def url_regex(self, event):
         if event["target"].get_setting("auto-github", False):
             event.eat()
-            ref = "%s/%s#%s" % (event["match"].group(1), event["match"].group(2), event["match"].group(4))
+            ref = "%s/%s#%s" % (
+                event["match"].group(1),
+                event["match"].group(2),
+                event["match"].group(4),
+            )
             if self._auto_github_cooldown(event["target"], ref):
                 try:
                     result = self._get_info(event["target"], ref)
@@ -293,7 +302,6 @@ class Module(ModuleManager.BaseModule):
                     if event["target"].get_setting("github-hide-prefix", False):
                         event["stdout"].prefix = None
                     event["stdout"].write(result)
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

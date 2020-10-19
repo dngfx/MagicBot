@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import re, pprint
-=======
-import re
->>>>>>> a86ac658bb5b1911456b9d1264e6e74ffecf3eb1
 
 from src import ModuleManager, utils
 
@@ -10,7 +6,6 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "MSG"
 
-<<<<<<< HEAD
     @utils.hook("received.command.mstrip", alias_of="messagestrip")
     @utils.hook("received.command.messagestrip", channel_only=True)
     @utils.kwarg("min_args", 1)
@@ -19,8 +14,6 @@ class Module(ModuleManager.BaseModule):
         text = " ".join(event["args_split"])
         text = utils.irc.strip_all(text)
         channel.send_message("Stripped Message —— %s" % text)
-=======
->>>>>>> a86ac658bb5b1911456b9d1264e6e74ffecf3eb1
 
     @utils.hook("received.command.msearch")
     @utils.spec("!r~channel !<pattern>string")
@@ -33,11 +26,18 @@ class Module(ModuleManager.BaseModule):
             messages = []
             for i, message in enumerate(message_list):
                 seconds = utils.datetime.seconds_since(message.line.timestamp)
-                messages.append("(%d/%d) %s ago %s" % (i + 1,
-                                                       message_count,
-                                                       utils.datetime.format.to_pretty_since(seconds),
-                                                       message.line.format()))
+                messages.append(
+                    "(%d/%d) %s ago %s"
+                    % (
+                        i + 1,
+                        message_count,
+                        utils.datetime.format.to_pretty_since(seconds),
+                        message.line.format(),
+                    )
+                )
 
-            event["stdout"].write("%s: found: %s" % (event["user"].nickname, "\n".join(messages)))
+            event["stdout"].write(
+                "%s: found: %s" % (event["user"].nickname, "\n".join(messages))
+            )
         else:
             event["stderr"].write("%s: no messages found" % event["user"].nickname)

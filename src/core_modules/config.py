@@ -1,7 +1,7 @@
-#--depends-on channel_access
-#--depends-on check_mode
-#--depends-on commands
-#--depends-on permissions
+# --depends-on channel_access
+# --depends-on check_mode
+# --depends-on commands
+# --depends-on permissions
 
 import enum
 
@@ -9,8 +9,6 @@ from src import ModuleManager, utils
 
 
 class ConfigInvalidValue(Exception):
-
-
     def __init__(self, message: str = None):
         self.message = message
 
@@ -27,48 +25,39 @@ class ConfigResults(enum.Enum):
 
 
 class ConfigResult(object):
-
-
     def __init__(self, result, data=None):
         self.result = result
         self.data = data
 
 
 class ConfigChannelTarget(object):
-
-
     def __init__(self, bot, server, channel_name):
         self._bot = bot
         self._server = server
         self._channel_name = channel_name
 
-
     def _get_id(self):
         return self._server.channels.get_id(self._channel_name)
-
 
     def set_setting(self, setting, value):
         channel_id = self._get_id()
         self._bot.database.channel_settings.set(channel_id, setting, value)
 
-
     def get_setting(self, setting, default=None):
         channel_id = self._get_id()
         return self._bot.database.channel_settings.get(channel_id, setting, default)
-
 
     def del_setting(self, setting):
         channel_id = self._get_id()
         self._bot.database.channel_settings.delete(channel_id, setting)
 
-
     def get_user_setting(self, user_id, setting, default=None):
-        return self._bot.database.user_channel_settings.get(user_id, self._get_id(), setting, default)
+        return self._bot.database.user_channel_settings.get(
+            user_id, self._get_id(), setting, default
+        )
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _to_context(self, server, channel, user, context_desc):
         context_desc_lower = context_desc.lower()
 
@@ -77,7 +66,7 @@ class Module(ModuleManager.BaseModule):
                 # we're in PM
                 return user, "set", None
             else:
-                #we're in a channel
+                # we're in a channel
                 return channel, "channelset", None
         elif server.is_channel(context_desc):
             return context_desc, "channelset", context_desc
@@ -94,12 +83,13 @@ class Module(ModuleManager.BaseModule):
         else:
             raise ValueError()
 
-
     @utils.hook("preprocess.command")
     def preprocess_command(self, event):
         require_setting = event["hook"].get_kwarg("require_setting", None)
         if not require_setting == None:
-            require_setting_unless = event["hook"].get_kwarg("require_setting_unless", None)
+            require_setting_unless = event["hook"].get_kwarg(
+                "require_setting_unless", None
+            )
             if not require_setting_unless == None:
                 require_setting_unless = int(require_setting_unless)
                 if len(event["args_split"]) >= require_setting_unless:
@@ -112,7 +102,9 @@ class Module(ModuleManager.BaseModule):
                 channel = event["target"]
 
             context = context or "user"
-            target, setting_context, _ = self._to_context(event["server"], channel, event["user"], context)
+            target, setting_context, _ = self._to_context(
+                event["server"], channel, event["user"], context
+            )
 
             export_settings = self._get_export_setting(setting_context)
             setting_info = export_settings.get(require_setting, None)
@@ -132,16 +124,13 @@ class Module(ModuleManager.BaseModule):
                         event["command_prefix"],
                         context,
                         require_setting,
-                        example
+                        example,
                     )
                     return utils.consts.PERMISSION_ERROR, error
 
-
     def _get_export_setting(self, context):
         settings = self.exports.get_all(context)
-        return {setting.name.lower(): setting
-                for setting in settings}
-
+        return {setting.name.lower(): setting for setting in settings}
 
     def _config(self, export_settings, target, setting, value=None):
         if not value == None:
@@ -178,7 +167,6 @@ class Module(ModuleManager.BaseModule):
             else:
                 raise ConfigSettingInexistent()
 
-
     @utils.hook("received.command.c", alias_of="config")
     @utils.hook("received.command.config")
     @utils.kwarg("min_args", 1)
@@ -198,12 +186,12 @@ class Module(ModuleManager.BaseModule):
 
         try:
             target, context, name_override = self._to_context(
-                    event["server"], event["target"], event["user"], context_desc
+                event["server"], event["target"], event["user"], context_desc
             )
         except ValueError:
             raise utils.EventError(
-                    "Unknown context '%s'. Please provide "
-                    "'user', 'channel', 'server' or 'bot'" % context_desc
+                "Unknown context '%s'. Please provide "
+                "'user', 'channel', 'server' or 'bot'" % context_desc
             )
 
         name = name_override or name
@@ -226,13 +214,14 @@ class Module(ModuleManager.BaseModule):
                 if event["is_channel"]:
                     target = event["target"]
                 else:
-                    raise utils.EventError("Cannot change config for current channel when in " "private message")
+                    raise utils.EventError(
+                        "Cannot change config for current channel when in "
+                        "private message"
+                    )
             event["check_assert"](
-                    permission_check | utils.Check("channel-access",
-                                                   target,
-                                                   "high,config") | utils.Check("channel-mode",
-                                                                                target,
-                                                                                "o")
+                permission_check
+                | utils.Check("channel-access", target, "high,config")
+                | utils.Check("channel-mode", target, "o")
             )
         elif context == "serverset" or context == "botset":
             event["check_assert"](permission_check)
@@ -260,12 +249,18 @@ class Module(ModuleManager.BaseModule):
             if name_override:
                 for_str = " for %s" % name_override
             if result.result == ConfigResults.Changed:
-                event["stdout"].write("Config '%s'%s set to %s" % (setting, for_str, result.data))
+                event["stdout"].write(
+                    "Config '%s'%s set to %s" % (setting, for_str, result.data)
+                )
             elif result.result == ConfigResults.Retrieved:
                 event["stdout"].write("%s%s: %s" % (setting, for_str, result.data))
             elif result.result == ConfigResults.Removed:
-                event["stdout"].write("Unset setting '%s'%s" % (setting.lstrip("-"), for_str))
+                event["stdout"].write(
+                    "Unset setting '%s'%s" % (setting.lstrip("-"), for_str)
+                )
             elif result.result == ConfigResults.Unchanged:
                 event["stdout"].write("Config '%s'%s unchanged" % (setting, for_str))
         else:
-            event["stdout"].write("Available config: %s" % ", ".join(export_settings.keys()))
+            event["stdout"].write(
+                "Available config: %s" % ", ".join(export_settings.keys())
+            )

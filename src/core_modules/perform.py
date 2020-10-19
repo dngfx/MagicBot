@@ -1,12 +1,10 @@
-#--depends-on commands
-#--depends-on permissions
+# --depends-on commands
+# --depends-on permissions
 
 from src import EventManager, IRCLine, ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
-
-
     def _execute(self, server, commands, **kwargs):
         for command in commands:
             line = command.format(**kwargs)
@@ -16,18 +14,20 @@ class Module(ModuleManager.BaseModule):
                 line = IRCLine.parse_line(line)
             server.send(line)
 
-
     @utils.hook("received.001", priority=EventManager.PRIORITY_URGENT)
     def on_connect(self, event):
         commands = event["server"].get_setting("perform", [])
         self._execute(event["server"], commands, NICK=event["server"].nickname)
 
-
     @utils.hook("self.join", priority=EventManager.PRIORITY_URGENT)
     def on_join(self, event):
         commands = event["channel"].get_setting("perform", [])
-        self._execute(event["server"], commands, NICK=event["server"].nickname, CHAN=event["channel"].name)
-
+        self._execute(
+            event["server"],
+            commands,
+            NICK=event["server"].nickname,
+            CHAN=event["channel"].name,
+        )
 
     def _perform(self, target, args_split):
         subcommand = args_split[0].lower()
@@ -57,7 +57,6 @@ class Module(ModuleManager.BaseModule):
         target.set_setting("perform", current_perform)
         return message
 
-
     @utils.hook("received.command.perform", min_args=1)
     @utils.kwarg("min_args", 1)
     @utils.kwarg("help", "Edit on-connect command configuration")
@@ -67,7 +66,6 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("permission", "perform")
     def perform(self, event):
         event["stdout"].write(self._perform(event["server"], event["args_split"]))
-
 
     @utils.hook("received.command.cperform", min_args=1)
     @utils.kwarg("min_args", 1)

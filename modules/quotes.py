@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import random
 import re
@@ -8,14 +8,14 @@ from src import ModuleManager, utils
 
 
 @utils.export(
-        "channelset",
-        utils.BoolSetting("channel-quotes",
-                          "Whether or not quotes added from this channel are kept in this channel")
+    "channelset",
+    utils.BoolSetting(
+        "channel-quotes",
+        "Whether or not quotes added from this channel are kept in this channel",
+    ),
 )
 @utils.export("channelset", utils.BoolSetting("phil-ken-sebben", "HA HA HA!"))
 class Module(ModuleManager.BaseModule):
-
-
     def category_and_quote(self, s):
         category, sep, quote = s.partition("=")
         category = category.strip()
@@ -24,14 +24,11 @@ class Module(ModuleManager.BaseModule):
             return category, None
         return category, quote.strip()
 
-
     def _get_quotes(self, target, category):
         return target.get_setting("quotes-%s" % category, [])
 
-
     def _set_quotes(self, target, category, quotes):
         target.set_setting("quotes-%s" % category, quotes)
-
 
     @utils.hook("received.command.qadd", alias_of="quoteadd")
     @utils.hook("received.command.quoteadd", min_args=1)
@@ -41,7 +38,9 @@ class Module(ModuleManager.BaseModule):
         category, quote = self.category_and_quote(event["args"])
         if category and quote:
             target = event["server"]
-            if event["is_channel"] and event["target"].get_setting("channel-quotes", False):
+            if event["is_channel"] and event["target"].get_setting(
+                "channel-quotes", False
+            ):
                 target = event["target"]
 
             quotes = self._get_quotes(target, category)
@@ -52,10 +51,8 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Please provide a category AND quote")
 
-
     def _target_zip(self, target, quotes):
         return [[u, t, q, target] for u, t, q in quotes]
-
 
     @utils.hook("received.command.qdel", alias_of="quotedel")
     @utils.hook("received.command.quotedel", min_args=1)
@@ -66,9 +63,13 @@ class Module(ModuleManager.BaseModule):
         category = category or event["args"].strip()
 
         message = None
-        quotes = self._target_zip(event["server"], self._get_quotes(event["server"], category))
+        quotes = self._target_zip(
+            event["server"], self._get_quotes(event["server"], category)
+        )
         if event["is_channel"]:
-            quotes += self._target_zip(event["target"], self._get_quotes(event["target"], category))
+            quotes += self._target_zip(
+                event["target"], self._get_quotes(event["target"], category)
+            )
         quotes = sorted(quotes, key=lambda q: q[1])
 
         if not quotes:
@@ -95,7 +96,6 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Quote not found")
 
-
     @utils.hook("command.regex")
     @utils.kwarg("expect_output", True)
     @utils.kwarg("ignore_action", True)
@@ -111,9 +111,10 @@ class Module(ModuleManager.BaseModule):
             nickname, time_added, quote = quotes[index]
 
             event["stdout"].prefix = None
-            event["stdout"].write("%s %s" % (utils.irc.bold("<PHIL KEN SEBBEN>"), quote))
+            event["stdout"].write(
+                "%s %s" % (utils.irc.bold("<PHIL KEN SEBBEN>"), quote)
+            )
             event.eat()
-
 
     @utils.hook("received.command.q", alias_of="quote")
     @utils.hook("received.command.quote", min_args=1)
@@ -135,15 +136,20 @@ class Module(ModuleManager.BaseModule):
 
             category_str = category
             if search:
-                category_str = "%s (%s [%d found])" % (category_str, search, len(quotes))
+                category_str = "%s (%s [%d found])" % (
+                    category_str,
+                    search,
+                    len(quotes),
+                )
             event["stdout"].write("%s: %s" % (category_str, quote))
         else:
             event["stderr"].write("No matching quotes")
 
-
     @utils.hook("received.command.grab", alias_of="quotegrab")
     @utils.hook("received.command.quotegrab", min_args=1, channel_only=True)
-    @utils.kwarg("help", "Grab the latest 1-3 lines from a user and add them " "as a quote")
+    @utils.kwarg(
+        "help", "Grab the latest 1-3 lines from a user and add them " "as a quote"
+    )
     @utils.kwarg("usage", "<nickname> [line-count]")
     def quote_grab(self, event):
         line_count = 1
@@ -171,7 +177,9 @@ class Module(ModuleManager.BaseModule):
 
             quote_category = line.sender
             if event["server"].has_user(quote_category):
-                account = event["server"].get_user_nickname(event["server"].get_user(quote_category).get_id())
+                account = event["server"].get_user_nickname(
+                    event["server"].get_user(quote_category).get_id()
+                )
 
             self._set_quotes(target, quote_category, quotes)
 

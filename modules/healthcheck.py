@@ -1,4 +1,4 @@
-#--require-config healthcheck-url
+# --require-config healthcheck-url
 
 from src import ModuleManager, utils
 from src.Logging import Logger as log
@@ -9,8 +9,6 @@ from src.Logging import Logger as log
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("cron")
     @utils.kwarg("schedule", "*/10")
     def ten_minutes(self, event):
@@ -18,4 +16,6 @@ class Module(ModuleManager.BaseModule):
         try:
             utils.http.request(url)
         except Exception as e:
-            log.error("Failed to call healthcheck-url (%s)" % url, "Internal", "healthcheck")
+            log.error(
+                "Failed to call healthcheck-url (%s)" % url, "Internal", "healthcheck"
+            )

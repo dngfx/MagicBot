@@ -9,8 +9,6 @@ MAGIC = " \t  \t\t\t\t \t \t \t    \t\t  \t \t"
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("raw.received.privmsg")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def on_message(self, event):

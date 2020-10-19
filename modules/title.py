@@ -1,6 +1,6 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on shorturl
+# --depends-on commands
+# --depends-on config
+# --depends-on shorturl
 
 import hashlib
 import re
@@ -14,34 +14,35 @@ RE_WORDSPLIT = re.compile("[\s/]")
 
 
 @utils.export(
-        "channelset",
-        utils.BoolSetting("auto-title",
-                          "Disable/Enable automatically getting info titles from URLs")
+    "channelset",
+    utils.BoolSetting(
+        "auto-title", "Disable/Enable automatically getting info titles from URLs"
+    ),
 )
 @utils.export(
-        "channelset",
-        utils.BoolSetting("title-shorten",
-                          "Enable/disable shortening URLs when getting their title")
+    "channelset",
+    utils.BoolSetting(
+        "title-shorten", "Enable/disable shortening URLs when getting their title"
+    ),
 )
 @utils.export(
-        "channelset",
-        utils.BoolSetting("auto-title-first",
-                          "Enable/disable showing who first posted a URL that was auto-titled")
+    "channelset",
+    utils.BoolSetting(
+        "auto-title-first",
+        "Enable/disable showing who first posted a URL that was auto-titled",
+    ),
 )
 @utils.export(
-        "channelset",
-        utils.BoolSetting(
-                "auto-title-difference",
-                "Enable/disable checking if a <title> is different enough from the URL"
-                " before showing it"
-        )
+    "channelset",
+    utils.BoolSetting(
+        "auto-title-difference",
+        "Enable/disable checking if a <title> is different enough from the URL"
+        " before showing it",
+    ),
 )
 class Module(ModuleManager.BaseModule):
-
-
     def _url_hash(self, url):
         return "sha256:%s" % hashlib.sha256(url.lower().encode("utf8")).hexdigest()
-
 
     def _different(self, url, title):
         url = url.lower()
@@ -62,7 +63,6 @@ class Module(ModuleManager.BaseModule):
             if similarity < 0.8:
                 return True
         return False
-
 
     def _get_title(self, server, channel, url):
         if not urllib.parse.urlparse(url).scheme:
@@ -89,16 +89,19 @@ class Module(ModuleManager.BaseModule):
                 return -3, None
 
             if channel:
-                if (channel.get_setting("auto-title-difference", True) and not self._different(url, title)):
+                if channel.get_setting(
+                    "auto-title-difference", True
+                ) and not self._different(url, title):
                     return -2, title
 
                 if channel.get_setting("title-shorten", False):
-                    short_url = self.exports.get_one("shorturl")(server, url, context=channel)
+                    short_url = self.exports.get_one("shorturl")(
+                        server, url, context=channel
+                    )
                     return page.code, "%s - %s" % (title, short_url)
             return page.code, title
         else:
             return -1, None
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -120,20 +123,27 @@ class Module(ModuleManager.BaseModule):
                     if first_details:
                         first_nickname, first_timestamp, _ = first_details
                         timestamp_parsed = utils.datetime.parse.iso8601(first_timestamp)
-                        timestamp_human = utils.datetime.format.datetime_human(timestamp_parsed)
+                        timestamp_human = utils.datetime.format.datetime_human(
+                            timestamp_parsed
+                        )
 
-                        message = "%s (first posted by %s at %s)" % (title, first_nickname, timestamp_human)
+                        message = "%s (first posted by %s at %s)" % (
+                            title,
+                            first_nickname,
+                            timestamp_human,
+                        )
                     else:
                         event["target"].set_setting(
-                                setting,
-                                [event["user"].nickname,
-                                 utils.datetime.format.iso8601_now(),
-                                 url]
+                            setting,
+                            [
+                                event["user"].nickname,
+                                utils.datetime.format.iso8601_now(),
+                                url,
+                            ],
                         )
                 event["stdout"].write(message)
             if code == -2:
                 log.debug("Not showing title for %s, too similar" % url)
-
 
     @utils.hook("received.command.t", alias_of="title")
     @utils.hook("received.command.title", usage="[URL]")
@@ -161,7 +171,6 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write(title)
         else:
             event["stderr"].write("Failed to get title")
-
 
     @utils.hook("received.command.notitle")
     @utils.kwarg("expect_output", False)

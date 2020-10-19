@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import datetime
 import re
@@ -11,8 +11,6 @@ HUMAN_FORMAT_HELP = "year-month-day (e.g. 2018-12-29)"
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.export("command-spec.marginstring")
     def _marginstring_spec(self, server, channel, user, args):
         if len(args) > 1:
@@ -21,27 +19,20 @@ class Module(ModuleManager.BaseModule):
         else:
             return None, 1
 
-
     def _round_up_day(self, dt: datetime.datetime):
         return dt.date() + datetime.timedelta(days=1)
-
 
     def _days_since(self, now: datetime.date, dt: datetime.datetime):
         return (now - dt.date()).days
 
-
     def _get_badges(self, user):
-        return user.get_setting("badges",
-                                {})
-
+        return user.get_setting("badges", {})
 
     def _set_badges(self, user, badges):
         user.set_setting("badges", badges)
 
-
     def _del_badges(self, user):
         user.del_setting("badges")
-
 
     @utils.hook("received.command.badge")
     @utils.kwarg("help", "List, add and remove badges")
@@ -65,7 +56,9 @@ class Module(ModuleManager.BaseModule):
                 days_since = self._days_since(now, dt)
                 human = utils.datetime.format.date_human(dt)
                 outs.append("%s on day %d (%s)" % (name, days_since, human))
-            event["stdout"].write("badges for %s: %s" % (target.nickname, ", ".join(outs)))
+            event["stdout"].write(
+                "badges for %s: %s" % (target.nickname, ", ".join(outs))
+            )
         else:
             badges = self._get_badges(event["user"])
             mut_badges = badges.copy()
@@ -82,27 +75,35 @@ class Module(ModuleManager.BaseModule):
 
                 mut_badges[name] = utils.datetime.format.iso8601(dt)
                 human = utils.datetime.format.date_human(dt)
-                event["stdout"].write("%s: %s badge %s (%s)" % (event["user"].nickname, action, name, human))
+                event["stdout"].write(
+                    "%s: %s badge %s (%s)"
+                    % (event["user"].nickname, action, name, human)
+                )
 
             else:
                 if not name in badges:
-                    raise utils.EventError("%s: you don't have a '%s' badge" % (event["user"].nickname, name))
+                    raise utils.EventError(
+                        "%s: you don't have a '%s' badge"
+                        % (event["user"].nickname, name)
+                    )
 
                 dt = utils.datetime.parse.iso8601(badges[name])
                 human = utils.datetime.format.date_human(dt)
                 if event["spec"][0] == "remove":
                     del mut_badges[name]
-                    event["stdout"].write("%s: removed badge '%s' (%s)" % (event["user"].nickname, name, human))
+                    event["stdout"].write(
+                        "%s: removed badge '%s' (%s)"
+                        % (event["user"].nickname, name, human)
+                    )
                 elif event["spec"][0] == "show":
                     days_since = self._days_since(now, dt)
-                    event["stdout"].write("%s: your %s badge is on day %d (%s)" % (event["user"].nickname,
-                                                                                   name,
-                                                                                   days_since,
-                                                                                   human))
+                    event["stdout"].write(
+                        "%s: your %s badge is on day %d (%s)"
+                        % (event["user"].nickname, name, days_since, human)
+                    )
 
             if not mut_badges == badges:
                 self._set_badges(event["user"], mut_badges)
-
 
     @utils.hook("received.command.badgeclear")
     @utils.kwarg("help", "Clear a user's badges")

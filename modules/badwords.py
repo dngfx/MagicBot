@@ -1,5 +1,5 @@
-#--depends-on check_mode
-#--depends-on commands
+# --depends-on check_mode
+# --depends-on commands
 
 import time
 
@@ -7,8 +7,6 @@ from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.badwordslist", channel_only=True)
     def badwords_list(self, event):
         """
@@ -16,9 +14,11 @@ class Module(ModuleManager.BaseModule):
         :require_mode: o
         """
         badwords = event["target"].get_setting("badwords", [])
-        badwords = ("(%d) %s" % (i + 1, badword["pattern"]) for i, badword in enumerate(badwords))
+        badwords = (
+            "(%d) %s" % (i + 1, badword["pattern"])
+            for i, badword in enumerate(badwords)
+        )
         event["stdout"].write("%s: %s" % (event["target"].name, ", ".join(badwords)))
-
 
     @utils.hook("received.command.badwordsadd", channel_only=True, min_args=2)
     def badwords_add(self, event):
@@ -32,15 +32,16 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Unknown action '%s'" % action)
 
         badwords = event["target"].get_setting("badwords", [])
-        badwords.append({
-            "pattern":  " ".join(event["args_split"][1:]).lower(),
-            "action":   action,
-            "added_by": event["user"].nickname,
-            "added_at": time.time()
-        })
+        badwords.append(
+            {
+                "pattern": " ".join(event["args_split"][1:]).lower(),
+                "action": action,
+                "added_by": event["user"].nickname,
+                "added_at": time.time(),
+            }
+        )
         event["target"].set_setting("badwords", badwords)
         event["stdout"].write("%s: added to badwords" % event["user"].nickname)
-
 
     @utils.hook("received.command.badwordsdel", channel_only=True, min_args=1)
     def badwords_del(self, event):
@@ -51,17 +52,20 @@ class Module(ModuleManager.BaseModule):
         """
         index = event["args_split"][0]
         if not index.isdigit() or int(index) == 0:
-            raise utils.EventError("%s: index must be a positive number" % event["user"].nickname)
+            raise utils.EventError(
+                "%s: index must be a positive number" % event["user"].nickname
+            )
 
         index_int = int(event["args_split"][0]) - 1
         badwords = event["target"].get_setting("badwords", [])
         if index_int >= len(badwords):
-            raise utils.EventError("%s: unknown badwords index %s" % (event["user"].nickname, index))
+            raise utils.EventError(
+                "%s: unknown badwords index %s" % (event["user"].nickname, index)
+            )
 
         badwords.pop(index_int)
         event["target"].set_setting("badwords", badwords)
         event["stdout"].write("%s: removed from badwords" % event["user"].nickname)
-
 
     @utils.hook("received.message.channel")
     def channel_message(self, event):
@@ -83,6 +87,10 @@ class Module(ModuleManager.BaseModule):
                     ban = True
 
                 if ban:
-                    event["channel"].send_ban("*!%s@%s" % (event["user"].username, event["user"].realname))
+                    event["channel"].send_ban(
+                        "*!%s@%s" % (event["user"].username, event["user"].realname)
+                    )
                 if kick:
-                    event["channel"].send_kick(event["user"].nickname, "You said a badword!")
+                    event["channel"].send_kick(
+                        event["user"].nickname, "You said a badword!"
+                    )

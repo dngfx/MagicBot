@@ -1,6 +1,6 @@
-#--depends-on commands
-#--depends-on location
-#--require-config openweathermap-api-key
+# --depends-on commands
+# --depends-on location
+# --require-config openweathermap-api-key
 
 from src import ModuleManager, utils
 import datetime, time
@@ -8,8 +8,8 @@ import datetime, time
 URL_WEATHER = "http://api.openweathermap.org/data/2.5/weather"
 URL_FORECAST = "http://api.openweathermap.org/data/2.5/forecast"
 
-class Module(ModuleManager.BaseModule):
 
+class Module(ModuleManager.BaseModule):
     def _user_location(self, user):
         user_location = user.get_setting("location", None)
         if user_location is not None:
@@ -43,7 +43,9 @@ class Module(ModuleManager.BaseModule):
         nickname = None
         if event["args"]:
             query = event["args"]
-            if len(event["args_split"]) == 1 and event["server"].has_user_id(event["args_split"][0]):
+            if len(event["args_split"]) == 1 and event["server"].has_user_id(
+                event["args_split"][0]
+            ):
                 target_user = event["server"].get_user(event["args_split"][0])
                 location = self._user_location(target_user)
                 if location is not None:
@@ -56,15 +58,16 @@ class Module(ModuleManager.BaseModule):
             if location is None:
                 raise utils.EventError("You don't have a location set")
 
-        args = {
-            "units": "metric",
-            "APPID": api_key
-        }
+        args = {"units": "metric", "APPID": api_key}
 
         if location is not None and query:
             location_info = self.exports.get_one("get-location")(query)
             if location_info is not None:
-                location = [location_info["lat"], location_info["lon"], location_info.get("name", None)]
+                location = [
+                    location_info["lat"],
+                    location_info["lon"],
+                    location_info.get("name", None),
+                ]
         if location is None:
             raise utils.EventError("Unknown location")
 
@@ -78,7 +81,9 @@ class Module(ModuleManager.BaseModule):
                 if location_name:
                     location_str = location_name
 
-                    place_name = page["sys"]["name"] if "name" in page["sys"] else page["name"]
+                    place_name = (
+                        page["sys"]["name"] if "name" in page["sys"] else page["name"]
+                    )
 
                     if place_name != location_str.split(",")[0]:
                         location_str = "%s, %s" % (place_name, location_name)
@@ -89,8 +94,10 @@ class Module(ModuleManager.BaseModule):
                     location_str = ", ".join(location_parts)
 
                 celsius_color = page["main"]["temp"]
-                celsius =  self._weather_colour(celsius_color, page["main"]["temp"], "C")
-                fahrenheit = self._weather_colour(celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F")
+                celsius = self._weather_colour(celsius_color, page["main"]["temp"], "C")
+                fahrenheit = self._weather_colour(
+                    celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F"
+                )
                 description = page["weather"][0]["description"].title()
                 humidity = "%s%%" % page["main"]["humidity"]
 
@@ -102,13 +109,18 @@ class Module(ModuleManager.BaseModule):
                 if nickname is not None:
                     location_str = "(%s) %s" % (nickname, location_str)
 
-                event["stdout"].write("%s | %s/%s | %s | Humidity: %s | Wind: %s/%s" % (location_str,
-                                                                                        celsius,
-                                                                                        fahrenheit,
-                                                                                        description,
-                                                                                        humidity,
-                                                                                        wind_speed_k,
-                                                                                        wind_speed_m))
+                event["stdout"].write(
+                    "%s | %s/%s | %s | Humidity: %s | Wind: %s/%s"
+                    % (
+                        location_str,
+                        celsius,
+                        fahrenheit,
+                        description,
+                        humidity,
+                        wind_speed_k,
+                        wind_speed_m,
+                    )
+                )
             else:
                 event["stderr"].write("No weather information for this location")
         else:
@@ -130,7 +142,9 @@ class Module(ModuleManager.BaseModule):
         nickname = None
         if event["args"]:
             query = event["args"]
-            if len(event["args_split"]) == 1 and event["server"].has_user_id(event["args_split"][0]):
+            if len(event["args_split"]) == 1 and event["server"].has_user_id(
+                event["args_split"][0]
+            ):
                 target_user = event["server"].get_user(event["args_split"][0])
                 location = self._user_location(target_user)
                 if location is not None:
@@ -143,18 +157,18 @@ class Module(ModuleManager.BaseModule):
             if location is None:
                 raise utils.EventError("You don't have a location set")
 
-        args = {
-            "units": "metric",
-            "APPID": api_key
-        }
+        args = {"units": "metric", "APPID": api_key}
 
         if location is not None and query:
             location_info = self.exports.get_one("get-location")(query)
             if location_info is not None:
-                location = [location_info["lat"], location_info["lon"], location_info.get("name", None)]
+                location = [
+                    location_info["lat"],
+                    location_info["lon"],
+                    location_info.get("name", None),
+                ]
         if location is None:
             raise utils.EventError("Unknown location")
-
 
         lat, lon, location_name = location
         args["lat"] = lat
@@ -186,8 +200,10 @@ class Module(ModuleManager.BaseModule):
 
             celsius_color = page["main"]["temp"]
             celsius = self._weather_colour(celsius_color, page["main"]["temp"], "C")
-            fahrenheit = self._weather_colour(celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F")
-            #fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
+            fahrenheit = self._weather_colour(
+                celsius_color, round(page["main"]["temp"] * (9 / 5)) + 32, "F"
+            )
+            # fahrenheit = "%dF" % ((page["main"]["temp"] * (9 / 5)) + 32)
             description = page["weather"][0]["description"].title()
 
             # wind speed is in metres per second - 3.6* for KMh
@@ -195,10 +211,14 @@ class Module(ModuleManager.BaseModule):
             wind_speed_k = "%sKMh" % round(wind_speed, 1)
             wind_speed_m = "%sMPh" % round(0.6214 * wind_speed, 1)
 
-            forecast_day_str = "%s: %s/%s | %s | Wind: %s/%s" % (utils.irc.bold(day),
-                                                                 celsius,
-                                                                 fahrenheit, description,
-                                                                 wind_speed_k, wind_speed_m)
+            forecast_day_str = "%s: %s/%s | %s | Wind: %s/%s" % (
+                utils.irc.bold(day),
+                celsius,
+                fahrenheit,
+                description,
+                wind_speed_k,
+                wind_speed_m,
+            )
 
             forecast_str.append(forecast_day_str)
 

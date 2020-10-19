@@ -1,13 +1,11 @@
-#--depends-on commands
-#--depends-on config
+# --depends-on commands
+# --depends-on config
 
 from src import ModuleManager, utils
 
 
 @utils.export("set", utils.Setting("pronouns", "Set your pronouns", example="she/her"))
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.pronouns")
     def pronouns(self, event):
         """
@@ -23,6 +21,8 @@ class Module(ModuleManager.BaseModule):
         pronouns = target_user.get_setting("pronouns", None)
 
         if not pronouns == None:
-            event["stdout"].write("Pronouns for %s: %s" % (target_user.nickname, pronouns))
+            event["stdout"].write(
+                "Pronouns for %s: %s" % (target_user.nickname, pronouns)
+            )
         else:
             event["stderr"].write("No pronouns set for %s" % target_user.nickname)

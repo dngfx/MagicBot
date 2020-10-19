@@ -8,16 +8,21 @@ from src import utils
 # @elonmusk - Elon Musk 😎 ✓ - Created Jun 2009 - 11.7K Tweets - 47.M Followers, Following 96
 
 VERIFIED_TICK = utils.irc.color(" ✅", utils.consts.LIGHTBLUE)
-FORMAT_PROFILE_PAGE = "%s — %s%s — Created %s — %s Tweets — %s Followers, Following %s — %s: %s — %s"
+FORMAT_PROFILE_PAGE = (
+    "%s — %s%s — Created %s — %s Tweets — %s Followers, Following %s — %s: %s — %s"
+)
+
 
 def _timestamp(dt):
-    dt = datetime.strptime(dt, '%a %b %d %H:%M:%S %z %Y')
+    dt = datetime.strptime(dt, "%a %b %d %H:%M:%S %z %Y")
     seconds_since = round(time.time() - dt.timestamp())
     timestamp = utils.datetime.format.to_pretty_since(seconds_since, max_units=2)
     return "%s ago" % timestamp
 
+
 def _normalise(tweet):
     return html.unescape(utils.parse.line_normalise(tweet))
+
 
 def _tweet(exports, event, tweet, from_url):
     user = tweet["user"]
@@ -31,7 +36,9 @@ def _tweet(exports, event, tweet, from_url):
 
     short_url = ""
     if not from_url:
-        short_url = exports.get_one("shorturl")(event["server"], tweet_link, context=event["target"])
+        short_url = exports.get_one("shorturl")(
+            event["server"], tweet_link, context=event["target"]
+        )
         short_url = " - %s" % short_url if short_url else ""
         created_at = _timestamp(tweet["created_at"])
 
@@ -50,10 +57,17 @@ def _tweet(exports, event, tweet, from_url):
             original_username,
             original_timestamp,
             _normalise(original_text),
-            short_url
+            short_url,
         )
     else:
-        return "(@%s%s, %s) %s%s" % (username, verified, created_at, _normalise(tweet["full_text"]), short_url)
+        return "(@%s%s, %s) %s%s" % (
+            username,
+            verified,
+            created_at,
+            _normalise(tweet["full_text"]),
+            short_url,
+        )
+
 
 def _profile(exports, event, profile, from_url):
     user = profile["user"]
@@ -66,9 +80,12 @@ def _profile(exports, event, profile, from_url):
     following = utils.parse.shorten_volume(user["friends_count"])
     followers = utils.parse.shorten_volume(user["followers_count"])
     created_at = user["created_at"]
-    created_at_hr = datetime.strptime(created_at,
-                                      '%a %b %d %H:%M:%S %z %Y').replace(tzinfo=timezone.utc
-                                                                         ).astimezone(tz=None).strftime('%b %Y')
+    created_at_hr = (
+        datetime.strptime(created_at, "%a %b %d %H:%M:%S %z %Y")
+        .replace(tzinfo=timezone.utc)
+        .astimezone(tz=None)
+        .strftime("%b %Y")
+    )
 
     latest_tweet = _normalise(profile["full_text"])
 
@@ -82,5 +99,5 @@ def _profile(exports, event, profile, from_url):
         utils.irc.bold(following),
         utils.irc.bold("Latest Tweet"),
         latest_tweet,
-        utils.irc.bold(("https://twitter.com/%s" % user["screen_name"]))
+        utils.irc.bold(("https://twitter.com/%s" % user["screen_name"])),
     )

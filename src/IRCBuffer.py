@@ -25,8 +25,9 @@ class BufferLine(object):
     notes: typing.Dict[str, str] = dataclasses.field(default_factory=dict)
 
     id: str = dataclasses.field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: datetime.datetime = dataclasses.field(default_factory=utils.datetime.utcnow)
-
+    timestamp: datetime.datetime = dataclasses.field(
+        default_factory=utils.datetime.utcnow
+    )
 
     def format(self):
         if self.action:
@@ -37,31 +38,26 @@ class BufferLine(object):
 
 
 class BufferLineMatch(object):
-
-
     def __init__(self, line: BufferLine, match: str):
         self.line = line
         self.match = match
 
 
 class Buffer(object):
-
-
     def __init__(self, bot: "IRCBot.Bot", server: "IRCServer.Server"):
         self.bot = bot
         self.server = server
         self._lines: typing.Deque[BufferLine] = collections.deque(maxlen=MAX_LINES)
 
-
     def __len__(self) -> int:
         return len(self._lines)
-
 
     def add(self, line: BufferLine):
         self._lines.appendleft(line)
 
-
-    def get(self, index: int = 0, from_self=True, deleted=False) -> typing.Optional[BufferLine]:
+    def get(
+        self, index: int = 0, from_self=True, deleted=False
+    ) -> typing.Optional[BufferLine]:
         for line in self._lines:
             if line.from_self and not from_self:
                 continue
@@ -69,7 +65,6 @@ class Buffer(object):
                 continue
             return line
         return None
-
 
     def get_all(self, for_user: typing.Optional[str] = None):
         if not for_user == None:
@@ -80,19 +75,14 @@ class Buffer(object):
             for line in self._lines:
                 yield line
 
-
     def find_all(
-            self,
-            pattern: typing.Union[str,
-                                  typing.Pattern[str]],
-            not_pattern: typing.Union[str,
-                                      typing.Pattern[str]] = None,
-            from_self=True,
-            for_user: str = None,
-            deleted=False
-    ) -> typing.Generator[BufferLineMatch,
-                          None,
-                          None]:
+        self,
+        pattern: typing.Union[str, typing.Pattern[str]],
+        not_pattern: typing.Union[str, typing.Pattern[str]] = None,
+        from_self=True,
+        for_user: str = None,
+        deleted=False,
+    ) -> typing.Generator[BufferLineMatch, None, None]:
         if for_user:
             for_user = self.server.irc_lower(for_user)
 
@@ -111,17 +101,16 @@ class Buffer(object):
                     yield BufferLineMatch(line, match.group(0))
         return None
 
-
-    def find(self, pattern: typing.Union[str, typing.Pattern[str]]) -> typing.Optional[BufferLineMatch]:
+    def find(
+        self, pattern: typing.Union[str, typing.Pattern[str]]
+    ) -> typing.Optional[BufferLineMatch]:
         return next(self.find_all(pattern), None)
-
 
     def find_id(self, id: str) -> typing.Optional[BufferLine]:
         for line in self._lines:
             if line.id == id:
                 return line
         return None
-
 
     def find_from(self, nickname: str) -> typing.Optional[BufferLine]:
         lines = self.find_many_from(nickname, 1)
@@ -130,12 +119,14 @@ class Buffer(object):
         else:
             return None
 
-
     def find_many_from(self, nickname: str, max: int) -> typing.List[BufferLine]:
         nickname_lower = self.server.irc_lower(nickname)
         found_lines = []
         for line in self._lines:
-            if (not line.from_self and self.server.irc_lower(line.sender) == nickname_lower):
+            if (
+                not line.from_self
+                and self.server.irc_lower(line.sender) == nickname_lower
+            ):
                 found_lines.append(line)
                 if len(found_lines) == max:
                     break

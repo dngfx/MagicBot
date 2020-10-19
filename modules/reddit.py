@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 
 import datetime
 import re
@@ -12,12 +12,15 @@ NSFW_TEXT = utils.irc.bold(utils.irc.color(" (NSFW)", utils.consts.RED))
 ARROW_UP = "↑"
 ARROW_DOWN = "↓"
 
-@utils.export("channelset", utils.BoolSetting("auto-reddit", "Auto parse Reddit URLs to display with info"))
-class Module(ModuleManager.BaseModule):
 
+@utils.export(
+    "channelset",
+    utils.BoolSetting("auto-reddit", "Auto parse Reddit URLs to display with info"),
+)
+class Module(ModuleManager.BaseModule):
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
-    #@utils.kwarg("priority", EventManager.PRIORITY_MONITOR)
+    # @utils.kwarg("priority", EventManager.PRIORITY_MONITOR)
     @utils.kwarg("command", "reddit")
     @utils.kwarg("pattern", REGEX_LINK)
     def channel_message(self, event):
@@ -30,28 +33,44 @@ class Module(ModuleManager.BaseModule):
             thread_info = utils.http.request(SANE_URL % (subreddit, thread_id)).json()
             thread = thread_info[0]["data"]["children"][0]["data"]
 
-            title = (thread["title"][:125] + "...") if len(thread["title"]) > 128 else thread["title"]
+            title = (
+                (thread["title"][:125] + "...")
+                if len(thread["title"]) > 128
+                else thread["title"]
+            )
             upvotes = thread["ups"]
             author = thread["author"]
             downvotes = thread["downs"]
             nsfw = NSFW_TEXT if thread["over_18"] else ""
-            time = datetime.datetime.utcfromtimestamp(thread["created_utc"]). \
-                strftime("%a, %b %-d, %Y at %H:%M UTC")
+            time = datetime.datetime.utcfromtimestamp(thread["created_utc"]).strftime(
+                "%a, %b %-d, %Y at %H:%M UTC"
+            )
             np_subreddit = thread["subreddit_name_prefixed"]
-            comments = "1 comment" if thread["num_comments"] == 1 else ("%s comments" % thread["num_comments"])
+            comments = (
+                "1 comment"
+                if thread["num_comments"] == 1
+                else ("%s comments" % thread["num_comments"])
+            )
 
             upvote_arrow = utils.irc.bold(utils.irc.color(ARROW_UP, utils.consts.GREEN))
-            downvote_arrow = utils.irc.bold(utils.irc.color(ARROW_DOWN, utils.consts.RED))
+            downvote_arrow = utils.irc.bold(
+                utils.irc.color(ARROW_DOWN, utils.consts.RED)
+            )
 
             stdout = event["stdout"]
-            stdout.write("%s%s (%s) — Posted by %s to %s on %s — %s %s" % (utils.irc.bold(title),
-                                                                           nsfw,
-                                                                           comments,
-                                                                           author,
-                                                                           np_subreddit,
-                                                                           time,
-                                                                           upvotes,
-                                                                           upvote_arrow))
+            stdout.write(
+                "%s%s (%s) — Posted by %s to %s on %s — %s %s"
+                % (
+                    utils.irc.bold(title),
+                    nsfw,
+                    comments,
+                    author,
+                    np_subreddit,
+                    time,
+                    upvotes,
+                    upvote_arrow,
+                )
+            )
 
-        #nightmare
+        # nightmare
         return

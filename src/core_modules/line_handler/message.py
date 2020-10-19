@@ -22,7 +22,11 @@ def message(events, event):
         message = event["line"].args[1]
 
     source = event["line"].source
-    if (not event["server"].nickname or not source or source.hostmask == event["server"].name):
+    if (
+        not event["server"].nickname
+        or not source
+        or source.hostmask == event["server"].name
+    ):
         if source:
             event["server"].name = event["line"].source.hostmask
         else:
@@ -32,7 +36,9 @@ def message(events, event):
     if from_self:
         user = event["server"].get_user(event["server"].nickname)
     else:
-        user = event["server"].get_user(source.nickname, username=source.username, hostname=source.hostname)
+        user = event["server"].get_user(
+            source.nickname, username=source.username, hostname=source.hostname
+        )
 
     # strip prefix_symbols from the start of target, for when people use
     # e.g. 'PRIVMSG +#channel :hi' which would send a message to only
@@ -55,15 +61,15 @@ def message(events, event):
         target_obj = event["server"].get_user(target)
 
     kwargs = {
-        "server":     event["server"],
-        "target":     target_obj,
+        "server": event["server"],
+        "target": target_obj,
         "target_str": target_str,
-        "user":       user,
-        "tags":       event["line"].tags,
+        "user": user,
+        "tags": event["line"].tags,
         "is_channel": is_channel,
-        "from_self":  from_self,
-        "line":       event["line"],
-        "statusmsg":  statusmsg
+        "from_self": from_self,
+        "line": event["line"],
+        "statusmsg": statusmsg,
     }
 
     action = False
@@ -72,14 +78,20 @@ def message(events, event):
         ctcp_message = utils.irc.parse_ctcp(message)
 
         if ctcp_message:
-            if (not ctcp_message.command == "ACTION" or not event["line"].command == "PRIVMSG"):
+            if (
+                not ctcp_message.command == "ACTION"
+                or not event["line"].command == "PRIVMSG"
+            ):
                 if event["line"].command == "PRIVMSG":
                     ctcp_action = "request"
                 else:
                     ctcp_action = "response"
-                events.on(direction).on("ctcp").on(ctcp_action).call(message=ctcp_message.message, **kwargs)
-                events.on(direction).on("ctcp").on(ctcp_action).on(ctcp_message.command
-                                                                   ).call(message=ctcp_message.message, **kwargs)
+                events.on(direction).on("ctcp").on(ctcp_action).call(
+                    message=ctcp_message.message, **kwargs
+                )
+                events.on(direction).on("ctcp").on(ctcp_action).on(
+                    ctcp_message.command
+                ).call(message=ctcp_message.message, **kwargs)
                 return
             else:
                 message = ctcp_message.message
@@ -100,7 +112,12 @@ def message(events, event):
     buffer_line = None
     if message:
         buffer_line = IRCBuffer.BufferLine(
-                user.nickname, message, action, event["line"].tags, from_self, event["line"].command
+            user.nickname,
+            message,
+            action,
+            event["line"].tags,
+            from_self,
+            event["line"].command,
         )
 
     buffer_obj = target_obj

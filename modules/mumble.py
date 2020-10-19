@@ -18,24 +18,26 @@ def _parse(s):
     return "%s:%s" % (host, port)
 
 
-SETTING = utils.FunctionSetting(_parse,
-                                "mumble-server",
-                                "Set the mumble server for this channel",
-                                example="example.com:%s" % DEFAULT_PORT)
+SETTING = utils.FunctionSetting(
+    _parse,
+    "mumble-server",
+    "Set the mumble server for this channel",
+    example="example.com:%s" % DEFAULT_PORT,
+)
 
 
 @utils.export("channelset", SETTING)
 @utils.export("serverset", SETTING)
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("received.command.mumble")
     @utils.kwarg("help", "Get user and bandwidth stats for a mumble server")
     @utils.kwarg("usage", "[server[:<port>]]")
     def mumble(self, event):
         server = None
         if not event["args"]:
-            server = event["target"].get_setting("mumble-server", event["server"].get_setting("mumble-server", None))
+            server = event["target"].get_setting(
+                "mumble-server", event["server"].get_setting("mumble-server", None)
+            )
         elif event["args"]:
             server = event["args_split"][0]
         if not server:
@@ -63,7 +65,9 @@ class Module(ModuleManager.BaseModule):
             try:
                 pong_packet = s.recv(24)
             except socket.timeout:
-                raise utils.EventError("Timed out waiting for response from %s:%d" % (server, port))
+                raise utils.EventError(
+                    "Timed out waiting for response from %s:%d" % (server, port)
+                )
 
         pong = struct.unpack(">bbbbQiii", pong_packet)
 
@@ -73,10 +77,7 @@ class Module(ModuleManager.BaseModule):
         max_users = pong[6]
         bandwidth = pong[7] / 1000  # kbit/s
 
-        event["stdout"].write("%s:%d (v%s): %d/%d users, %.1fms ping, %dkbit/s bandwidth" % (server,
-                                                                                             port,
-                                                                                             version,
-                                                                                             users,
-                                                                                             max_users,
-                                                                                             ping,
-                                                                                             bandwidth))
+        event["stdout"].write(
+            "%s:%d (v%s): %d/%d users, %.1fms ping, %dkbit/s bandwidth"
+            % (server, port, version, users, max_users, ping, bandwidth)
+        )

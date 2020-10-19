@@ -31,9 +31,12 @@ def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[st
 
 
 class Docstring(object):
-
-
-    def __init__(self, description: str, items: typing.Dict[str, str], var_items: typing.Dict[str, typing.List[str]]):
+    def __init__(
+        self,
+        description: str,
+        items: typing.Dict[str, str],
+        var_items: typing.Dict[str, typing.List[str]],
+    ):
         self.description = description
         self.items = items
         self.var_items = var_items
@@ -148,7 +151,7 @@ def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int
                 token_end = s.find("}", i)
                 if token_end > i:
                     token = s[i:token_end]
-                    tokens.append((i - 1, token_end, s[i + 1:token_end]))
+                    tokens.append((i - 1, token_end, s[i + 1 : token_end]))
                     i = token_end
             elif s[i] == sigil:
                 tokens.append((i - 1, i, sigil))
@@ -167,5 +170,5 @@ def format_token_replace(s: str, vars: typing.Dict[str, str], sigil: str = "$") 
 
     for start, end, token in tokens:
         if token in vars:
-            s = s[:start] + vars[token] + s[end + 1:]
+            s = s[:start] + vars[token] + s[end + 1 :]
     return s
