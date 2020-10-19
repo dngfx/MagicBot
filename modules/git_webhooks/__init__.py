@@ -87,6 +87,8 @@ class Module(ModuleManager.BaseModule):
             event["params"],
         )
 
+    unique_ids_processed = []
+
     def _webhook(
         self, webhook_type, webhook_name, handler, payload_str, headers, params
     ):
@@ -162,6 +164,11 @@ class Module(ModuleManager.BaseModule):
         outputs = handler.webhook(full_name, current_events[0], data, headers)
 
         if outputs:
+            if headers["X-Github-Delivery"] in self.unique_ids_processed:
+                return
+
+            self.unique_ids_processed.append(headers["X-Github-Delivery"])
+
             for server, channel in targets:
                 source = full_name or organisation
                 hide_org = channel.get_setting("git-hide-organisation", False)

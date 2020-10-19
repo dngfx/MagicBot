@@ -97,6 +97,7 @@ CHECK_RUN_FAILURES = ["failure", "cancelled", "timed_out", "action_required"]
 class GitHub(object):
     def __init__(self, log):
         self.log = log
+        self.processed = {}
 
     def is_private(self, data, headers):
         if "repository" in data:
