@@ -97,7 +97,11 @@ class User(IRCObject.Object):
         return self.bot.database.user_channel_settings.find_by_setting(self.get_id(), setting, default)
 
 
+<<<<<<< HEAD
     def wsend_message(self,
+=======
+    def send_message(self,
+>>>>>>> a86ac658bb5b1911456b9d1264e6e74ffecf3eb1
                      message: str,
                      tags: dict = {}):
         self.server.send_message(self.nickname, message, tags=tags)

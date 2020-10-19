@@ -4,7 +4,6 @@
 
 import re
 import time
-import ircstyle
 
 from src import EventManager, ModuleManager, utils
 
@@ -28,7 +27,6 @@ class Module(ModuleManager.BaseModule):
             return utils.irc.color(str(karma), utils.consts.LIGHTGREEN)
         else:
             return utils.irc.color(str(karma), utils.consts.YELLOW)
-
 
 
     @utils.hook("new.user")
@@ -63,15 +61,9 @@ class Module(ModuleManager.BaseModule):
             return server.get_user_nickname(server.get_user(target).get_id())
         return target.lower()
 
-    def _strip(self, text):
-        return utils.irc.strip_all(text)
 
     def _change_karma(self, server, sender, target, positive):
-        target = self._strip(target)
-        if len(target) is 0:
-            return False, "You need to enter a positive number of non-stripped characters"
-
-        throttle, wait = self._check_throttle(user=sender, positive=positive)
+        throttle, wait = self._check_throttle(sender, positive)
         print(throttle, wait)
         if not throttle:
             return False, "Try again in about %d seconds" % wait
