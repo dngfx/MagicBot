@@ -123,8 +123,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     % (method, path, key, key_setting["comment"])
                 )
 
+            event_response = None
             if authenticated is True or path in permissions or "*" in permissions:
-                event_response = None
                 event_response = (
                     _events.on("api")
                     .on(method)
