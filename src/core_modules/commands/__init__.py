@@ -1,4 +1,4 @@
-#--depends-on config
+# --depends-on config
 
 import enum
 import re
@@ -27,40 +27,53 @@ class OutType(enum.Enum):
 
 
 class BadContextException(Exception):
-
-
     def __init__(self, required_context):
         self.required_context = required_context
         Exception.__init__(self)
 
 
 class CommandEvent(object):
-
-
     def __init__(self, command, args):
         self.command = command
         self.args = args
 
 
 SETTING_COMMANDMETHOD = utils.OptionsSetting(
-        COMMAND_METHODS,
-        COMMAND_METHOD,
-        "Set the method used to respond to commands"
+    COMMAND_METHODS, COMMAND_METHOD, "Set the method used to respond to commands"
 )
 
 
-@utils.export("channelset", utils.Setting("command-prefix", "Set the command prefix used in this channel", example="!"))
-@utils.export("serverset", utils.Setting("command-prefix", "Set the command prefix used on this server", example="!"))
+@utils.export(
+    "channelset",
+    utils.Setting(
+        "command-prefix", "Set the command prefix used in this channel", example="!"
+    ),
+)
+@utils.export(
+    "serverset",
+    utils.Setting(
+        "command-prefix", "Set the command prefix used on this server", example="!"
+    ),
+)
 @utils.export("botset", SETTING_COMMANDMETHOD)
 @utils.export("serverset", SETTING_COMMANDMETHOD)
 @utils.export("channelset", SETTING_COMMANDMETHOD)
 @utils.export("set", SETTING_COMMANDMETHOD)
-@utils.export("channelset", utils.BoolSetting("hide-prefix", "Disable/enable hiding prefix in command reponses"))
-@utils.export("channelset", utils.BoolSetting("commands", "Disable/enable responding to commands in-channel"))
 @utils.export(
-        "channelset",
-        utils.BoolSetting("prefixed-commands",
-                          "Disable/enable responding to prefixed commands in-channel")
+    "channelset",
+    utils.BoolSetting(
+        "hide-prefix", "Disable/enable hiding prefix in command reponses"
+    ),
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting("commands", "Disable/enable responding to commands in-channel"),
+)
+@utils.export(
+    "channelset",
+    utils.BoolSetting(
+        "prefixed-commands", "Disable/enable responding to prefixed commands in-channel"
+    ),
 )
 class Module(ModuleManager.BaseModule):
     """@utils.hook("new.user")
@@ -71,41 +84,38 @@ class Module(ModuleManager.BaseModule):
         else:
             target = event["channel"]"""
 
-
     def has_command(self, command):
-        return command.lower() in self.events.on("received").on("command").get_children()
-
+        return (
+            command.lower() in self.events.on("received").on("command").get_children()
+        )
 
     def get_hooks(self, command):
         return self.events.on("received.command").on(command).get_hooks()
-
 
     def is_highlight(self, server, s):
         if s and s[-1] in [":", ","]:
             return server.is_own_nickname(s[:-1])
 
-
     def _command_method(self, server, target, is_channel):
         default = "PRIVMSG" if is_channel else "NOTICE"
 
         return target.get_setting(
-                COMMAND_METHOD,
-                server.get_setting(COMMAND_METHOD,
-                                   self.bot.get_setting(COMMAND_METHOD,
-                                                        default))
+            COMMAND_METHOD,
+            server.get_setting(
+                COMMAND_METHOD, self.bot.get_setting(COMMAND_METHOD, default)
+            ),
         ).upper()
-
 
     def _find_command_hook(self, server, target, is_channel, command, user, args):
         if not self.has_command(command):
             command_event = CommandEvent(command, args)
             self.events.on("get.command").call(
-                    command=command_event,
-                    server=server,
-                    target=target,
-                    is_channel=is_channel,
-                    user=user,
-                    kwargs={}
+                command=command_event,
+                server=server,
+                target=target,
+                is_channel=is_channel,
+                user=user,
+                kwargs={},
             )
 
             command = command_event.command
@@ -123,8 +133,8 @@ class Module(ModuleManager.BaseModule):
                         potential_hook = self.get_hooks(alias_of)[0]
                     else:
                         raise ValueError(
-                                "'%s' is an alias of unknown command '%s'" % (command.lower(),
-                                                                              alias_of.lower())
+                            "'%s' is an alias of unknown command '%s'"
+                            % (command.lower(), alias_of.lower())
                         )
 
                 if not is_channel and potential_hook.get_kwarg("channel_only", False):
@@ -150,14 +160,17 @@ class Module(ModuleManager.BaseModule):
 
         return hook, command, args_split
 
-
     def _check(self, context, kwargs, requests=[]):
         event_hook = self.events.on(context).on("command")
 
         returns = []
         if requests:
             for request, request_args in requests:
-                returns.append(event_hook.on(request).call_for_result_unsafe(**kwargs, request_args=request_args))
+                returns.append(
+                    event_hook.on(request).call_for_result_unsafe(
+                        **kwargs, request_args=request_args
+                    )
+                )
         else:
             returns = event_hook.call_unsafe(**kwargs)
 
@@ -184,16 +197,30 @@ class Module(ModuleManager.BaseModule):
         else:
             return True, None
 
-
-    def _check_assert(self, check_kwargs, user, check: typing.Union[utils.Check, utils.MultiCheck]):
+    def _check_assert(
+        self, check_kwargs, user, check: typing.Union[utils.Check, utils.MultiCheck]
+    ):
         checks = check.to_multi()  # both Check and MultiCheck has this func
         is_success, message = self._check("check", check_kwargs, checks.requests())
         if not is_success:
             raise utils.EventError("%s: %s" % (user.nickname, message))
 
-
-    def command(self, server, target, target_str, is_channel, user, command, args_split, line, hook, **kwargs):
-        module_name = (self._get_prefix(hook) or self.bot.modules.from_context(hook.context).title)
+    def command(
+        self,
+        server,
+        target,
+        target_str,
+        is_channel,
+        user,
+        command,
+        args_split,
+        line,
+        hook,
+        **kwargs
+    ):
+        module_name = (
+            self._get_prefix(hook) or self.bot.modules.from_context(hook.context).title
+        )
         stdout = outs.StdOut(module_name)
         stderr = outs.StdOut(module_name)
 
@@ -204,20 +231,20 @@ class Module(ModuleManager.BaseModule):
             args_split = list(filter(None, args_split))
 
         event_kwargs = {
-            "hook":       hook,
-            "user":       user,
-            "server":     server,
-            "target":     target,
+            "hook": hook,
+            "user": user,
+            "server": server,
+            "target": target,
             "target_str": target_str,
             "is_channel": is_channel,
-            "line":       line,
+            "line": line,
             "args_split": args_split,
-            "command":    command,
-            "args":       " ".join(args_split),
-            "stdout":     stdout,
-            "stderr":     stderr,
-            "tags":       {},
-            "kwargs":     {}
+            "command": command,
+            "args": " ".join(args_split),
+            "stdout": stdout,
+            "stderr": stderr,
+            "tags": {},
+            "kwargs": {},
         }
 
         event_kwargs.update(kwargs)
@@ -247,7 +274,6 @@ class Module(ModuleManager.BaseModule):
 
         return eaten
 
-
     @utils.hook("postprocess.command")
     @utils.kwarg("priority", EventManager.PRIORITY_LOW)
     def postprocess(self, event):
@@ -261,8 +287,15 @@ class Module(ModuleManager.BaseModule):
             obj = event["stderr"]
         else:
             return
-        self._out(event["server"], event["target"], event["target_str"], event["is_channel"], obj, type, event["tags"])
-
+        self._out(
+            event["server"],
+            event["target"],
+            event["target_str"],
+            event["is_channel"],
+            obj,
+            type,
+            event["tags"],
+        )
 
     def _out(self, server, target, target_str, is_channel, obj, type, tags):
         if type == OutType.OUT:
@@ -299,12 +332,13 @@ class Module(ModuleManager.BaseModule):
 
         server.send(line)
 
-
     @utils.hook("preprocess.command")
     def _check_min_args(self, event):
         min_args = event["hook"].get_kwarg("min_args")
         if min_args and len(event["args_split"]) < min_args:
-            usage = self._get_usage(event["hook"], event["command"], event["command_prefix"])
+            usage = self._get_usage(
+                event["hook"], event["command"], event["command_prefix"]
+            )
             error = None
             if usage:
                 error = "Not enough arguments, usage: %s" % usage.replace("<", "\<")
@@ -312,10 +346,10 @@ class Module(ModuleManager.BaseModule):
                 error = "Not enough arguments (minimum: %d)" % min_args
             return utils.consts.PERMISSION_HARD_FAIL, error
 
-
     def _command_prefix(self, server, channel):
-        return channel.get_setting("command-prefix", server.get_setting("command-prefix", "!"))
-
+        return channel.get_setting(
+            "command-prefix", server.get_setting("command-prefix", "!")
+        )
 
     @utils.hook("received.message.channel", priority=EventManager.PRIORITY_LOW)
     def channel_message(self, event):
@@ -332,7 +366,9 @@ class Module(ModuleManager.BaseModule):
             command = event["message_split"][0].replace(command_prefix, "", 1).lower()
             if " " in event["message"]:
                 args = event["message"].split(" ", 1)[1]
-        elif len(event["message_split"]) > 1 and self.is_highlight(event["server"], event["message_split"][0]):
+        elif len(event["message_split"]) > 1 and self.is_highlight(
+            event["server"], event["message_split"][0]
+        ):
             command = event["message_split"][1].lower()
             if event["message"].count(" ") > 1:
                 args = event["message"].split(" ", 2)[2]
@@ -342,10 +378,18 @@ class Module(ModuleManager.BaseModule):
         if command:
             try:
                 hook, command, args_split = self._find_command_hook(
-                        event["server"], event["channel"], True, command, event["user"], args
+                    event["server"],
+                    event["channel"],
+                    True,
+                    command,
+                    event["user"],
+                    args,
                 )
             except BadContextException:
-                event["channel"].send_message("%s: That command is not valid in a channel" % event["user"].nickname)
+                event["channel"].send_message(
+                    "%s: That command is not valid in a channel"
+                    % event["user"].nickname
+                )
                 return
 
         if hook:
@@ -354,27 +398,27 @@ class Module(ModuleManager.BaseModule):
 
             if hook:
                 self.command(
-                        event["server"],
-                        event["channel"],
-                        event["target_str"],
-                        True,
-                        event["user"],
-                        command,
-                        args_split,
-                        event["line"],
-                        hook,
-                        command_prefix=command_prefix,
-                        expect_output=True,
-                        buffer_line=event["buffer_line"]
+                    event["server"],
+                    event["channel"],
+                    event["target_str"],
+                    True,
+                    event["user"],
+                    command,
+                    args_split,
+                    event["line"],
+                    hook,
+                    command_prefix=command_prefix,
+                    expect_output=True,
+                    buffer_line=event["buffer_line"],
                 )
             else:
                 self.events.on("unknown.command").call(
-                        server=event["server"],
-                        target=event["channel"],
-                        user=event["user"],
-                        command=command,
-                        command_prefix=command_prefix,
-                        is_channel=True
+                    server=event["server"],
+                    target=event["channel"],
+                    user=event["user"],
+                    command=command,
+                    command_prefix=command_prefix,
+                    is_channel=True,
                 )
         else:
             regex_hooks = self.events.on("command.regex").get_hooks()
@@ -390,26 +434,25 @@ class Module(ModuleManager.BaseModule):
                     if match:
                         command = hook.get_kwarg("command", "")
                         res = self.command(
-                                event["server"],
-                                event["channel"],
-                                event["target_str"],
-                                True,
-                                event["user"],
-                                command,
-                                "",
-                                event["line"],
-                                hook,
-                                match=match,
-                                message=event["message"],
-                                command_prefix="",
-                                action=event["action"],
-                                expect_output=False,
-                                buffer_line=event["buffer_line"]
+                            event["server"],
+                            event["channel"],
+                            event["target_str"],
+                            True,
+                            event["user"],
+                            command,
+                            "",
+                            event["line"],
+                            hook,
+                            match=match,
+                            message=event["message"],
+                            command_prefix="",
+                            action=event["action"],
+                            expect_output=False,
+                            buffer_line=event["buffer_line"],
                         )
 
                         if res:
                             break
-
 
     @utils.hook("received.message.private", priority=EventManager.PRIORITY_LOW)
     def private_message(self, event):
@@ -426,7 +469,7 @@ class Module(ModuleManager.BaseModule):
 
             try:
                 hook, command, args_split = self._find_command_hook(
-                        event["server"], event["user"], False, command, event["user"], args
+                    event["server"], event["user"], False, command, event["user"], args
                 )
 
             except BadContextException:
@@ -435,29 +478,28 @@ class Module(ModuleManager.BaseModule):
 
             if hook:
                 self.command(
-                        event["server"],
-                        event["user"],
-                        event["user"].nickname,
-                        False,
-                        event["user"],
-                        command,
-                        args_split,
-                        event["line"],
-                        hook,
-                        command_prefix="",
-                        buffer_line=event["buffer_line"],
-                        expect_output=True
+                    event["server"],
+                    event["user"],
+                    event["user"].nickname,
+                    False,
+                    event["user"],
+                    command,
+                    args_split,
+                    event["line"],
+                    hook,
+                    command_prefix="",
+                    buffer_line=event["buffer_line"],
+                    expect_output=True,
                 )
             else:
                 self.events.on("unknown.command").call(
-                        server=event["server"],
-                        target=event["user"],
-                        user=event["user"],
-                        command=command,
-                        command_prefix="",
-                        is_channel=False
+                    server=event["server"],
+                    target=event["user"],
+                    user=event["user"],
+                    command=command,
+                    command_prefix="",
+                    is_channel=False,
                 )
-
 
     def _get_usage(self, hook, command, command_prefix=""):
         command = "%s%s" % (command_prefix, command)
@@ -467,24 +509,19 @@ class Module(ModuleManager.BaseModule):
             return " | ".join("%s %s" % (command, usage) for usage in usages)
         return None
 
-
     def _get_prefix(self, hook):
         return hook.get_kwarg("prefix", None)
 
-
     def _get_alias_of(self, hook):
         return hook.get_kwarg("alias_of", None)
-
 
     @utils.hook("send.stdout")
     def _stdout(self, event):
         self._send_out(event, OutType.OUT)
 
-
     @utils.hook("send.stderr")
     def _stderr(self, event):
         self._send_out(event, OutType.ERR)
-
 
     def _send_out(self, event, type):
         target = event["target"]
@@ -493,26 +530,24 @@ class Module(ModuleManager.BaseModule):
         stdout.write(event["message"])
 
         target_str = event.get("target_str", target.name)
-        self._out(event["server"],
-                  target,
-                  target_str,
-                  True,
-                  stdout,
-                  type,
-                  {})
-
+        self._out(event["server"], target, target_str, True, stdout, type, {})
 
     @utils.hook("check.command.self")
     def check_command_self(self, event):
         if event["server"].irc_lower(event["request_args"][0]) == event["user"].name:
             return utils.consts.PERMISSION_FORCE_SUCCESS, None
         else:
-            return (utils.consts.PERMISSION_ERROR, "You do not have permission to do this")
-
+            return (
+                utils.consts.PERMISSION_ERROR,
+                "You do not have permission to do this",
+            )
 
     @utils.hook("check.command.is-channel")
     def check_command_is_channel(self, event):
         if event["is_channel"]:
             return utils.consts.PERMISSION_FORCE_SUCCESS, None
         else:
-            return (utils.consts.PERMISSION_ERROR, "This command can only be used in-channel")
+            return (
+                utils.consts.PERMISSION_ERROR,
+                "This command can only be used in-channel",
+            )

@@ -71,7 +71,7 @@ class Module(ModuleManager.BaseModule):
 
     def _change_karma(self, server, sender, target, positive):
         target = self._strip(target)
-        if len(target) is 0:
+        if len(target) == 0:
             return (
                 False,
                 "You need to enter a positive number of non-stripped characters",

@@ -6,34 +6,41 @@ from loguru import logger as log
 
 from src import utils
 
-publisher:"Microsoft"message=""):
+
+def formatter(server="", context="", message=""):
     context = "Server" if context == "" else context
     server = "Startup" if server == "" else server
 
     message = utils.irc.parse_format(message)
-    #context = "<m><b>%s</b></m>:<e><b>%s</b></e>" % (server, context)
+    # context = "<m><b>%s</b></m>:<e><b>%s</b></e>" % (server, context)
     return [server, context, message]
 
 
 class Logger(object):
-
     def __init__(self, log_level="INFO"):
         print("Init log level at: %s" % log_level)
         log_level = log_level.upper()
 
         log.add(
-                logging.StreamHandler(sys.stdout),
-                colorize=True,
-                format=
-                "<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
-                level=log_level
+            logging.StreamHandler(sys.stdout),
+            colorize=True,
+            format="<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
+            level=log_level,
         )
 
         self.set_log_colours()
 
     @staticmethod
     def set_log_colours():
-        for lev in ("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"):
+        for lev in (
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "SUCCESS",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+        ):
             current_level = log.level(lev)
             color = current_level.color.replace("<bold>", "")
             log.level(name=lev, color=color)
