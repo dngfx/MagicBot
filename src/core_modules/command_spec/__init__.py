@@ -1,6 +1,7 @@
 from src import EventManager, ModuleManager, utils
 from . import types
 
+
 # describing command arg specifications, to centralise parsing and validating.
 #
 # format: <!|?><name>
@@ -30,7 +31,10 @@ from . import types
 #   - "word" - one word from arguments
 #   - "string" - collect all remaining args in to a string
 
+
 class Module(ModuleManager.BaseModule):
+
+
     def _spec_value(self, server, channel, user, argument_types, args):
         options = []
         first_error = None
@@ -48,8 +52,7 @@ class Module(ModuleManager.BaseModule):
                 if argument_type.type in types.TYPES:
                     func = types.TYPES[argument_type.type]
                 else:
-                    func = self.exports.get_one(
-                        "command-spec.%s" % argument_type.type)
+                    func = self.exports.get_one("command-spec.%s" % argument_type.type)
 
                 if func:
                     try:
@@ -59,6 +62,7 @@ class Module(ModuleManager.BaseModule):
 
             options.append([argument_type, value, n, error])
         return options
+
 
     def _argument_types(self, options, args):
         errors = []
@@ -71,8 +75,8 @@ class Module(ModuleManager.BaseModule):
             elif n > len(args):
                 errors.append("Not enough arguments")
 
-        return [None, -1,
-            errors[0] if len(errors) == 1 else "Invalid arguments"]
+        return [None, -1, errors[0] if len(errors) == 1 else "Invalid arguments"]
+
 
     @utils.hook("preprocess.command")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
@@ -88,17 +92,17 @@ class Module(ModuleManager.BaseModule):
             for spec_arguments in specs:
                 out = {}
                 args = event["args_split"].copy()
-                kwargs = {"channel": channel}
+                kwargs = {
+                    "channel": channel
+                }
                 failed = False
 
                 current_error = None
                 count = 0
                 spec_index = 0
                 for spec_argument in spec_arguments:
-                    argument_type_multi = len(set(
-                        t.type for t in spec_argument.types)) > 1
-                    options = self._spec_value(server, kwargs["channel"], user,
-                        spec_argument.types, args)
+                    argument_type_multi = len(set(t.type for t in spec_argument.types)) > 1
+                    options = self._spec_value(server, kwargs["channel"], user, spec_argument.types, args)
 
                     argument_type, n, value = self._argument_types(options, args)
                     if n > -1:
@@ -139,11 +143,10 @@ class Module(ModuleManager.BaseModule):
                 context = utils.parse.SpecArgumentContext.CHANNEL
             else:
                 context = utils.parse.SpecArgumentContext.PRIVATE
-            usages = [
-                utils.parse.argument_spec_human(s, context) for s in specs]
+            usages = [utils.parse.argument_spec_human(s, context) for s in specs]
             command = "%s%s" % (event["command_prefix"], event["command"])
             usages = ["%s%s" % (command, u) for u in usages]
 
             error_out = "%s (Usage: %s)" % (overall_error, " | ".join(usages))
 
-            return utils.consts.PERMISSION_HARD_FAIL, error_out
+            return utils.consts.PERMISSION_ERROR, error_out

@@ -4,22 +4,26 @@ with open("VERSION", "r") as version_file:
 SOURCE: str = "https://git.io/magicirc"
 URL: str = "https://git.io/magicirc"
 
-import enum, queue, os, queue, select, socket, sys, threading, time, traceback
-import typing, uuid
-from src import Config, EventManager, Exports, IRCServer
-from src import ModuleManager, PollHook, PollSource, Socket, Timers, utils
-from src.Logging import Logger as log
+import enum
+import os
+import queue
+import select
+import socket
+import sys
+import threading
+import time
+import typing
 
+from src import Config, IRCServer, ModuleManager, PollHook, PollSource, Timers, utils
+from src.Logging import Logger as log
 
 class TriggerResult(enum.Enum):
     Return = 1
     Exception = 2
 
-
 class TriggerEventType(enum.Enum):
     Action = 1
     Kill = 2
-
 
 class TriggerEvent(object):
 
@@ -27,15 +31,14 @@ class TriggerEvent(object):
         self.type = type
         self.callback = callback
 
-
 class ListLambdaPollHook(PollHook.PollHook):
 
     def __init__(
-        self,
-        collection: typing.Callable[[],
-                                    typing.Iterable[typing.Any]],
-        func: typing.Callable[[typing.Any],
-                              None]
+            self,
+            collection: typing.Callable[[],
+                                        typing.Iterable[typing.Any]],
+            func: typing.Callable[[typing.Any],
+                                  None]
     ):
         self._collection = collection
         self._func = func
@@ -44,7 +47,6 @@ class ListLambdaPollHook(PollHook.PollHook):
         timeouts = [self._func(i) for i in self._collection()]
         timeouts = [t for t in timeouts if t is not None]
         return min(timeouts or [None])
-
 
 class Bot(object):
 
@@ -84,13 +86,13 @@ class Bot(object):
 
         self._poll_timeouts = []  # typing.List[PollHook.PollHook]
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(),
-                               lambda server: server.until_read_timeout())
+                ListLambdaPollHook(lambda: self.servers.values(),
+                                   lambda server: server.until_read_timeout())
         )
 
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(),
-                               lambda server: server.until_next_ping())
+                ListLambdaPollHook(lambda: self.servers.values(),
+                                   lambda server: server.until_next_ping())
         )
 
         self._poll_timeouts.append(ListLambdaPollHook(lambda: self.servers.values(), self._throttle_timeout))
@@ -99,6 +101,9 @@ class Bot(object):
 
     def add_poll_hook(self, hook: PollHook.PollHook):
         self._poll_timeouts.append(hook)
+
+    def update_config(self, config):
+        self.config = config
 
     def add_poll_source(self, source: PollSource.PollSource):
         self._poll_sources.append(source)
@@ -123,10 +128,10 @@ class Bot(object):
             self._write_condition.notify()
 
     def trigger(
-        self,
-        func: typing.Optional[typing.Callable[[],
-                                              typing.Any]] = None,
-        trigger_threads=True
+            self,
+            func: typing.Optional[typing.Callable[[],
+                                                  typing.Any]] = None,
+            trigger_threads=True
     ) -> typing.Any:
         func = func or (lambda: None)
 
@@ -165,7 +170,7 @@ class Bot(object):
         if any(sys.exc_info()):
             exc_info = True
 
-        log.critical(log, "panic() called: %s" % reason)
+        log.critical(message=("panic() called: %s" % reason), exc_info=exc_info)
         sys.exit(utils.consts.Exit.PANIC)
 
     def get_config(self, name: str) -> Config.Config:
@@ -190,21 +195,21 @@ class Bot(object):
         return self.modules.try_reload_modules(self, whitelist=whitelist, blacklist=blacklist)
 
     def add_server(
-        self,
-        server_id: int,
-        connect: bool = True,
-        connection_param_args: typing.Dict[str,
-                                           str] = {}
+            self,
+            server_id: int,
+            connect: bool = True,
+            connection_param_args: typing.Dict[str,
+                                               str] = {}
     ) -> IRCServer.Server:
         connection_params = utils.irc.IRCConnectionParameters(*self.database.servers.get(server_id))
         connection_params.args = connection_param_args
 
         new_server = IRCServer.Server(
-            self,
-            self._events,
-            connection_params.id,
-            connection_params.alias,
-            connection_params
+                self,
+                self._events,
+                connection_params.id,
+                connection_params.alias,
+                connection_params
         )
         self._events.on("new.server").call(server=new_server)
 
@@ -214,6 +219,9 @@ class Bot(object):
         self.connect(new_server)
 
         return new_server
+
+    def get_events(self):
+        return self._events
 
     def get_server_by_id(self, id: int) -> typing.Optional[IRCServer.Server]:
         for server in self.servers.values():
@@ -232,8 +240,7 @@ class Bot(object):
         try:
             server.connect()
         except Exception as e:
-            log.warn(log, "Failed to connect to %s: %s" % (str(server), str(e)))
-            log.debug(log, "Connection failure")
+            log.warn(("Failed to connect to %s: %s" % (str(server), str(e))), server.alias, server.alias)
             return False
         self.servers[server.fileno()] = server
         self._read_poll.register(server.fileno(), select.POLLIN)
@@ -260,9 +267,9 @@ class Bot(object):
             del self.reconnections[server_id]
 
     def reconnect(
-        self,
-        server_id: int,
-        connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
+            self,
+            server_id: int,
+            connection_params: typing.Optional[utils.irc.IRCConnectionParameters] = None
     ) -> bool:
         args = {}  # type: typing.Dict[str, str]
         if not connection_params == None:
@@ -397,7 +404,7 @@ class Bot(object):
                         try:
                             lines = server._send()
                         except:
-                            log.error(log, "Failed to write to %s" % str(server))
+                            log.critical( "Failed to write to %s" % str(server))
                             raise
                         event_item = TriggerEvent(TriggerEventType.Action, self._post_send_factory(server, lines))
                         self._event_queue.put(event_item)
@@ -453,7 +460,7 @@ class Bot(object):
                         event_item = TriggerEvent(TriggerEventType.Action, self._post_read_factory(server, lines))
                         self._event_queue.put(event_item)
                     elif event & select.POLLHUP:
-                        log.warn(log, "Recieved POLLHUP for %s" % str(server))
+                        log.warn( "Recieved POLLHUP for %s" % str(server))
                         server.disconnect()
 
     def _check(self):
@@ -464,7 +471,7 @@ class Bot(object):
         throttle_filled = False
         for server in list(self.servers.values()):
             if server.read_timed_out():
-                log.warn(log, "Pinged out from %s" % str(server))
+                log.warn( "Pinged out from %s" % (str(server)))
                 server.disconnect()
             elif server.ping_due() and not server.ping_sent:
                 server.send_ping()
@@ -478,14 +485,14 @@ class Bot(object):
                     reconnect_delay = self.config.get("reconnect-delay", 10)
 
                     timer = self._timers.add(
-                        "timed-reconnect",
-                        self._timed_reconnect,
-                        reconnect_delay,
-                        server_id=server.id
+                            "timed-reconnect",
+                            self._timed_reconnect,
+                            reconnect_delay,
+                            server_id=server.id
                     )
                     self.reconnections[server.id] = timer
 
-                    log.warn(log, "Disconnected from %s, reconnecting in %d seconds" % (str(server), reconnect_delay))
+                    log.warn( "Disconnected from %s, reconnecting in %d seconds" % (str(server), reconnect_delay))
             elif (server.socket.waiting_throttled_send() and server.socket.throttle_done()):
                 server.socket._fill_throttle()
                 throttle_filled = True

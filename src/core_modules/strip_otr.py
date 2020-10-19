@@ -1,5 +1,6 @@
 from src import EventManager, ModuleManager, utils
 
+
 # Strip magic whitespace string from the end of messages.
 # OTR uses this string to advertise, over plaintext, that the sending user
 # supports OTR.
@@ -8,6 +9,7 @@ MAGIC = " \t  \t\t\t\t \t \t \t    \t\t  \t \t"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("raw.received.privmsg")
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)

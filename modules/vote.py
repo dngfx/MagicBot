@@ -2,8 +2,12 @@
 #--depends-on commands
 #--depends-on permissions
 
-import binascii, enum, os, uuid
+import binascii
+import enum
+import os
+
 from src import ModuleManager, utils
+
 
 STR_NOVOTE = "Unknown vote '%s'"
 
@@ -22,17 +26,21 @@ class VoteCastResult(enum.Enum):
                                 "Whether casting a vote should be restricted to voiced-and-above users"))
 class Module(ModuleManager.BaseModule):
 
+
     def _get_vote(self, channel, vote_id):
         return channel.get_setting("vote-%s" % vote_id, None)
 
+
     def _set_vote(self, channel, vote_id, vote):
         channel.set_setting("vote-%s" % vote_id, vote)
+
 
     def _random_id(self, channel):
         while True:
             vote_id = binascii.hexlify(os.urandom(3)).decode("ascii")
             if self._get_vote(channel, vote_id) == None:
                 return vote_id
+
 
     def _close_vote(self, channel, vote_id):
         vote = self._get_vote(channel, vote_id)
@@ -42,27 +50,31 @@ class Module(ModuleManager.BaseModule):
             return True
         return False
 
+
     def _start_vote(self, channel, description):
         vote_id = self._random_id(channel)
         vote = {
             "description": description,
-            "options": {
+            "options":     {
                 "yes": [],
-                "no": []
+                "no":  []
             },
-            "electorate": [],
-            "open": True,
-            "id": vote_id
+            "electorate":  [],
+            "open":        True,
+            "id":          vote_id
         }
         self._set_vote(channel, vote_id, vote)
         return vote
+
 
     def _format_vote(self, vote):
         options = ["%d %s" % (len(v), k) for k, v in vote["options"].items()]
         return "%s (%s)" % (vote["description"], ", ".join(options))
 
+
     def _format_options(self, vote):
         return ", ".join("'%s'" % o for o in vote["options"])
+
 
     def _cast_vote(self, channel, vote_id, user, chosen_option):
         vote = self._get_vote(channel, vote_id)
@@ -83,12 +95,14 @@ class Module(ModuleManager.BaseModule):
         self._set_vote(channel, vote_id, vote)
         return cast_type
 
+
     def _open_votes(self, channel):
         open = []
         for setting, vote in channel.find_settings(prefix="vote-"):
             if vote["open"]:
                 open.append(vote)
         return open
+
 
     @utils.hook("received.command.startvote", channel_only=True, min_args=1)
     def start_vote(self, event):
@@ -110,6 +124,7 @@ class Module(ModuleManager.BaseModule):
                                vote["id"],
                                self._format_options(vote)))
 
+
     @utils.hook("received.command.endvote", channel_only=True, min_args=1)
     def end_vote(self, event):
         """
@@ -126,6 +141,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("Vote %s ended: %s" % (vote_id, self._format_vote(vote)))
         else:
             event["stderr"].write(STR_NOVOTE % vote_id)
+
 
     @utils.hook("received.command.vote", channel_only=True, min_args=1)
     def vote(self, event):
@@ -164,6 +180,7 @@ class Module(ModuleManager.BaseModule):
                 cast_desc = "is unchanged"
 
             event["stdout"].write("%s: your vote %s." % (event["user"].nickname, cast_desc))
+
 
     @utils.hook("received.command.votes", channel_only=True)
     def votes(self, event):

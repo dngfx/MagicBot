@@ -1,7 +1,11 @@
-import os.path, urllib.parse
+import os.path
+import urllib.parse
+
 import bs4
-from src import IRCBot, utils
+
+from src import utils
 from . import ap_actor
+
 
 LD_TYPE = ("application/ld+json; " "profile=\"https://www.w3.org/ns/activitystreams\"")
 JRD_TYPE = "application/jrd+json"

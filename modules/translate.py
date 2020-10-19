@@ -1,15 +1,18 @@
 #--depends-on commands
 #--require-config google-translate-api-key
 
-import json, re
+import re
+
 from src import ModuleManager, utils
+
 
 URL_TRANSLATE = "https://translation.googleapis.com/language/translate/v2"
 URL_LANGUAGES = "https://cloud.google.com/translate/docs/languages"
-REGEX_LANGUAGES = re.compile("(\w+)?:(\w+)? ")
+REGEX_LANGUAGES = re.compile("(\w+)?[:| ](\w+)? ")
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.tr", alias_of="translate")
     @utils.hook("received.command.translate")
@@ -35,11 +38,11 @@ class Module(ModuleManager.BaseModule):
         page = utils.http.request(URL_TRANSLATE,
                                   method="POST",
                                   post_data={
-                                      "q": phrase,
+                                      "q":      phrase,
                                       "format": "text",
                                       "source": source_language,
                                       "target": target_language,
-                                      "key": self.bot.config["google-translate-api-key"]
+                                      "key":    self.bot.config["google-translate-api-key"]
                                   }).json()
 
         if "data" in page:

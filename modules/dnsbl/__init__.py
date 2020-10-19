@@ -1,11 +1,14 @@
 import ipaddress
-from src import ModuleManager, utils
+
 import dns.resolver
+
+from src import ModuleManager, utils
 from . import lists as _lists
 
 
 class Module(ModuleManager.BaseModule):
     _name = "DNSBL"
+
 
     @utils.hook("received.command.dnsbl")
     def dnsbl(self, event):
@@ -31,6 +34,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stdout"].write("%s not found in blacklists" % address)
 
+
     def _check_lists(self, lists, address):
         address_obj = ipaddress.ip_address(address)
 
@@ -47,6 +51,7 @@ class Module(ModuleManager.BaseModule):
                 reason = list.process(record) or "unknown"
                 failed.append((list.hostname, reason))
         return failed
+
 
     def _check_list(self, list, address):
         list_address = "%s.%s" % (address, list)

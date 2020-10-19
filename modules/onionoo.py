@@ -2,7 +2,9 @@
 #--depends-on config
 
 import re
+
 from src import EventManager, ModuleManager, utils
+
 
 REGEX_SHA1_HEX = re.compile("[A-Fa-f0-9]{40}")
 URL_ONIONOO_DETAILS = "https://onionoo.torproject.org/details"
@@ -40,6 +42,7 @@ def _format_relay_summary_message(relays, search):
 class Module(ModuleManager.BaseModule):
     _name = "Onionoo"
 
+
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("priority", EventManager.PRIORITY_MONITOR)
@@ -54,6 +57,7 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write(_format_relay_summary_message(relays, search))
             except utils.EventError:
                 pass
+
 
     @utils.hook("received.command.torrelay", min_args=1)
     def torrelay(self, event):

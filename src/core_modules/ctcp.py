@@ -1,11 +1,13 @@
 #--depends-on config
 
 import datetime
+
 from src import IRCBot, ModuleManager, utils
 
 
 @utils.export("serverset", utils.BoolSetting("ctcp-responses", "Set whether I respond to CTCPs on this server"))
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.ctcp.request.version")
     def ctcp_version(self, event):
@@ -13,13 +15,16 @@ class Module(ModuleManager.BaseModule):
 
         event["user"].send_ctcp_response("VERSION", self.bot.config.get("ctcp-version", default))
 
+
     @utils.hook("received.ctcp.request.source")
     def ctcp_source(self, event):
         event["user"].send_ctcp_response("SOURCE", self.bot.config.get("ctcp-source", IRCBot.SOURCE))
 
+
     @utils.hook("received.ctcp.request.ping")
     def ctcp_ping(self, event):
         event["user"].send_ctcp_response("PING", event["message"])
+
 
     @utils.hook("received.ctcp.request.time")
     def ctcp_time(self, event):

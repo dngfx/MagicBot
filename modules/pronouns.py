@@ -7,6 +7,7 @@ from src import ModuleManager, utils
 @utils.export("set", utils.Setting("pronouns", "Set your pronouns", example="she/her"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.pronouns")
     def pronouns(self, event):
         """

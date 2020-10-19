@@ -1,10 +1,13 @@
 #--depends-on commands
 #--depends-on permissions
 
-from src import IRCLine, ModuleManager, utils, IRCChannels
+import sys, pprint
 
+from src import IRCBot, IRCLine, ModuleManager, utils, Config
+from src.Logging import Logger as log
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.nick")
     @utils.kwarg("help", "Change my nickname")
@@ -13,13 +16,12 @@ class Module(ModuleManager.BaseModule):
     def change_nickname(self, event):
         event["server"].send_nick(event["spec"][0])
 
+
     @utils.hook("received.command.broadcast")
     @utils.kwarg("help", "Send a message to every channel on the current server")
     @utils.kwarg("permission", "administrator")
     @utils.spec("!<message>string")
     def broadcast_message(self, event):
-        print(event["server"].version)
-        return True
         broadcast_text = event["spec"][0]
         server = event["server"]
         message = "Broadcasting \"%s\" to all channels on %s" % (
@@ -30,6 +32,7 @@ class Module(ModuleManager.BaseModule):
         for channel in server.get_channels():
             chan = channel[0]
             server.send_message(chan, broadcast_text)
+
 
     @utils.hook("received.command.raw")
     @utils.kwarg("help", "Send a line of raw IRC data")
@@ -47,6 +50,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Line was filtered")
 
+
     @utils.hook("received.command.part")
     @utils.kwarg("help", "Part from the current or given channel")
     @utils.kwarg("permission", "part")
@@ -56,18 +60,38 @@ class Module(ModuleManager.BaseModule):
     def part(self, event):
         event["server"].send_part(event["spec"][0].name)
 
+    @utils.hook("received.command.rehashconfig")
+    @utils.kwarg("help", "Reloads the config file of the bot")
+    @utils.kwarg("permission", "rehash-config")
+    def rehash(self, event):
+        # idek
+        print(self.bot.config["spotify-client-id"])
+
+        log.info("Now Rehashing Bot Config")
+        config = self.bot.get_config("bot")
+
+        config_array = vars(config)["_config"].items()
+        for item, value in config_array:
+            self.bot.config[item] = value
+
+        log.success("Config updated!", formatting=True)
+
+
     def _id_from_alias(self, alias):
         return self.bot.database.servers.get_by_alias(alias)
+
 
     def _server_from_alias(self, alias):
         id, server = self._both_from_alias(alias)
         return server
+
 
     def _both_from_alias(self, alias):
         id = self._id_from_alias(alias)
         if id == None:
             raise utils.EventError("Unknown server alias")
         return id, self.bot.get_server_by_id(id)
+
 
     @utils.hook("received.command.reconnect")
     @utils.kwarg("help", "Reconnect to the current, or provided, server")
@@ -85,6 +109,7 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stdout"].write("Not connected to %s" % alias)
 
+
     @utils.hook("received.command.connect", min_args=1)
     @utils.kwarg("help", "Connect to a given server")
     @utils.kwarg("permission", "connect")
@@ -97,6 +122,7 @@ class Module(ModuleManager.BaseModule):
 
         server = self.bot.add_server(self._id_from_alias(alias))
         event["stdout"].write("Connecting to %s" % str(server))
+
 
     @utils.hook("received.command.disconnect")
     @utils.kwarg("help", "Disconnect from the current or provided server")
@@ -118,15 +144,23 @@ class Module(ModuleManager.BaseModule):
         if not server == event["server"]:
             event["stdout"].write("Disconnected from %s" % alias)
 
+
     @utils.hook("received.command.shutdown")
     @utils.kwarg("help", "Shutdown the bot")
     @utils.kwarg("permission", "shutdown")
     @utils.spec("?<reason>string")
     def shutdown(self, event):
-        reason = event["spec"][0] or "Shutting down"
+        reason = event["spec"][0] if event["spec"][0] else "Shutting down"
         for server in self.bot.servers.values():
             line = server.send_quit(reason)
             line.events.on("send").hook(self._shutdown_hook(server))
+
+        self.quit_process()
+
+
+    def quit_process(self):
+        sys.exit()
+
 
     def _shutdown_hook(self, server):
 
@@ -134,7 +168,9 @@ class Module(ModuleManager.BaseModule):
             server.disconnect()
             self.bot.disconnect(server)
 
+
         return shutdown
+
 
     @utils.hook("received.command.addserver")
     @utils.kwarg("help", "Add a new server")
@@ -158,21 +194,22 @@ class Module(ModuleManager.BaseModule):
 
         try:
             server_id = self.bot.database.servers.add(
-                alias,
-                hostname,
-                port,
-                "",
-                tls,
-                bindhost,
-                nickname,
-                username,
-                realname
+                    alias,
+                    hostname,
+                    port,
+                    "",
+                    tls,
+                    bindhost,
+                    nickname,
+                    username,
+                    realname
             )
         except Exception as e:
             event["stderr"].write("Failed to add server")
-            self.log.error("failed to add server \"%s\"", [alias], exc_info=True)
+            log.error("failed to add server \"%s\"", [alias], exc_info=True)
             return
         event["stdout"].write("Added server '%s'" % alias)
+
 
     @utils.hook("received.command.editserver")
     @utils.kwarg("help", "Edit server details")

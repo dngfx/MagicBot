@@ -1,8 +1,22 @@
-import asyncio, codecs, dataclasses, ipaddress, re, signal, socket, traceback
-import typing, urllib.error, urllib.parse, uuid
+import asyncio
+import codecs
+import dataclasses
+import ipaddress
 import json as _json
-import bs4, netifaces, requests, tornado.httpclient
+import re
+import socket
+import typing
+import urllib.error
+import urllib.parse
+import uuid
+
+import bs4
+import netifaces
+import requests
+import tornado.httpclient
+
 from src import IRCBot, utils
+
 
 REGEX_URL = re.compile("https?://\S+", re.I)
 
@@ -32,7 +46,7 @@ def url_sanitise(url: str):
 
 USERAGENT = "Mozilla/5.0 (compatible; MagicBot/%s; +%s)" % (IRCBot.VERSION, IRCBot.URL)
 
-RESPONSE_MAX = (1024*1024) * 100
+RESPONSE_MAX = (1024 * 1024) * 100
 SOUP_CONTENT_TYPES = ["text/html", "text/xml", "application/xml"]
 UTF8_CONTENT_TYPES = ["application/json"]
 
@@ -43,17 +57,20 @@ class HTTPException(Exception):
 
 class HTTPTimeoutException(HTTPException):
 
+
     def __init__(self):
         Exception.__init__(self, "HTTP request timed out")
 
 
 class HTTPParsingException(HTTPException):
 
+
     def __init__(self, message: str, data: str):
         Exception.__init__(self, "%s\n%s" % ((message or "HTTP parsing failed"), data))
 
 
 class HTTPWrongContentTypeException(HTTPException):
+
 
     def __init__(self, message: str = None):
         Exception.__init__(self, message or "HTTP request gave wrong content type")
@@ -85,10 +102,12 @@ class Request(object):
 
     timeout: int = 5
 
+
     def validate(self):
         self.id = self.id or str(uuid.uuid4())
         self.set_url(self.url)
         self.method = self.method.upper()
+
 
     def set_url(self, url: str):
         parts = urllib.parse.urlparse(url)
@@ -102,6 +121,7 @@ class Request(object):
 
         self.url = (f"{parts.scheme}://{netloc}{parts.path}{params}{query}{fragment}")
 
+
     def get_headers(self) -> typing.Dict[str, str]:
         headers = self.headers.copy()
         if not "Accept-Language" in headers:
@@ -111,6 +131,7 @@ class Request(object):
         if not "Content-Type" in headers and self.content_type:
             headers["Content-Type"] = self.content_type
         return headers
+
 
     def get_body(self) -> typing.Any:
         if not self.post_data == None:
@@ -124,15 +145,16 @@ class Request(object):
 
 class Response(object):
 
+
     def __init__(
-        self,
-        code: int,
-        data: bytes,
-        encoding: str,
-        headers: typing.Dict[str,
-                             str],
-        cookies: typing.Dict[str,
-                             str]
+            self,
+            code: int,
+            data: bytes,
+            encoding: str,
+            headers: typing.Dict[str,
+                                 str],
+            cookies: typing.Dict[str,
+                                 str]
     ):
         self.code = code
         self.data = data
@@ -141,11 +163,14 @@ class Response(object):
         self.headers = headers
         self.cookies = cookies
 
+
     def decode(self, encoding: typing.Optional[str] = None) -> str:
         return self.data.decode(encoding or self.encoding)
 
+
     def json(self) -> typing.Any:
         return _json.loads(self.data)
+
 
     def soup(self, parser: str = "html5lib") -> bs4.BeautifulSoup:
         return bs4.BeautifulSoup(self.decode(), parser)
@@ -194,17 +219,18 @@ def request(request_obj: typing.Union[str, Request], **kwargs) -> Response:
 def _request(request_obj: Request) -> Response:
     request_obj.validate()
 
+
     def _wrap() -> Response:
         headers = request_obj.get_headers()
         response = requests.request(
-            request_obj.method,
-            request_obj.url,
-            headers=headers,
-            params=request_obj.get_params,
-            data=request_obj.get_body(),
-            allow_redirects=request_obj.allow_redirects,
-            stream=True,
-            cookies=request_obj.cookies
+                request_obj.method,
+                request_obj.url,
+                headers=headers,
+                params=request_obj.get_params,
+                data=request_obj.get_body(),
+                allow_redirects=request_obj.allow_redirects,
+                stream=True,
+                cookies=request_obj.cookies
         )
         response_content = response.raw.read(RESPONSE_MAX, decode_content=True)
         if not response.raw.read(1) == b"":
@@ -212,13 +238,14 @@ def _request(request_obj: Request) -> Response:
 
         headers = utils.CaseInsensitiveDict(dict(response.headers))
         our_response = Response(
-            response.status_code,
-            response_content,
-            encoding=response.encoding,
-            headers=headers,
-            cookies=response.cookies.get_dict()
+                response.status_code,
+                response_content,
+                encoding=response.encoding,
+                headers=headers,
+                cookies=response.cookies.get_dict()
         )
         return our_response
+
 
     try:
         response = utils.deadline_process(_wrap, seconds=request_obj.timeout)
@@ -242,15 +269,19 @@ def _request(request_obj: Request) -> Response:
 
 class Session(object):
 
+
     def __init__(self):
         self._cookies: typing.Dict[str,
                                    str] = {}
 
+
     def __enter__(self):
         pass
 
+
     def __exit__(self):
         self._cookies.clear()
+
 
     def request(self, request: Request) -> Response:
         request.cookies.update(self._cookies)
@@ -266,6 +297,7 @@ class RequestManyException(Exception):
 def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
     responses = {}
 
+
     async def _request(request):
         request.validate()
         client = tornado.httpclient.AsyncHTTPClient()
@@ -274,13 +306,13 @@ def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
             url = "%s?%s" % (url, urllib.parse.urlencode(request.get_params))
 
         t_request = tornado.httpclient.HTTPRequest(
-            request.url,
-            connect_timeout=2,
-            request_timeout=2,
-            method=request.method,
-            body=request.get_body(),
-            headers=request.get_headers(),
-            follow_redirects=request.allow_redirects,
+                request.url,
+                connect_timeout=2,
+                request_timeout=2,
+                method=request.method,
+                body=request.get_body(),
+                headers=request.get_headers(),
+                follow_redirects=request.allow_redirects,
         )
 
         try:
@@ -295,6 +327,7 @@ def request_many(requests: typing.List[Request]) -> typing.Dict[str, Response]:
                                          encoding,
                                          headers,
                                          {})
+
 
     loop = asyncio.new_event_loop()
     awaits = []

@@ -2,10 +2,12 @@
 #--depends-on commands
 
 import time
+
 from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.badwordslist", channel_only=True)
     def badwords_list(self, event):
@@ -16,6 +18,7 @@ class Module(ModuleManager.BaseModule):
         badwords = event["target"].get_setting("badwords", [])
         badwords = ("(%d) %s" % (i + 1, badword["pattern"]) for i, badword in enumerate(badwords))
         event["stdout"].write("%s: %s" % (event["target"].name, ", ".join(badwords)))
+
 
     @utils.hook("received.command.badwordsadd", channel_only=True, min_args=2)
     def badwords_add(self, event):
@@ -30,13 +33,14 @@ class Module(ModuleManager.BaseModule):
 
         badwords = event["target"].get_setting("badwords", [])
         badwords.append({
-            "pattern": " ".join(event["args_split"][1:]).lower(),
-            "action": action,
+            "pattern":  " ".join(event["args_split"][1:]).lower(),
+            "action":   action,
             "added_by": event["user"].nickname,
             "added_at": time.time()
         })
         event["target"].set_setting("badwords", badwords)
         event["stdout"].write("%s: added to badwords" % event["user"].nickname)
+
 
     @utils.hook("received.command.badwordsdel", channel_only=True, min_args=1)
     def badwords_del(self, event):
@@ -57,6 +61,7 @@ class Module(ModuleManager.BaseModule):
         badwords.pop(index_int)
         event["target"].set_setting("badwords", badwords)
         event["stdout"].write("%s: removed from badwords" % event["user"].nickname)
+
 
     @utils.hook("received.message.channel")
     def channel_message(self, event):

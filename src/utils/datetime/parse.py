@@ -1,18 +1,22 @@
-import re, typing
-import datetime as _datetime
-import dateutil.parser, isodate
+import re
+import typing
+from datetime import datetime as _datetime
+
+import dateutil.parser
+import isodate
+
 from .common import *
 
 
-def iso8601(s: str) -> _datetime.datetime:
+def iso8601(s: str):
     return dateutil.parser.parse(s)
 
 
-def iso8601_duration(s: str) -> _datetime.timedelta:
+def iso8601_duration(s: str):
     return isodate.parse_duration(s)
 
 
-def date_human(s: str) -> typing.Optional[_datetime.datetime]:
+def date_human(s: str):
     try:
         return _datetime.datetime.strptime(s, DATE_HUMAN)
     except ValueError:

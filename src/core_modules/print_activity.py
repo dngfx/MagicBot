@@ -1,10 +1,8 @@
 #--depends-on config
 #--depends-on format_activity
 
-import datetime
-from src import EventManager, ModuleManager, utils
+from src import ModuleManager, utils
 from src.Logging import Logger as log
-import pprint
 
 
 @utils.export("botset", utils.BoolSetting("print-motd", "Set whether I print /motd"))
@@ -13,8 +11,9 @@ import pprint
 @utils.export("channelset", utils.BoolSetting("print", "Whether or not to print activity a channel to logs"))
 class Module(ModuleManager.BaseModule):
 
+
     def _print(self, event):
-        if (event["channel"] and not event["channel"].get_setting("print", True)):
+        if event["channel"] and not event["channel"].get_setting("print", True):
             return
 
         line = event["line"]
@@ -22,11 +21,13 @@ class Module(ModuleManager.BaseModule):
             line = event["pretty"]
 
         server = event["server"]
-        server = server if isinstance(server, str) else server.alias
+        server = server if not hasattr(server, "alias") else server.alias
 
-        context = event["context"] if (event["context"] not in ["*", ""]) and (event["context"] != None) else "Server"
+        context = event["context"] if (event["context"] not in ["*", ""]) and (
+                event["context"] is not None) else "Server"
 
-        log.info(message=line, server=server, context=context, format=True)
+        log.info(line, server=server, context=context, formatting=True)
+
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
@@ -46,6 +47,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("formatted.delete")
     def formatted(self, event):
         self._print(event)
+
 
     @utils.hook("formatted.motd")
     def motd(self, event):

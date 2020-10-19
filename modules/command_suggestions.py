@@ -1,7 +1,9 @@
 #--depends-on commands
 
 import difflib
+
 from src import ModuleManager, utils
+
 
 SETTING = utils.BoolSetting("command-suggestions", "Disable/enable command suggestions")
 
@@ -10,8 +12,10 @@ SETTING = utils.BoolSetting("command-suggestions", "Disable/enable command sugge
 @utils.export("channelset", SETTING)
 class Module(ModuleManager.BaseModule):
 
+
     def _all_command_hooks(self):
         return self.events.on("received.command").get_children()
+
 
     @utils.hook("unknown.command")
     def unknown_command(self, event):

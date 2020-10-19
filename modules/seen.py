@@ -2,16 +2,19 @@
 #--depends-on format_activity
 
 import time
+
 from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
+
 
     def _change_seen(self, channel, user, action):
         user.set_setting("seen", time.time())
         channel.set_user_setting(user.get_id(),
                                  "seen-info",
                                  {"action": action})
+
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
@@ -20,6 +23,7 @@ class Module(ModuleManager.BaseModule):
 
         if not event["server"].is_own_nickname(event["user"].nickname):
             self._change_seen(event["channel"], event["user"], line)
+
 
     @utils.hook("received.command.seen")
     @utils.kwarg("help", "Find out when a user was last seen")

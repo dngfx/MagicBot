@@ -1,29 +1,36 @@
 import time
+
 from src import ModuleManager, utils
+
 
 CAP = utils.irc.Capability("sts", "draft/sts")
 
 
 class Module(ModuleManager.BaseModule):
 
+
     def _get_policy(self, server):
         return server.get_setting("sts-policy", None)
 
+
     def _set_policy(self, server, policy):
-        self.log.info("Setting STS policy for '%s': %s", [str(server), policy])
+        log.info("Setting STS policy for '%s': %s", [str(server), policy])
         server.set_setting("sts-policy", policy)
+
 
     def _remove_policy(self, server):
         server.del_setting("sts-policy")
+
 
     def set_policy(self, server, port, duration):
         expiration = None
         self._set_policy(server,
                          {
-                             "port": port,
-                             "from": time.time(),
+                             "port":     port,
+                             "from":     time.time(),
                              "duration": duration
                          })
+
 
     def change_duration(self, server, info):
         duration = int(info["duration"])
@@ -34,6 +41,7 @@ class Module(ModuleManager.BaseModule):
             if "port" in info:
                 port = int(info["port"])
             self.set_policy(server, port, duration)
+
 
     @utils.hook("received.cap.ls")
     def on_cap_ls(self, event):
@@ -48,11 +56,13 @@ class Module(ModuleManager.BaseModule):
             else:
                 self.change_duration(event["server"], info)
 
+
     @utils.hook("received.cap.new")
     def on_cap_new(self, event):
         if CAP.available(event["capabilities"]) and event["server"].connection_params.tls:
             info = utils.parse.keyvalue(sts, delimiter=",")
             self.change_duration(event["server"], info)
+
 
     @utils.hook("new.server")
     def new_server(self, event):
@@ -60,9 +70,10 @@ class Module(ModuleManager.BaseModule):
         if sts_policy:
             if not event["server"].connection_params.tls:
                 if not sts_policy["duration"] or time.time() <= (sts_policy["from"] + sts_policy["duration"]):
-                    self.log.info("Applying STS policy for '%s'", [str(event["server"])])
+                    log.info("Applying STS policy for '%s'", [str(event["server"])])
                     event["server"].connection_params.tls = True
                     event["server"].connection_params.port = sts_policy["port"]
+
 
     @utils.hook("server.disconnect")
     def on_disconnect(self, event):

@@ -12,6 +12,7 @@ from src import ModuleManager, utils
                                 "Enable/Disable banning highlight spammers instead of just kicking"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.message.channel")
     def highlight_spam(self, event):
         if event["channel"].get_setting("highlight-spam-protection", False):

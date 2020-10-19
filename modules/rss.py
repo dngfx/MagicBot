@@ -1,10 +1,15 @@
 #--depends-on config
 #--depends-on shorturl
 
-import difflib, hashlib, time
-from src import ModuleManager, utils
+import difflib
+import hashlib
+import time
+
 import feedparser
+
+from src import ModuleManager, utils
 from src.Logging import Logger as log
+
 
 RSS_INTERVAL = 60  # 1 minute
 
@@ -14,8 +19,10 @@ RSS_INTERVAL = 60  # 1 minute
 class Module(ModuleManager.BaseModule):
     _name = "RSS"
 
+
     def on_load(self):
         self.timers.add("rss-feeds", self._timer, self.bot.get_setting("rss-interval", RSS_INTERVAL))
+
 
     def _format_entry(self, server, feed_title, entry, shorten):
         title = utils.parse.line_normalise(utils.http.strip_html(entry["title"]))
@@ -35,9 +42,10 @@ class Module(ModuleManager.BaseModule):
 
         return "%s%s%s%s" % (feed_title_str, title, author, link)
 
+
     def _timer(self, timer):
         start_time = time.monotonic()
-        log.trace(log, "Polling RSS feeds")
+        log.trace("Polling RSS feeds")
 
         timer.redo()
         hook_settings = self.bot.database.channel_settings.find_by_setting("rss-hooks")
@@ -68,7 +76,7 @@ class Module(ModuleManager.BaseModule):
             try:
                 data = pages[url].decode()
             except Exception as e:
-                log.error(log, "Failed to decode rss URL %s" % url)
+                log.error("Failed to decode rss URL %s" % url)
                 continue
 
             feed = feedparser.parse(data)
@@ -98,12 +106,14 @@ class Module(ModuleManager.BaseModule):
                 channel.set_setting("rss-seen-ids-%s" % url, seen_ids)
 
         total_milliseconds = (time.monotonic() - start_time) * 1000
-        log.trace(log, "Polled RSS feeds in %fms" % (total_milliseconds))
+        log.trace("Polled RSS feeds in %fms" % (total_milliseconds))
+
 
     def _get_id(self, entry):
         entry_id = entry.get("id", entry["link"])
         entry_id_hash = hashlib.sha1(entry_id.encode("utf8")).hexdigest()
         return entry_id, "sha1:%s" % entry_id_hash
+
 
     def _get_entries(self, url, max: int = None):
         try:
@@ -118,6 +128,7 @@ class Module(ModuleManager.BaseModule):
         for entry in feed["entries"]:
             entry_ids.append(entry.get("id", entry["link"]))
         return feed["feed"].get("title", None), feed["entries"][:max]
+
 
     @utils.hook("received.command.rss", min_args=1, channel_only=True)
     def rss(self, event):

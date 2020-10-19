@@ -3,10 +3,12 @@
 
 from src import ModuleManager, utils
 
+
 URL_THESAURUS = "http://words.bighugelabs.com/api/2/%s/%s/json"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.synonym", min_args=1)
     @utils.hook("received.command.antonym", min_args=1)

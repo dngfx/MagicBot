@@ -2,14 +2,18 @@ from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
+
+
     # RPL_BANLIST
     @utils.hook("received.367")
     def on_367(self, event):
         self._mode_list_mask(event, "b", event["line"].args[2])
 
+
     @utils.hook("received.368")
     def on_368(self, event):
         self._mode_list_end(event, "b")
+
 
     # RPL_QUIETLIST
     @utils.hook("received.728")
@@ -17,12 +21,15 @@ class Module(ModuleManager.BaseModule):
         mode = event["line"].args[2]
         self._mode_list_mask(event, mode, event["line"].args[3])
 
+
     @utils.hook("received.729")
     def on_729(self, event):
         self._mode_list_end(event, event["line"].args[2])
 
+
     def _excepts(self, server):
         return server.isupport.get("EXCEPTS", None) or "e"
+
 
     # RPL_EXCEPTLIST
     @utils.hook("received.348")
@@ -30,12 +37,15 @@ class Module(ModuleManager.BaseModule):
         mode = self._excepts(event["server"])
         self._mode_list_mask(event, mode, event["line"].args[3])
 
+
     @utils.hook("received.349")
     def on_349(self, event):
         self._mode_list_end(event, self._excepts(event["server"]))
 
+
     def _invex(self, server):
         return server.isupport.get("INVEX", None) or "I"
+
 
     # RPL_INVITELIST
     @utils.hook("received.346")
@@ -43,9 +53,11 @@ class Module(ModuleManager.BaseModule):
         mode = self._invex(event["server"])
         self._mode_list_mask(event, mode, event["line"].args[3])
 
+
     @utils.hook("received.347")
     def on_347(self, event):
         self._mode_list_end(event, self._invex(event["server"]))
+
 
     def _channel(self, event):
         target = event["line"].args[1]
@@ -53,10 +65,12 @@ class Module(ModuleManager.BaseModule):
             return event["server"].channels.get(target)
         return None
 
+
     def _mode_list_mask(self, event, mode, mask):
         channel = self._channel(event)
         if channel:
             self._mask_add(channel, "~%s" % mode, mask)
+
 
     def _mode_list_end(self, event, mode):
         channel = self._channel(event)
@@ -67,14 +81,17 @@ class Module(ModuleManager.BaseModule):
             else:
                 channel.mode_lists[mode] = set([])
 
+
     def _mask_add(self, channel, mode, mask):
         if not mode in channel.mode_lists:
             channel.mode_lists[mode] = set([])
         channel.mode_lists[mode].add(mask)
 
+
     def _mask_remove(self, channel, mode, mask):
         if mode in channel.mode_lists:
             channel.mode_lists[mode].discard(mask)
+
 
     @utils.hook("received.mode.channel")
     def channel_mode_lists(self, event):
@@ -88,11 +105,13 @@ class Module(ModuleManager.BaseModule):
                 if (event["server"].irc_equals(event["server"].nickname, arg) and event["channel"].seen_modes):
                     self._query_lists(event["server"], event["channel"])
 
+
     def _query_lists(self, server, channel):
         seen = set(k.lstrip("~") for k in channel.mode_lists.keys())
         missing = set(server.channel_list_modes) - seen
         if missing:
             channel.send_mode("+%s" % "".join(missing))
+
 
     @utils.hook("self.join")
     def self_join(self, event):

@@ -3,9 +3,14 @@
 #--depends-on commands
 #--depends-on shorturl
 
-import itertools, json, re, urllib.parse
+import itertools
+import json
+import re
+import urllib.parse
+
 from src import ModuleManager, utils
 from . import colors, gitea, github, gitlab
+
 
 FORM_ENCODED = "application/x-www-form-urlencoded"
 
@@ -29,22 +34,27 @@ PRIVATE_SETTING = utils.BoolSetting(PRIVATE_SETTING_NAME,
 class Module(ModuleManager.BaseModule):
     _name = "Webhooks"
 
+
     def on_load(self):
         self._github = github.GitHub(self.log)
         self._gitea = gitea.Gitea()
         self._gitlab = gitlab.GitLab()
 
+
     @utils.hook("api.post.github")
     def _api_github_webhook(self, event):
         return self._webhook("github", "GitHub", self._github, event["data"], event["headers"], event["params"])
+
 
     @utils.hook("api.post.gitea")
     def _api_gitea_webhook(self, event):
         return self._webhook("gitea", "Gitea", self._gitea, event["data"], event["headers"], event["params"])
 
+
     @utils.hook("api.post.gitlab")
     def _api_gitlab_webhook(self, event):
         return self._webhook("gitlab", "GitLab", self._gitlab, event["data"], event["headers"], event["params"])
+
 
     def _webhook(self, webhook_type, webhook_name, handler, payload_str, headers, params):
         payload = payload_str.decode("utf8")
@@ -55,7 +65,7 @@ class Module(ModuleManager.BaseModule):
         is_private = handler.is_private(data, headers)
         if is_private and not self.bot.get_setting(PRIVATE_SETTING_NAME, True):
             return {
-                "state": "success",
+                "state":      "success",
                 "deliveries": 0
             }
 
@@ -115,7 +125,7 @@ class Module(ModuleManager.BaseModule):
                 return None
             else:
                 return {
-                    "state": "success",
+                    "state":      "success",
                     "deliveries": 0
                 }
 
@@ -147,9 +157,10 @@ class Module(ModuleManager.BaseModule):
                                                        hide_prefix=hide_prefix)
 
         return {
-            "state": "success",
+            "state":      "success",
             "deliveries": len(targets)
         }
+
 
     def _prevent_highlight(self, server, channel, s):
         for user in channel.users:
@@ -165,6 +176,7 @@ class Module(ModuleManager.BaseModule):
 
         return s
 
+
     def _find_targets(self, full_name_lower, repo_username_lower, organisation_lower):
         hooks = self.bot.database.channel_settings.find_by_setting("git-webhooks")
         targets = []
@@ -177,15 +189,17 @@ class Module(ModuleManager.BaseModule):
 
         return targets
 
+
     def _find_hook(self, full_name_lower, repo_username_lower, organisation_lower, hooks):
         hooked_repos_lower = {k.lower(): v for k,
-                              v in hooks.items()}
+                                               v in hooks.items()}
         if full_name_lower and full_name_lower in hooked_repos_lower:
             return hooked_repos_lower[full_name_lower]
         elif (repo_username_lower and repo_username_lower in hooked_repos_lower):
             return hooked_repos_lower[repo_username_lower]
         elif (organisation_lower and organisation_lower in hooked_repos_lower):
             return hooked_repos_lower[organisation_lower]
+
 
     @utils.hook("received.command.webhook", min_args=1, channel_only=True)
     def github_webhook(self, event):
@@ -221,7 +235,7 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("There's already a hook for %s" % hook_name)
 
             all_hooks[hook_name] = {
-                "events": DEFAULT_EVENT_CATEGORIES.copy(),
+                "events":   DEFAULT_EVENT_CATEGORIES.copy(),
                 "branches": [],
             }
             success_message = "Added hook for %s" % hook_name

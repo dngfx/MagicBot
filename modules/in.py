@@ -1,12 +1,15 @@
 #--depends-on commands
 import time
+
 from src import ModuleManager, utils
 
-SECONDS_MAX = utils.datetime.SECONDS_WEEKS * 8
-SECONDS_MAX_DESCRIPTION = "8 weeks"
+
+SECONDS_MAX = utils.datetime.SECONDS_WEEKS * 920
+SECONDS_MAX_DESCRIPTION = "920 weeks"
 
 
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.remindme", alias_of="in")
     @utils.hook("received.command.in", min_args=2)
@@ -19,18 +22,21 @@ class Module(ModuleManager.BaseModule):
             if seconds <= SECONDS_MAX:
                 due_time = int(time.time()) + seconds
 
-                self.timers.add_persistent("in",
-                                           seconds,
-                                           due_time=due_time,
-                                           target=event["target"].name,
-                                           server_id=event["server"].id,
-                                           nickname=event["user"].nickname,
-                                           message=message)
+                self.timers.add_persistent(
+                        "in",
+                        seconds,
+                        due_time=due_time,
+                        target=event["target"].name,
+                        server_id=event["server"].id,
+                        nickname=event["user"].nickname,
+                        message=message
+                )
                 event["stdout"].write("Saved")
             else:
                 event["stderr"].write("The given time is above the max (%s)" % (SECONDS_MAX_DESCRIPTION))
         else:
             event["stderr"].write("Please provided a valid time above 0 seconds")
+
 
     @utils.hook("timer.in")
     def timer_due(self, event):
@@ -39,6 +45,7 @@ class Module(ModuleManager.BaseModule):
             message = "%s: this is your reminder: %s" % (event["nickname"], event["message"])
             target = server.get_target(event["target"])
             self.events.on("send.stdout").call(target=target, module_name="In", server=server, message=message)
+
 
     @utils.hook("received.command.inlist")
     def in_list(self, event):

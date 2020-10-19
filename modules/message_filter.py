@@ -1,6 +1,5 @@
 #--depends-on commands
 
-import re
 from src import ModuleManager, utils
 from src.Logging import Logger as log
 
@@ -8,11 +7,13 @@ from src.Logging import Logger as log
 class Module(ModuleManager.BaseModule):
     _name = "Filter"
 
+
     def _get_filters(self, server, target):
         filters = self.bot.get_setting("message-filters", [])
         filters.extend(server.get_setting("message-filters", []))
         filters.extend(target.get_setting("message-filters", []))
         return list(set(filters))
+
 
     @utils.hook("preprocess.send.privmsg")
     @utils.hook("preprocess.send.notice")
@@ -36,7 +37,7 @@ class Module(ModuleManager.BaseModule):
             type, out = utils.parse.sed.sed(sed, message)
 
             if type == "m" and out:
-                log.info(log, "Message matched filter, dropping: %s" % event["line"].format())
+                log.info()
                 event["line"].invalidate()
                 return
             elif type == "s":
@@ -44,6 +45,7 @@ class Module(ModuleManager.BaseModule):
 
         if not message == original_message:
             event["line"].args[1] = message
+
 
     @utils.hook("received.command.cfilter", channel_only=True)
     @utils.hook("received.command.filter")

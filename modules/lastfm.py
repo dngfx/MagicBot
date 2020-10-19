@@ -2,8 +2,8 @@
 #--depends-on config
 #--require-config lastfm-api-key
 
-from datetime import datetime, timezone
 from src import ModuleManager, utils
+
 
 URL_SCROBBLER = "http://ws.audioscrobbler.com/2.0/"
 
@@ -11,6 +11,7 @@ URL_SCROBBLER = "http://ws.audioscrobbler.com/2.0/"
 @utils.export("set", utils.Setting("lastfm", "Set last.fm username", example="jesopo"))
 class Module(ModuleManager.BaseModule):
     _name = "last.fm"
+
 
     @utils.hook("received.command.np", alias_of="nowplaying")
     @utils.hook("received.command.listening", alias_of="nowplaying")
@@ -38,14 +39,14 @@ class Module(ModuleManager.BaseModule):
             shown_username = user.nickname
 
         page = utils.http.request(
-            URL_SCROBBLER,
-            get_params={
-                "method": "user.getrecenttracks",
-                "user": lastfm_username,
-                "api_key": self.bot.config["lastfm-api-key"],
-                "format": "json",
-                "limit": "1"
-            }
+                URL_SCROBBLER,
+                get_params={
+                    "method":  "user.getrecenttracks",
+                    "user":    lastfm_username,
+                    "api_key": self.bot.config["lastfm-api-key"],
+                    "format":  "json",
+                    "limit":   "1"
+                }
         ).json()
         if page:
             if "recenttracks" in page and len(page["recenttracks"]["track"]):
@@ -71,16 +72,16 @@ class Module(ModuleManager.BaseModule):
                     yt_url_str = " - %s" % yt_url
 
                 info_page = utils.http.request(
-                    URL_SCROBBLER,
-                    get_params={
-                        "method": "track.getInfo",
-                        "artist": artist,
-                        "track": track_name,
-                        "autocorrect": "1",
-                        "api_key": self.bot.config["lastfm-api-key"],
-                        "user": lastfm_username,
-                        "format": "json"
-                    }
+                        URL_SCROBBLER,
+                        get_params={
+                            "method":      "track.getInfo",
+                            "artist":      artist,
+                            "track":       track_name,
+                            "autocorrect": "1",
+                            "api_key":     self.bot.config["lastfm-api-key"],
+                            "user":        lastfm_username,
+                            "format":      "json"
+                        }
                 ).json()
 
                 track = info_page.get("track",
@@ -100,13 +101,13 @@ class Module(ModuleManager.BaseModule):
                 track_name = utils.irc.bold("%s - %s" % (artist, track_name))
 
                 event["stdout"].write(
-                    "%s %s: %s%s%s%s" %
-                    (utils.irc.bold(shown_username),
-                     time_language,
-                     track_name,
-                     play_count_str,
-                     tags_str,
-                     yt_url_str)
+                        "%s %s: %s%s%s%s" %
+                        (utils.irc.bold(shown_username),
+                         time_language,
+                         track_name,
+                         play_count_str,
+                         tags_str,
+                         yt_url_str)
                 )
             else:
                 event["stderr"].write("The user '%s' has never scrobbled before" % (shown_username))

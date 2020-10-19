@@ -1,13 +1,16 @@
 #--depends-on commands
 
 import re
+
 from src import ModuleManager, utils
+
 
 REGEX_FACTOID = re.compile("{!([^}]+)}", re.I)
 FACTOID_DEPTH_MAX = 8
 
 
 class Module(ModuleManager.BaseModule):
+
 
     def _get_factoid(self, targets, factoid):
         setting = "factoid-%s" % factoid
@@ -16,6 +19,7 @@ class Module(ModuleManager.BaseModule):
             if not value == None:
                 return target_type, value
         return None
+
 
     def _all_factoids(self, targets):
         factoids = {}
@@ -26,11 +30,14 @@ class Module(ModuleManager.BaseModule):
                     factoids[factoid] = value
         return factoids
 
+
     def _set_factoid(self, target, factoid, value):
         target.set_setting("factoid-%s" % factoid, value)
 
+
     def _del_factoid(self, target, factoid):
         target.del_setting("factoid-%s" % factoid)
+
 
     def _format_factoid(self, s, targets, depth=0):
         if depth == FACTOID_DEPTH_MAX:
@@ -44,6 +51,7 @@ class Module(ModuleManager.BaseModule):
                 value = self._format_factoid(value, targets, depth + 1)
                 s = s.replace(match.group(0), value, 1)
         return s
+
 
     @utils.hook("received.command.factoid", permission="factoid")
     @utils.hook("received.command.cfactoid", require_mode="o", require_access="low,factoid")
@@ -89,6 +97,7 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("%s factoid '%s' doesn't exist" % (target_desc.title(), factoid))
             self._del_factoid(target, factoid)
             event["stdout"].write("Removed %s factoid '%s'" % (target_desc, factoid))
+
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)

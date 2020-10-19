@@ -1,2 +1,2 @@
-from .common import *
 from . import format, parse
+from .common import *

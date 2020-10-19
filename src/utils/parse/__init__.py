@@ -1,10 +1,11 @@
-import decimal, re, typing
-from src.utils import datetime, errors, io
+import decimal
 
+from src.utils import io
+from . import sed
 from .spec import *
 from .time import duration
 from .types import try_int
-from . import sed
+
 
 COMMENT_TYPES = ["#", "//"]
 
@@ -30,6 +31,7 @@ def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[st
 
 
 class Docstring(object):
+
 
     def __init__(self, description: str, items: typing.Dict[str, str], var_items: typing.Dict[str, typing.List[str]]):
         self.description = description
@@ -112,6 +114,25 @@ def parse_number(s: str) -> str:
     else:
         raise ValueError("Unknown unit '%s' given to parse_number" % unit)
     return str(number)
+
+
+def shorten_volume(volume) -> str:
+    volume = int(volume)
+    volume = f"{volume:,}"
+
+    parts = volume.split(",")
+    amount = len(parts) - 1
+
+    if amount == 0:
+        return volume
+
+    prefix = ["", "K", "M", "B"]
+    return "%s.%s%s" % (parts[0], parts[1][0], prefix[amount])
+
+
+def comma_format(number):
+    number = int(number)
+    return str(f"{number:,}")
 
 
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:

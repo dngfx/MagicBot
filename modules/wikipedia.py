@@ -1,16 +1,21 @@
 #--depends-on commands
 
-import re, random
+import re
+
 from src import ModuleManager, utils
+
 
 URL_WIKIPEDIA = "https://en.wikipedia.org/w/api.php"
 WIKIPEDIA_REGEX = re.compile("https?://en.wikipedia.org/wiki/([^/]+)")
 
 
-@utils.export("channelset",
-              utils.BoolSetting("auto-wiki",
-                                "Disable/Enable automatically getting info from wikipedia URLs"))
+@utils.export(
+        "channelset",
+        utils.BoolSetting("auto-wiki",
+                          "Disable/Enable automatically getting info from wikipedia URLs")
+)
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("command.regex")
     @utils.kwarg("expect_output", False)
@@ -26,6 +31,7 @@ class Module(ModuleManager.BaseModule):
         link = event["match"]
         self.wikipedia(event, link.group(1))
 
+
     @utils.hook("received.command.wi", alias_of="wiki")
     @utils.hook("received.command.wiki", alias_of="wikipedia")
     @utils.hook("received.command.wikipedia")
@@ -33,30 +39,35 @@ class Module(ModuleManager.BaseModule):
     @utils.spec("!<term>lstring")
     def wikipedia(self, event, title=None):
         incoming_title = title if "spec" not in event else event["spec"][0]
+        incoming_title = incoming_title.replace("_", " ").replace("%27", "'")
 
-        page = utils.http.request(URL_WIKIPEDIA,
-                                  get_params={
-                                      "action": "opensearch",
-                                      "search": incoming_title,
-                                      "limit": "1",
-                                      "format": "json"
-                                  }).json()
+        page = utils.http.request(
+                URL_WIKIPEDIA,
+                get_params={
+                    "action": "opensearch",
+                    "search": incoming_title,
+                    "limit":  "1",
+                    "format": "json"
+                }
+        ).json()
 
         result = False if not page[1] else page[1][0]
 
         if result:
-            page = utils.http.request(URL_WIKIPEDIA,
-                                      get_params={
-                                          "action": "query",
-                                          "prop": "extracts|info",
-                                          "inprop": "url",
-                                          "titles": result,
-                                          "exintro": "true",
-                                          "explaintext": "true",
-                                          "exchars": "275",
-                                          "redirects": "",
-                                          "format": "json"
-                                      }).json()
+            page = utils.http.request(
+                    URL_WIKIPEDIA,
+                    get_params={
+                        "action":      "query",
+                        "prop":        "extracts|info",
+                        "inprop":      "url",
+                        "titles":      result,
+                        "exintro":     "true",
+                        "explaintext": "true",
+                        "exchars":     "275",
+                        "redirects":   "",
+                        "format":      "json"
+                    }
+            ).json()
         else:
             page = False
 

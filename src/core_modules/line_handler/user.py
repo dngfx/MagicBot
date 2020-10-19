@@ -1,32 +1,28 @@
-from src import utils
-from src.core_modules import permissions
-from modules import channel_op
 import re
-import pprint
-from src.Logging import Logger as log
-PLEXUS_REGEX = re.compile("plexus\-\d")
+
+from src import utils
+
+
+REGEX_307 = re.compile("(plexus-|Unreal3)")
 
 
 def handle_307(event):
     version = event["server"].version
-    is_plexus = PLEXUS_REGEX.search(version) is not None
-    if not is_plexus:
+    if REGEX_307.search(version) is None:
         return
 
     line = event["line"]
 
-    ournick = line.args[0]
+    #ournick = line.args[0]
     nickname = line.args[1]
     idstring = line.args[2]
 
-    if event["server"].is_own_nickname(nickname) or nickname == "df":
+    if event["server"].is_own_nickname(nickname):
         return
 
-    idsplit = idstring.split("has identified for ")[1]
-    identified_for = nickname if idsplit == "this nick" else idsplit
-    user = event["server"].get_target(nickname)
-
-    _identified_304(event["server"], user, user.nickname, event)
+    if idstring.split(" identified for ")[1] == "this nick":
+        user = event["server"].get_target(nickname)
+        _identified_304(event["server"], user, user.nickname, event)
 
 
 def _identified_304(server, user, account, event):
@@ -52,22 +48,6 @@ def handle_311(event):
 
 
 def quit(events, event):
-    """{
-        'eaten': False,
-        'kwargs': {
-            'direction': 1, (Direction.Recv)
-            'line': ":dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com QUIT :Remote host closed the connection)",
-            'server': "IRCServer.Server(rizon)"
-        },
-        'name': 'raw.received.quit'
-    }
-    {
-        'hostmask': 'dongfix!~dongfix@Rizon-8F8F51EE.dynamic.dsl.as9105.com',
-        'hostname': 'Rizon-8F8F51EE.dynamic.dsl.as9105.com',
-        'nickname': 'dongfix',
-        'username': '~dongfix'
-    }"""
-
     nickname = None
     if event["direction"] == utils.Direction.Recv:
         nickname = event["line"].source.nickname
@@ -83,8 +63,6 @@ def quit(events, event):
             event["server"].disconnect()
             return True
     else:
-        reason = event["line"].args.get(0)
-        events.on("send.quit").call(reason=reason, server=event["server"])
         return True
 
 
@@ -97,10 +75,10 @@ def nick(events, event):
 
     if not event["server"].is_own_nickname(event["line"].source.nickname):
         events.on("received.nick").call(
-            new_nickname=new_nickname,
-            old_nickname=old_nickname,
-            user=user,
-            server=event["server"]
+                new_nickname=new_nickname,
+                old_nickname=old_nickname,
+                user=user,
+                server=event["server"]
         )
     else:
         event["server"].set_own_nickname(new_nickname)
@@ -137,10 +115,10 @@ def chghost(events, event):
     target.hostname = hostname
 
     events.on("received.chghost").call(
-        user=target,
-        server=event["server"],
-        old_username=old_username,
-        old_hostname=old_hostname
+            user=target,
+            server=event["server"],
+            old_username=old_username,
+            old_hostname=old_hostname
     )
 
 

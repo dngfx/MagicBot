@@ -1,8 +1,12 @@
 #--depends-on commands
 
-import re, socket, typing
-from src import ModuleManager, utils
+import re
+import socket
+
 import dns.resolver
+
+from src import ModuleManager, utils
+
 
 URL_GEOIP = "http://ip-api.com/json/%s"
 REGEX_IPv6 = r"(?:(?:[a-f0-9]{1,4}:){2,}|[a-f0-9:]*::)[a-f0-9:]*"
@@ -23,6 +27,8 @@ def _parse(value):
 @utils.export("channelset", utils.FunctionSetting(_parse, "dns-nameserver", "Set DNS nameserver", example="8.8.8.8"))
 class Module(ModuleManager.BaseModule):
 
+
+    @utils.hook("received.command.dig", alias_of="dns")
     @utils.hook("received.command.dns", min_args=1)
     def dns(self, event):
         """
@@ -47,7 +53,7 @@ class Module(ModuleManager.BaseModule):
         if not record_types:
             record_types = ["A?", "AAAA?"]
 
-        if not nameserver == None:
+        if nameserver is not None:
             resolver = dns.resolver.Resolver(configure=False)
             resolver.nameservers = [nameserver]
         else:
@@ -58,7 +64,7 @@ class Module(ModuleManager.BaseModule):
         for record_type in record_types:
             record_type_strip = record_type.rstrip("?").upper()
             try:
-                query_result = resolver.query(hostname, record_type_strip, lifetime=4)
+                query_result = resolver.resolve(hostname, record_type_strip, lifetime=4)
                 query_results = [q.to_text() for q in query_result]
                 results.append([record_type_strip, query_result.rrset.ttl, query_results])
             except dns.resolver.NXDOMAIN:
@@ -70,11 +76,12 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("Unknown record type '%s'" % record_type_strip)
             except dns.exception.DNSException:
                 message = "Failed to get DNS records"
-                self.log.warn(message, exc_info=True)
+                log.warn(message)
                 raise utils.EventError(message)
 
         results_str = ["%s (TTL %s): %s" % (t, ttl, ", ".join(r)) for t, ttl, r in results]
         event["stdout"].write("(%s) %s" % (hostname, " | ".join(results_str)))
+
 
     @utils.hook("received.command.geoip", min_args=1)
     def geoip(self, event):
@@ -98,6 +105,7 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No geoip data found")
         else:
             raise utils.EventResultsError()
+
 
     @utils.hook("received.command.rdns")
     def rdns(self, event):

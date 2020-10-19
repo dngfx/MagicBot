@@ -1,5 +1,7 @@
 import random
+
 from src import ModuleManager, utils
+
 
 COLORS = [
     utils.consts.BLUE,
@@ -20,6 +22,7 @@ COLORS = [
 @utils.export("channelset", utils.BoolSetting("rainbow", "Enable/disable allowing rainbowification of strings"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.rainbow")
     #@utils.kwarg("permission", "rainbow")
     @utils.kwarg("help", "Rainbowify a given string or the last message")
@@ -33,6 +36,6 @@ class Module(ModuleManager.BaseModule):
         offset = random.randint(0, len(COLORS))
         out = ""
         for i, c in enumerate(args):
-            color = COLORS[(i+offset) % len(COLORS)]
+            color = COLORS[(i + offset) % len(COLORS)]
             out += utils.irc.color(c, color, terminate=False)
         event["stdout"].write(out)

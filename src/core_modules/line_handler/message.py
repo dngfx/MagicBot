@@ -1,4 +1,3 @@
-import uuid
 from src import IRCBuffer, IRCLine, utils
 
 
@@ -56,15 +55,15 @@ def message(events, event):
         target_obj = event["server"].get_user(target)
 
     kwargs = {
-        "server": event["server"],
-        "target": target_obj,
+        "server":     event["server"],
+        "target":     target_obj,
         "target_str": target_str,
-        "user": user,
-        "tags": event["line"].tags,
+        "user":       user,
+        "tags":       event["line"].tags,
         "is_channel": is_channel,
-        "from_self": from_self,
-        "line": event["line"],
-        "statusmsg": statusmsg
+        "from_self":  from_self,
+        "line":       event["line"],
+        "statusmsg":  statusmsg
     }
 
     action = False
@@ -101,7 +100,7 @@ def message(events, event):
     buffer_line = None
     if message:
         buffer_line = IRCBuffer.BufferLine(
-            user.nickname, message, action, event["line"].tags, from_self, event["line"].command
+                user.nickname, message, action, event["line"].tags, from_self, event["line"].command
         )
 
     buffer_obj = target_obj

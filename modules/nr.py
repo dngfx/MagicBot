@@ -1,14 +1,14 @@
 #--depends-on commands
 #--require-config nre-api-key
 
-import collections, re, time
-from datetime import datetime, date
-from collections import Counter
+import re
+from datetime import datetime
+
+from suds import WebFault
+from suds.client import Client
 
 from src import ModuleManager, utils
 
-from suds.client import Client
-from suds import WebFault
 
 # Note that this module requires the open *Staff Version* of the Darwin API
 # You can register for an API key here: http://openldbsv.nationalrail.co.uk/
@@ -32,6 +32,7 @@ class Module(ModuleManager.BaseModule):
         utils.consts.ORANGE
     ]
 
+
     @property
     def client(self):
         if self._client:
@@ -47,6 +48,7 @@ class Module(ModuleManager.BaseModule):
             pass
         return self._client
 
+
     def filter(self, args, defaults):
         args = re.findall(r"[^\s,]+", args)
         params = {}
@@ -60,7 +62,7 @@ class Module(ModuleManager.BaseModule):
                 params[arg.replace("!", "")] = '!' not in arg
 
         ret = {k: v[0] for k,
-               v in defaults.items()}
+                           v in defaults.items()}
         ret["default"] = True
         ret["errors"] = []
 
@@ -76,17 +78,18 @@ class Module(ModuleManager.BaseModule):
         ret["errors_summary"] = ", ".join(['"%s": %s' % (a[0], a[1]) for a in ret["errors"]])
         return ret
 
+
     def process(self, service):
         ut_now = datetime.now().timestamp()
         nonetime = {
-            "orig": None,
+            "orig":     None,
             "datetime": None,
-            "ut": 0,
-            "short": '    ',
-            "prefix": '',
-            "on_time": False,
+            "ut":       0,
+            "short":    '    ',
+            "prefix":   '',
+            "on_time":  False,
             "estimate": False,
-            "status": 4,
+            "status":   4,
             "schedule": False
         }
         times = {}
@@ -137,11 +140,14 @@ class Module(ModuleManager.BaseModule):
         }
         return times
 
+
     def activities(self, string):
         return [a + b.strip() for a, b in list(zip(*[iter(string)] * 2)) if (a + b).strip()]
 
+
     def reduced_activities(self, string):
         return [a for a in self.activities(string) if a in self.PASSENGER_ACTIVITIES]
+
 
     @utils.hook("received.command.nrtrains", min_args=1)
     def trains(self, event):
@@ -157,51 +163,51 @@ class Module(ModuleManager.BaseModule):
 
         location_code = event["args_split"][0].upper()
         filter = self.filter(
-            ' '.join(event["args_split"][1:]) if len(event["args_split"]) > 1 else "",
-            {
-                "dest": ('',
-                         lambda x: x.isalpha() and len(x) == 3),
-                "origin": ('',
-                           lambda x: x.isalpha() and len(x) == 3),
-                "inter": ('',
-                          lambda x: x.isalpha() and len(x) == 3,
-                          lambda x: x.upper()),
-                "toc": ('',
-                        lambda x: x.isalpha() and len(x) == 2),
-                "dedup": (False,
-                          lambda x: type(x) == type(True)),
-                "plat": ('',
-                         lambda x: len(x) <= 3),
-                "type": ("departure",
-                         lambda x: x in ["departure",
-                                         "arrival",
-                                         "both"]),
-                "terminating": (False,
-                                lambda x: type(x) == type(True)),
-                "period": (120,
-                           lambda x: x.isdigit() and 1 <= int(x) <= 480,
-                           lambda x: int(x)),
-                "nonpassenger": (False,
-                                 lambda x: type(x) == type(True)),
-                "time": ("",
-                         lambda x: len(x) == 4 and x.isdigit()),
-                "date": ("",
-                         lambda x: len(x) == 10),
-                "tops": (None,
-                         lambda x: len(x) < 4 and x.isdigit()),
-                "power": (None,
-                          lambda x: x.upper() in ["EMU",
-                                                  "DMU",
-                                                  "HST",
-                                                  "D",
-                                                  "E",
-                                                  "DEM"],
-                          lambda x: x.upper()),
-                "crs": (False,
-                        lambda x: type(x) == type(True)),
-                "st": (False,
-                       lambda x: type(x) == type(True))
-            })
+                ' '.join(event["args_split"][1:]) if len(event["args_split"]) > 1 else "",
+                {
+                    "dest":         ('',
+                                     lambda x: x.isalpha() and len(x) == 3),
+                    "origin":       ('',
+                                     lambda x: x.isalpha() and len(x) == 3),
+                    "inter":        ('',
+                                     lambda x: x.isalpha() and len(x) == 3,
+                                     lambda x: x.upper()),
+                    "toc":          ('',
+                                     lambda x: x.isalpha() and len(x) == 2),
+                    "dedup":        (False,
+                                     lambda x: type(x) == type(True)),
+                    "plat":         ('',
+                                     lambda x: len(x) <= 3),
+                    "type":         ("departure",
+                                     lambda x: x in ["departure",
+                                                     "arrival",
+                                                     "both"]),
+                    "terminating":  (False,
+                                     lambda x: type(x) == type(True)),
+                    "period":       (120,
+                                     lambda x: x.isdigit() and 1 <= int(x) <= 480,
+                                     lambda x: int(x)),
+                    "nonpassenger": (False,
+                                     lambda x: type(x) == type(True)),
+                    "time":         ("",
+                                     lambda x: len(x) == 4 and x.isdigit()),
+                    "date":         ("",
+                                     lambda x: len(x) == 10),
+                    "tops":         (None,
+                                     lambda x: len(x) < 4 and x.isdigit()),
+                    "power":        (None,
+                                     lambda x: x.upper() in ["EMU",
+                                                             "DMU",
+                                                             "HST",
+                                                             "D",
+                                                             "E",
+                                                             "DEM"],
+                                     lambda x: x.upper()),
+                    "crs":          (False,
+                                     lambda x: type(x) == type(True)),
+                    "st":           (False,
+                                     lambda x: type(x) == type(True))
+                })
 
         if filter["errors"]:
             raise utils.EventError("Filter: " + filter["errors_summary"])
@@ -222,7 +228,7 @@ class Module(ModuleManager.BaseModule):
             now = now.replace(day=newdate.day, month=newdate.month, year=newdate.year)
 
         method = client.service.GetArrivalDepartureBoardByCRS if len(
-            location_code) == 3 else client.service.GetArrivalDepartureBoardByTIPLOC
+                location_code) == 3 else client.service.GetArrivalDepartureBoardByTIPLOC
         try:
             query = method(100,
                            location_code,
@@ -270,36 +276,36 @@ class Module(ModuleManager.BaseModule):
             services += query["ferryServices"][0]
         for t in services:
             parsed = {
-                "rid": t["rid"],
-                "uid": t["uid"],
-                "head": t["trainid"],
-                "platform": '?' if not "platform" in t else t["platform"],
+                "rid":             t["rid"],
+                "uid":             t["uid"],
+                "head":            t["trainid"],
+                "platform":        '?' if not "platform" in t else t["platform"],
                 "platform_hidden": "platformIsHidden" in t and t["platformIsHidden"],
                 "platform_prefix": "",
-                "toc": t["operatorCode"],
-                "cancelled": t["isCancelled"] if "isCancelled" in t else False,
-                "delayed": t["departureType"] == "Delayed" if "departureType" in t else None,
-                "cancel_reason": t["cancelReason"]["value"] if "cancelReason" in t else "",
-                "delay_reason": t["delayReason"]["value"] if "delayReason" in t else "",
-                "terminating": not "std" in t and not "etd" in t and not "atd" in t,
-                "bus": t["trainid"] == "0B00",
-                "times": self.process(t),
-                "activity": self.reduced_activities(t["activities"]),
+                "toc":             t["operatorCode"],
+                "cancelled":       t["isCancelled"] if "isCancelled" in t else False,
+                "delayed":         t["departureType"] == "Delayed" if "departureType" in t else None,
+                "cancel_reason":   t["cancelReason"]["value"] if "cancelReason" in t else "",
+                "delay_reason":    t["delayReason"]["value"] if "delayReason" in t else "",
+                "terminating":     not "std" in t and not "etd" in t and not "atd" in t,
+                "bus":             t["trainid"] == "0B00",
+                "times":           self.process(t),
+                "activity":        self.reduced_activities(t["activities"]),
             }
             parsed["destinations"] = [{
-                "name": a["locationName"],
+                "name":   a["locationName"],
                 "tiploc": a["tiploc"],
-                "crs": a["crs"] if "crs" in a else '',
-                "code": a["crs"] if "crs" in a else a["tiploc"],
-                "via": a["via"] if "via" in a else ''
+                "crs":    a["crs"] if "crs" in a else '',
+                "code":   a["crs"] if "crs" in a else a["tiploc"],
+                "via":    a["via"] if "via" in a else ''
             } for a in t["destination"][0]]
 
             parsed["origins"] = [{
-                "name": a["locationName"],
+                "name":   a["locationName"],
                 "tiploc": a["tiploc"],
-                "crs": a["crs"] if "crs" in a else '',
-                "code": a["crs"] if "crs" in a else a["tiploc"],
-                "via": a["via"] if "via" in a else ''
+                "crs":    a["crs"] if "crs" in a else '',
+                "code":   a["crs"] if "crs" in a else a["tiploc"],
+                "via":    a["via"] if "via" in a else ''
             } for a in t["origin"][0]]
 
             parsed["departure_only"] = location_code in [a["code"] for a in parsed["origins"]]
@@ -307,9 +313,10 @@ class Module(ModuleManager.BaseModule):
             if parsed["cancelled"] or parsed["delayed"]:
                 for k, time in parsed["times"].items():
                     time["short"], time["on_time"], time["status"], time["prefix"] = (
-                        "%s:%s" % ("C" if parsed["cancel_reason"] else "D", parsed["cancel_reason"] or parsed["delay_reason"] or "?"),
+                        "%s:%s" % ("C" if parsed["cancel_reason"] else "D",
+                                   parsed["cancel_reason"] or parsed["delay_reason"] or "?"),
                         False, 2, ""
-                        )
+                    )
 
             trains.append(parsed)
 
@@ -334,17 +341,17 @@ class Module(ModuleManager.BaseModule):
             if not True in [
                 (train["destinations"],
                  train["toc"]) in train_locs_toc and (filter["dedup"] or filter["default"]),
-                    filter["dest"] and not filter["dest"].upper() in [a["code"] for a in train["destinations"]],
-                    filter["origin"] and not filter["origin"].upper() in [a["code"] for a in train["origins"]],
-                    filter["toc"] and not filter["toc"].upper() == train["toc"],
-                    filter["plat"] and not filter["plat"] == train["platform"],
-                    filter["type"] == "departure" and train["terminating"],
-                    filter["type"] == "arrival" and train["departure_only"],
-                    filter["terminating"] and not train["terminating"],
-                    filter["tops"] and not filter["tops"] in train.get("tops_possible",
-                                                                       []),
-                    filter["power"] and not filter["power"] == train.get("power_type",
-                                                                         None),
+                filter["dest"] and not filter["dest"].upper() in [a["code"] for a in train["destinations"]],
+                filter["origin"] and not filter["origin"].upper() in [a["code"] for a in train["origins"]],
+                filter["toc"] and not filter["toc"].upper() == train["toc"],
+                filter["plat"] and not filter["plat"] == train["platform"],
+                filter["type"] == "departure" and train["terminating"],
+                filter["type"] == "arrival" and train["departure_only"],
+                filter["terminating"] and not train["terminating"],
+                filter["tops"] and not filter["tops"] in train.get("tops_possible",
+                                                                   []),
+                filter["power"] and not filter["power"] == train.get("power_type",
+                                                                     None),
             ]:
                 train_locs_toc.append((train["destinations"], train["toc"]))
                 trains_filtered.append(train)
@@ -374,8 +381,8 @@ class Module(ModuleManager.BaseModule):
                     t["times"][filter["type"]]["prefix"].replace(filter["type"][0],
                                                                  '') if not t["cancelled"] else "",
                     utils.irc.bold(
-                        utils.irc.color(t["times"][filter["type"]]["shortest" * filter["st"] or "short"],
-                                        colours[t["times"][filter["type"]]["status"]])),
+                            utils.irc.color(t["times"][filter["type"]]["shortest" * filter["st"] or "short"],
+                                            colours[t["times"][filter["type"]]["status"]])),
                     bool(t["activity"]) * ", " + "+".join(t["activity"]),
                 ) for t in trains_filtered
             ])
@@ -388,6 +395,7 @@ class Module(ModuleManager.BaseModule):
                                   (station_summary,
                                    " departures calling at %s" % filter["inter"] if filter["inter"] else '',
                                    trains_string))
+
 
     @utils.hook("received.command.nrservice", min_args=1)
     def service(self, event):
@@ -419,16 +427,16 @@ class Module(ModuleManager.BaseModule):
         service_id = event["args_split"][0]
 
         filter = self.filter(
-            ' '.join(event["args_split"][1:]) if len(event["args_split"]) > 1 else "",
-            {
-                "passing": (False,
-                            lambda x: type(x) == type(True)),
-                "associations": (False,
-                                 lambda x: type(x) == type(True)),
-                "type": ("arrival",
-                         lambda x: x in ["arrival",
-                                         "departure"])
-            })
+                ' '.join(event["args_split"][1:]) if len(event["args_split"]) > 1 else "",
+                {
+                    "passing":      (False,
+                                     lambda x: type(x) == type(True)),
+                    "associations": (False,
+                                     lambda x: type(x) == type(True)),
+                    "type":         ("arrival",
+                                     lambda x: x in ["arrival",
+                                                     "departure"])
+                })
 
         if filter["errors"]:
             raise utils.EventError("Filter: " + filter["errors_summary"])
@@ -443,9 +451,9 @@ class Module(ModuleManager.BaseModule):
 
             if query and len(query["serviceList"][0]) > 1:
                 return event["stdout"].write("Identifier refers to multiple services: " + ", ".join(
-                    ["%s (%s->%s)" % (a["uid"],
-                                      a["originCrs"],
-                                      a["destinationCrs"]) for a in query["serviceList"][0]]))
+                        ["%s (%s->%s)" % (a["uid"],
+                                          a["originCrs"],
+                                          a["destinationCrs"]) for a in query["serviceList"][0]]))
             if query:
                 rid = query["serviceList"][0][0]["rid"]
 
@@ -456,15 +464,15 @@ class Module(ModuleManager.BaseModule):
                 sources.append("Eagle/SCHEDULE")
                 if not query:
                     query = {
-                        "trainid": schedule["signalling_id"] or "0000",
+                        "trainid":  schedule["signalling_id"] or "0000",
                         "operator": schedule["operator_name"] or schedule["atoc_code"]
                     }
                 stype = "%s %s" % (
                     schedule_query.data["tops_inferred"],
                     schedule["power_type"]) if schedule_query.data["tops_inferred"] else schedule["power_type"]
-                for k,v in {
+                for k, v in {
                     "operatorCode": schedule["atoc_code"],
-                    "serviceType": stype if stype else SCHEDULE_STATUS[schedule["status"]],
+                    "serviceType":  stype if stype else SCHEDULE_STATUS[schedule["status"]],
                 }.items():
                     query[k] = v
 
@@ -488,78 +496,78 @@ class Module(ModuleManager.BaseModule):
         for station in query["locations"][0] if "locations" in query else schedule["locations"]:
             if "locations" in query:
                 parsed = {
-                    "name": station["locationName"],
-                    "crs": (station["crs"] if "crs" in station else station["tiploc"]).rstrip(),
-                    "tiploc": station["tiploc"].rstrip(),
-                    "called": "atd" in station,
-                    "passing": station["isPass"] if "isPass" in station else False,
-                    "first": len(stations) == 0,
-                    "last": False,
-                    "cancelled": station["isCancelled"] if "isCancelled" in station else False,
+                    "name":         station["locationName"],
+                    "crs":          (station["crs"] if "crs" in station else station["tiploc"]).rstrip(),
+                    "tiploc":       station["tiploc"].rstrip(),
+                    "called":       "atd" in station,
+                    "passing":      station["isPass"] if "isPass" in station else False,
+                    "first":        len(stations) == 0,
+                    "last":         False,
+                    "cancelled":    station["isCancelled"] if "isCancelled" in station else False,
                     "associations": [],
-                    "length": station["length"] if "length" in station else None,
-                    "times": self.process(station),
-                    "platform": station["platform"] if "platform" in station else None,
-                    "activity": self.activities(station["activities"]) if "activities" in station else [],
-                    "activity_p": self.reduced_activities(station["activities"]) if "activities" in station else [],
+                    "length":       station["length"] if "length" in station else None,
+                    "times":        self.process(station),
+                    "platform":     station["platform"] if "platform" in station else None,
+                    "activity":     self.activities(station["activities"]) if "activities" in station else [],
+                    "activity_p":   self.reduced_activities(station["activities"]) if "activities" in station else [],
                 }
 
                 if parsed["cancelled"]:
                     parsed["times"]["arrival"].update({
-                        "short": "Cancelled",
+                        "short":   "Cancelled",
                         "on_time": False,
-                        "status": 2
+                        "status":  2
                     })
                     parsed["times"]["departure"].update({
-                        "short": "Cancelled",
+                        "short":   "Cancelled",
                         "on_time": False,
-                        "status": 2
+                        "status":  2
                     })
 
                 associations = station["associations"][0] if "associations" in station else []
                 for assoc in associations:
                     parsed_assoc = {
-                        "uid_assoc": assoc.uid,
-                        "category": {
-                            "divide": "VV",
-                            "join": "JJ",
-                            "next": "NP"
-                        }[assoc["category"]],
-                        "from": parsed["first"],
-                        "direction": assoc["destTiploc"].rstrip() == parsed["tiploc"],
-                        "origin_name": assoc["origin"],
+                        "uid_assoc":     assoc.uid,
+                        "category":      {
+                                             "divide": "VV",
+                                             "join":   "JJ",
+                                             "next":   "NP"
+                                         }[assoc["category"]],
+                        "from":          parsed["first"],
+                        "direction":     assoc["destTiploc"].rstrip() == parsed["tiploc"],
+                        "origin_name":   assoc["origin"],
                         "origin_tiploc": assoc["originTiploc"],
-                        "origin_crs": assoc["originCRS"] if "originCRS" in assoc else None,
-                        "dest_name": assoc["destination"],
-                        "dest_tiploc": assoc["destTiploc"],
-                        "dest_crs": assoc["destCRS"] if "destCRS" in assoc else None,
-                        "far_name": assoc["destination"],
-                        "far_tiploc": assoc["destTiploc"],
-                        "far_crs": assoc["destCRS"] if "destCRS" in assoc else None,
+                        "origin_crs":    assoc["originCRS"] if "originCRS" in assoc else None,
+                        "dest_name":     assoc["destination"],
+                        "dest_tiploc":   assoc["destTiploc"],
+                        "dest_crs":      assoc["destCRS"] if "destCRS" in assoc else None,
+                        "far_name":      assoc["destination"],
+                        "far_tiploc":    assoc["destTiploc"],
+                        "far_crs":       assoc["destCRS"] if "destCRS" in assoc else None,
                     }
                     if parsed_assoc["direction"]:
                         parsed_assoc.update({
-                            "far_name": parsed_assoc["origin_name"],
+                            "far_name":   parsed_assoc["origin_name"],
                             "far_tiploc": parsed_assoc["origin_tiploc"],
-                            "far_crs": parsed_assoc["origin_crs"]
+                            "far_crs":    parsed_assoc["origin_crs"]
                         })
                     parsed["associations"].append(parsed_assoc)
             else:
                 parsed = {
-                    "name": (station["name"] or "none"),
-                    "crs": station["crs"] if station["crs"] else station["tiploc"],
-                    "tiploc": station["tiploc"],
-                    "called": False,
-                    "passing": bool(station.get("pass")),
-                    "first": len(stations) == 0,
-                    "last": False,
-                    "cancelled": False,
-                    "length": None,
-                    "times": self.process(station["dolphin_times"]),
-                    "platform": station["platform"],
+                    "name":         (station["name"] or "none"),
+                    "crs":          station["crs"] if station["crs"] else station["tiploc"],
+                    "tiploc":       station["tiploc"],
+                    "called":       False,
+                    "passing":      bool(station.get("pass")),
+                    "first":        len(stations) == 0,
+                    "last":         False,
+                    "cancelled":    False,
+                    "length":       None,
+                    "times":        self.process(station["dolphin_times"]),
+                    "platform":     station["platform"],
                     "associations": station["associations"] or [],
-                    "activity": self.activities(station["activity"]),
-                    "activity_p": self.reduced_activities(station["activity"]),
+                    "activity":     self.activities(station["activity"]),
+                    "activity_p":   self.reduced_activities(station["activity"]),
                 }
             stations.append(parsed)
 
@@ -588,7 +596,7 @@ class Module(ModuleManager.BaseModule):
                 station["name"],
                 station["crs"] + ", " if station["name"] != station["crs"] else '',
                 station["length"] + " car, " if station["length"] and
-                (station["first"] or station["associations"]) else '',
+                                                (station["first"] or station["associations"]) else '',
                 ("~" if station["times"][filter["type"]]["estimate"] else '') +
                 station["times"][filter["type"]]["prefix"].replace(filter["type"][0],
                                                                    ""),
@@ -620,7 +628,7 @@ class Module(ModuleManager.BaseModule):
             stations_filtered.append(station)
             if station["first"] and not station["last"] and filter["default"] and not external:
                 stations_filtered.append({
-                    "summary": "(...)",
+                    "summary":          "(...)",
                     "summary_external": "(...)"
                 })
 
@@ -645,6 +653,7 @@ class Module(ModuleManager.BaseModule):
                                                               total_count,
                                                               ", ".join([s["summary"] for s in stations_filtered])))
 
+
     @utils.hook("received.command.nrhead", min_args=1)
     def head(self, event):
         """
@@ -665,7 +674,7 @@ class Module(ModuleManager.BaseModule):
         if event.get("external"):
             event["stdout"].write("\n".join([
                 "{a.uid:6} {a.trainid:4} {a.originName} ({a.originCrs}) ? {a.destinationName} ({a.destinationCrs})"
-                .format(a=a) for a in services
+                    .format(a=a) for a in services
             ]))
         else:
             event["stdout"].write(", ".join([
@@ -678,6 +687,7 @@ class Module(ModuleManager.BaseModule):
                                                              a["destinationName"],
                                                              a["destinationCrs"]) for a in services
             ]))
+
 
     @utils.hook("received.command.nrcode", min_args=1)
     def service_code(self, event):

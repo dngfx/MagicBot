@@ -1,6 +1,11 @@
-import datetime, socket, ssl, time, threading, typing
+import socket
+import threading
+import time
+import typing
+
 from src import IRCLine, IRCObject, utils
 from src.Logging import Logger as log
+
 
 THROTTLE_LINES = 4
 THROTTLE_SECONDS = 1
@@ -9,18 +14,19 @@ UNTHROTTLED_MAX_LINES = 10
 
 class Socket(IRCObject.Object):
 
+
     def __init__(
-        self,
-        log: log,
-        encoding: str,
-        fallback_encoding: str,
-        hostname: str,
-        port: int,
-        bindhost: str,
-        tls: bool,
-        tls_verify: bool = True,
-        cert: str = None,
-        key: str = None
+            self,
+            log: log,
+            encoding: str,
+            fallback_encoding: str,
+            hostname: str,
+            port: int,
+            bindhost: str,
+            tls: bool,
+            tls_verify: bool = True,
+            cert: str = None,
+            key: str = None
     ):
         self.log = log
 
@@ -59,8 +65,10 @@ class Socket(IRCObject.Object):
         self.connected_ip = None  # type: typing.Optional[str]
         self.connect_time: float = -1
 
+
     def fileno(self) -> int:
         return self.cached_fileno or self._socket.fileno()
+
 
     def _tls_wrap(self):
         server_hostname = None
@@ -68,15 +76,17 @@ class Socket(IRCObject.Object):
             server_hostname = self._hostname
 
         self._socket = utils.security.ssl_wrap(
-            self._socket,
-            cert=self._cert,
-            key=self._key,
-            verify=self._tls_verify,
-            hostname=server_hostname
+                self._socket,
+                cert=self._cert,
+                key=self._key,
+                verify=self._tls_verify,
+                hostname=server_hostname
         )
+
 
     def _make_socket(self, hostname, port, bindhost, timeout):
         return socket.create_connection((hostname, port), timeout, bindhost)
+
 
     def connect(self):
         bindhost = None
@@ -93,6 +103,7 @@ class Socket(IRCObject.Object):
         self.cached_fileno = self._socket.fileno()
         self.connected = True
 
+
     def disconnect(self):
         self.connected = False
         try:
@@ -103,6 +114,7 @@ class Socket(IRCObject.Object):
             self._socket.close()
         except:
             pass
+
 
     def read(self) -> typing.Optional[typing.List[str]]:
         data = b""
@@ -121,7 +133,7 @@ class Socket(IRCObject.Object):
         data_lines = [line.strip(b"\r") for line in data.split(b"\n")]
         if data_lines[-1]:
             self._read_buffer = data_lines[-1]
-            log.trace(log, "recevied and buffered non-complete line: %s" % data_lines[-1])
+            log.trace("recevied and buffered non-complete line: %s" % data_lines[-1])
 
         data_lines.pop(-1)
         decoded_lines = []
@@ -130,7 +142,7 @@ class Socket(IRCObject.Object):
             try:
                 decoded_line = line.decode(self._encoding)
             except UnicodeDecodeError:
-                log.trace(log, "can't decode line with '%s', falling back: %s" % (self._encoding, line))
+                log.trace("can't decode line with '%s', falling back: %s" % (self._encoding, line))
                 try:
                     decoded_line = line.decode(self._fallback_encoding)
                 except UnicodeDecodeError:
@@ -140,9 +152,11 @@ class Socket(IRCObject.Object):
         self.last_read = time.monotonic()
         return decoded_lines
 
+
     def _immediate_buffer(self, line: IRCLine.SentLine):
         self._write_buffer += line.for_wire()
         self._buffered_lines.append(line)
+
 
     def send(self, line: IRCLine.SentLine, immediate: bool = False):
         with self._write_buffer_lock:
@@ -150,6 +164,7 @@ class Socket(IRCObject.Object):
                 self._immediate_buffer(line)
             else:
                 self._queued_lines.append(line)
+
 
     def _fill_throttle(self):
         with self._write_buffer_lock:
@@ -164,6 +179,7 @@ class Socket(IRCObject.Object):
                 self._queued_lines = self._queued_lines[throttle_space:]
                 for line in to_buffer:
                     self._immediate_buffer(line)
+
 
     def _send(self) -> typing.List[IRCLine.SentLine]:
         sent_lines = []  # type: typing.List[IRCLine.SentLine]
@@ -185,17 +201,22 @@ class Socket(IRCObject.Object):
 
         return sent_lines
 
+
     def clear_send_buffer(self):
         self._queued_lines.clear()
+
 
     def waiting_throttled_send(self) -> bool:
         return bool(len(self._queued_lines))
 
+
     def waiting_immediate_send(self) -> bool:
         return bool(len(self._write_buffer))
 
+
     def throttle_done(self) -> bool:
         return self.send_throttle_timeout() == 0
+
 
     def throttle_prune(self):
         now = time.monotonic()
@@ -206,10 +227,12 @@ class Socket(IRCObject.Object):
                 self._recent_sends.pop(i - popped)
                 popped += 1
 
+
     def throttle_space(self) -> int:
         if not self._write_throttling:
             return UNTHROTTLED_MAX_LINES
         return max(0, self._throttle_lines - len(self._recent_sends))
+
 
     def send_throttle_timeout(self) -> float:
         if len(self._write_buffer) or not self._write_throttling:
@@ -223,8 +246,10 @@ class Socket(IRCObject.Object):
         time_left = time_left - time.monotonic()
         return time_left
 
+
     def enable_write_throttle(self):
         self._throttle_when_empty = True
+
 
     def set_throttle(self, lines: int, seconds: int):
         self._throttle_lines = lines

@@ -1,11 +1,13 @@
 from src import ModuleManager, utils
 
+
 CAP = utils.irc.Capability(None, "draft/edit", alias="edit")
 DELETE_TAG = utils.irc.MessageTag(None, "draft/delete")
 
 
 @utils.export("cap", CAP)
 class Module(ModuleManager.BaseModule):
+
 
     def _tagmsg(self, event, channel):
         msgid = DELETE_TAG.get_value(event["line"].tags)
@@ -27,9 +29,11 @@ class Module(ModuleManager.BaseModule):
                                                channel=channel,
                                                user=event["user"])
 
+
     @utils.hook("received.tagmsg.private")
     def private(self, event):
         self._tagmsg(event, None)
+
 
     @utils.hook("received.tagmsg.channel")
     def channel(self, event):

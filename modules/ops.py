@@ -9,6 +9,7 @@ from src import ModuleManager, utils
                                 "Enable/disable command that highlights all online channel ops"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.command.ops")
     @utils.kwarg("channel_only", True)
     @utils.kwarg("permission", "op-ping")

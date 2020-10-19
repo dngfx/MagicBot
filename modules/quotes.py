@@ -1,13 +1,20 @@
 #--depends-on commands
 
-import random, time
+import random
+import re
+import time
+
 from src import ModuleManager, utils
 
 
-@utils.export("channelset",
-              utils.BoolSetting("channel-quotes",
-                                "Whether or not quotes added from this channel are kept in this channel"))
+@utils.export(
+        "channelset",
+        utils.BoolSetting("channel-quotes",
+                          "Whether or not quotes added from this channel are kept in this channel")
+)
+@utils.export("channelset", utils.BoolSetting("phil-ken-sebben", "HA HA HA!"))
 class Module(ModuleManager.BaseModule):
+
 
     def category_and_quote(self, s):
         category, sep, quote = s.partition("=")
@@ -17,11 +24,14 @@ class Module(ModuleManager.BaseModule):
             return category, None
         return category, quote.strip()
 
+
     def _get_quotes(self, target, category):
         return target.get_setting("quotes-%s" % category, [])
 
+
     def _set_quotes(self, target, category, quotes):
         target.set_setting("quotes-%s" % category, quotes)
+
 
     @utils.hook("received.command.qadd", alias_of="quoteadd")
     @utils.hook("received.command.quoteadd", min_args=1)
@@ -42,8 +52,10 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Please provide a category AND quote")
 
+
     def _target_zip(self, target, quotes):
         return [[u, t, q, target] for u, t, q in quotes]
+
 
     @utils.hook("received.command.qdel", alias_of="quotedel")
     @utils.hook("received.command.quotedel", min_args=1)
@@ -83,6 +95,26 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Quote not found")
 
+
+    @utils.hook("command.regex")
+    @utils.kwarg("expect_output", True)
+    @utils.kwarg("ignore_action", True)
+    @utils.kwarg("command", "philkensebben")
+    @utils.kwarg("pattern", re.compile(".+"))
+    def channel_message(self, event):
+        if not event["target"].get_setting("phil-ken-sebben", False):
+            return
+        category = "phil ken sebben"
+        quotes = event["server"].get_setting("quotes-%s" % category, [])
+        if quotes and (random.randint(0, 99) < 3):
+            index = random.randint(0, len(quotes) - 1)
+            nickname, time_added, quote = quotes[index]
+
+            event["stdout"].prefix = None
+            event["stdout"].write("%s %s" % (utils.irc.bold("<PHIL KEN SEBBEN>"), quote))
+            event.eat()
+
+
     @utils.hook("received.command.q", alias_of="quote")
     @utils.hook("received.command.quote", min_args=1)
     @utils.kwarg("help", "Get a random quote from a given category")
@@ -107,6 +139,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("%s: %s" % (category_str, quote))
         else:
             event["stderr"].write("No matching quotes")
+
 
     @utils.hook("received.command.grab", alias_of="quotegrab")
     @utils.hook("received.command.quotegrab", min_args=1, channel_only=True)

@@ -1,6 +1,7 @@
-from src import ModuleManager, utils
-from . import colors
+from src import utils
 from src.Logging import Logger as log
+from . import colors
+
 
 COMMIT_URL = "https://github.com/%s/commit/%s"
 COMMIT_RANGE_URL = "https://github.com/%s/compare/%s...%s"
@@ -11,33 +12,34 @@ PR_COMMIT_URL = "https://github.com/%s/pull/%s/commits/%s"
 
 DEFAULT_EVENT_CATEGORIES = ["ping", "code", "pr", "issue", "repo"]
 EVENT_CATEGORIES = {
-    "ping": [
+    "ping":                      [
         "ping"  # new webhook received
     ],
-    "code": ["push", "commit_comment"],
-    "pr-minimal": ["pull_request/opened", "pull_request/closed", "pull_request/reopened"],
-    "pr": [
+    "code":                      ["push", "commit_comment"],
+    "pr-minimal":                ["pull_request/opened", "pull_request/closed", "pull_request/reopened"],
+    "pr":                        [
         "pull_request/opened", "pull_request/closed", "pull_request/reopened", "pull_request/edited",
         "pull_request/assigned", "pull_request/unassigned", "pull_request_review", "pull_request/locked",
         "pull_request/unlocked", "pull_request_review_comment"
     ],
-    "pr-all": ["pull_request", "pull_request_review", "pull_request_review_comment"],
-    "pr-review-minimal": ["pull_request_review/submitted", "pull_request_review/dismissed"],
+    "pr-all":                    ["pull_request", "pull_request_review", "pull_request_review_comment"],
+    "pr-review-minimal":         ["pull_request_review/submitted", "pull_request_review/dismissed"],
     "pr-review-comment-minimal": ["pull_request_review_comment/created", "pull_request_review_comment/deleted"],
-    "issue-minimal": ["issues/opened", "issues/closed", "issues/reopened", "issues/deleted", "issues/transferred"],
-    "issue": [
+    "issue-minimal":             ["issues/opened", "issues/closed", "issues/reopened", "issues/deleted",
+                                  "issues/transferred"],
+    "issue":                     [
         "issues/opened", "issues/closed", "issues/reopened", "issues/deleted", "issues/edited", "issues/assigned",
         "issues/unassigned", "issues/locked", "issues/unlocked", "issues/transferred", "issue_comment",
     ],
-    "issue-all": ["issues", "issue_comment"],
-    "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
-    "repo": [
+    "issue-all":                 ["issues", "issue_comment"],
+    "issue-comment-minimal":     ["issue_comment/created", "issue_comment/deleted"],
+    "repo":                      [
         "create",  # a repository, branch or tag has been created
         "delete",  # same as above but deleted
         "release", "fork"
     ],
-    "team": ["membership"],
-    "star": [
+    "team":                      ["membership"],
+    "star":                      [
         # "watch" is a misleading name for this event so this add "star" as an
         # alias for "watch"
         "watch"
@@ -46,17 +48,17 @@ EVENT_CATEGORIES = {
 
 COMMENT_ACTIONS = {
     "created": "commented",
-    "edited": "edited a comment",
+    "edited":  "edited a comment",
     "deleted": "deleted a comment"
 }
 COMMENT_MAX = 100
 
 CHECK_RUN_CONCLUSION = {
-    "success": "passed",
-    "failure": "failed",
-    "neutral": "finished",
-    "cancelled": "was cancelled",
-    "timed_out": "timed out",
+    "success":         "passed",
+    "failure":         "failed",
+    "neutral":         "finished",
+    "cancelled":       "was cancelled",
+    "timed_out":       "timed out",
     "action_required": "requires action"
 }
 CHECK_RUN_FAILURES = ["failure", "cancelled", "timed_out", "action_required"]
@@ -64,13 +66,16 @@ CHECK_RUN_FAILURES = ["failure", "cancelled", "timed_out", "action_required"]
 
 class GitHub(object):
 
+
     def __init__(self, log):
         self.log = log
+
 
     def is_private(self, data, headers):
         if "repository" in data:
             return data["repository"]["private"]
         return False
+
 
     def names(self, data, headers):
         full_name = None
@@ -85,10 +90,12 @@ class GitHub(object):
             organisation = data["organization"]["login"]
         return full_name, repo_username, repo_name, organisation
 
+
     def branch(self, data, headers):
         if "ref" in data:
             return data["ref"].rpartition("/")[2]
         return None
+
 
     def event(self, data, headers):
         event = headers["X-GitHub-Event"]
@@ -109,8 +116,10 @@ class GitHub(object):
 
         return [event] + list(filter(None, [event_action, category, category_action]))
 
+
     def event_categories(self, event):
         return EVENT_CATEGORIES.get(event, [event])
+
 
     def webhook(self, full_name, event, data, headers):
         out = []
@@ -146,42 +155,52 @@ class GitHub(object):
             out = self.watch(data)
         return list(zip(out, [None] * len(out)))
 
+
     def _short_url(self, url):
-        log.debug(log, "git.io shortening: %s" % url)
+        log.debug("git.io shortening: %s" % url)
         try:
             page = utils.http.request(
-                "https://git.io",
-                method="POST",
-                post_data={"url": url}
+                    "https://git.io",
+                    method="POST",
+                    post_data={"url": url}
             )
             return page.headers["Location"]
         except utils.http.HTTPTimeoutException:
-            log.warn(log, "HTTPTimeoutException while waiting for github short URL")
+            log.warn("HTTPTimeoutException while waiting for github short URL")
             return url
+
 
     def _iso8601(self, s):
         return utils.datetime.parse.iso8601(s)
 
+
     def ping(self, data):
         return ["Received new webhook"]
+
 
     def _change_count(self, n, symbol, color):
         return utils.irc.color("%s%d" % (symbol, n), color) + utils.irc.bold("")
 
+
     def _added(self, n):
         return self._change_count(n, "+", colors.COLOR_POSITIVE)
+
 
     def _removed(self, n):
         return self._change_count(n, "-", colors.COLOR_NEGATIVE)
 
+
     def _modified(self, n):
         return self._change_count(n, "~", utils.consts.PURPLE)
+
 
     def _short_hash(self, hash):
         return hash[:7]
 
+
     def _flat_unique(self, commits, key):
         return set(itertools.chain(*(commit[key] for commit in commits)))
+
 
     def push(self, full_name, data):
         outputs = []
@@ -198,6 +217,7 @@ class GitHub(object):
         single_url = COMMIT_URL % (full_name, "%s")
 
         return self._format_push(branch, author, data["commits"], data["forced"], single_url, range_url)
+
 
     def _format_push(self, branch, author, commits, forced, single_url, range_url):
         outputs = []
@@ -216,24 +236,25 @@ class GitHub(object):
                 url = self._short_url(single_url % hash)
 
                 outputs.append(
-                    "%s %spushed %s to %s: %s - %s" % (author,
-                                                       forced_str,
-                                                       hash_colored,
-                                                       branch,
-                                                       message,
-                                                       url)
+                        "%s %spushed %s to %s: %s - %s" % (author,
+                                                           forced_str,
+                                                           hash_colored,
+                                                           branch,
+                                                           message,
+                                                           url)
                 )
         else:
             outputs.append(
-                "%s %spushed %d commits to %s - %s" %
-                (author,
-                 forced_str,
-                 len(commits),
-                 branch,
-                 self._short_url(range_url))
+                    "%s %spushed %d commits to %s - %s" %
+                    (author,
+                     forced_str,
+                     len(commits),
+                     branch,
+                     self._short_url(range_url))
             )
 
         return outputs
+
 
     def _comment(self, s):
         s_line = s.split("\n")[0].strip()
@@ -245,12 +266,14 @@ class GitHub(object):
                 left = left.rsplit(" ", 1)[0]
             return "%s[...]" % left
 
+
     def commit_comment(self, full_name, data):
         action = data["action"]
         commit = self._short_hash(data["comment"]["commit_id"])
         commenter = utils.irc.bold(data["comment"]["user"]["login"])
         url = self._short_url(data["comment"]["html_url"])
         return ["[commit/%s] %s %s a comment - %s" % (commit, commenter, action, url)]
+
 
     def pull_request(self, full_name, data):
         raw_number = data["pull_request"]["number"]
@@ -290,7 +313,7 @@ class GitHub(object):
                 for commit in commits:
                     if seen_before:
                         new_commits.append({
-                            "id": commit["sha"],
+                            "id":      commit["sha"],
                             "message": commit["commit"]["message"]
                         })
                     elif commit["sha"] == data["before"]:
@@ -313,6 +336,7 @@ class GitHub(object):
         pr_title = data["pull_request"]["title"]
         url = self._short_url(data["pull_request"]["html_url"])
         return ["[PR] %s %s: %s - %s" % (sender, action_desc, pr_title, url)]
+
 
     def pull_request_review(self, full_name, data):
         if not data["action"] == "submitted":
@@ -341,6 +365,7 @@ class GitHub(object):
 
         return ["[PR] %s %s on %s: %s - %s" % (reviewer, state_desc, number, pr_title, url)]
 
+
     def pull_request_review_comment(self, full_name, data):
         number = utils.irc.color("#%s" % data["pull_request"]["number"], colors.COLOR_ID)
         action = data["action"]
@@ -348,6 +373,7 @@ class GitHub(object):
         sender = utils.irc.bold(data["sender"]["login"])
         url = self._short_url(data["comment"]["html_url"])
         return ["[PR] %s %s on a review on %s: %s - %s" % (sender, COMMENT_ACTIONS[action], number, pr_title, url)]
+
 
     def issues(self, full_name, data):
         number = utils.irc.color("#%s" % data["issue"]["number"], colors.COLOR_ID)
@@ -362,6 +388,7 @@ class GitHub(object):
         author = utils.irc.bold(data["sender"]["login"])
         url = self._short_url(data["issue"]["html_url"])
         return ["[issue] %s %s: %s - %s" % (author, action_str, issue_title, url)]
+
 
     def issue_comment(self, full_name, data):
         if "changes" in data:
@@ -383,6 +410,7 @@ class GitHub(object):
 
         return ["[%s] %s %s on %s (%s)%s - %s" % (type, commenter, COMMENT_ACTIONS[action], number, title, body, url)]
 
+
     def create(self, full_name, data):
         ref = data["ref"]
         ref_color = utils.irc.color(ref, colors.COLOR_BRANCH)
@@ -391,12 +419,14 @@ class GitHub(object):
         url = self._short_url(CREATE_URL % (full_name, ref))
         return ["%s created a %s: %s - %s" % (sender, type, ref_color, url)]
 
+
     def delete(self, full_name, data):
         ref = data["ref"]
         ref_color = utils.irc.color(ref, colors.COLOR_BRANCH)
         type = data["ref_type"]
         sender = utils.irc.bold(data["sender"]["login"])
         return ["%s deleted a %s: %s" % (sender, type, ref_color)]
+
 
     def release(self, full_name, data):
         action = data["action"]
@@ -407,6 +437,7 @@ class GitHub(object):
         author = utils.irc.bold(data["release"]["author"]["login"])
         url = self._short_url(data["release"]["html_url"])
         return ["%s %s a release%s - %s" % (author, action, name, url)]
+
 
     def check_run(self, data):
         name = data["check_run"]["name"]
@@ -444,11 +475,13 @@ class GitHub(object):
 
         return ["[build @%s] %s: %s%s%s" % (commit, name, status_str, duration, url)]
 
+
     def fork(self, full_name, data):
         forker = utils.irc.bold(data["sender"]["login"])
         fork_full_name = utils.irc.color(data["forkee"]["full_name"], utils.consts.LIGHTBLUE)
         url = self._short_url(data["forkee"]["html_url"])
         return ["%s forked into %s - %s" % (forker, fork_full_name, url)]
+
 
     def membership(self, organisation, data):
         return [
@@ -458,6 +491,7 @@ class GitHub(object):
              data["member"]["login"],
              data["team"]["name"])
         ]
+
 
     def watch(self, data):
         return ["%s starred the repository" % data["sender"]["login"]]

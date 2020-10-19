@@ -7,6 +7,7 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "IRCv3"
 
+
     @utils.hook("received.command.specsup", min_args=1)
     @utils.kwarg("help", "List servers supporting a given IRCv3 capability")
     @utils.kwarg("usage", "<capability>")
@@ -27,6 +28,7 @@ class Module(ModuleManager.BaseModule):
             event["stdout"].write("%s: %s" % (spec, ", ".join(supporting_servers)))
         else:
             event["stderr"].write("No supporting servers found for %s" % spec)
+
 
     @utils.hook("received.command.caps")
     @utils.kwarg("help", "List negotiated IRCv3 capabilities")

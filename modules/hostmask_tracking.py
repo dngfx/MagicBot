@@ -4,6 +4,7 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "Hostmasks"
 
+
     @utils.hook("new.user")
     def new_user(self, event):
         userhost = event["user"].userhost()
@@ -12,6 +13,7 @@ class Module(ModuleManager.BaseModule):
             if not userhost in known_hostmasks:
                 known_hostmasks.append(userhost)
                 event["user"].set_setting("known-hostmasks", known_hostmasks)
+
 
     @utils.hook("received.command.maskfind")
     @utils.kwarg("min_args", 1)

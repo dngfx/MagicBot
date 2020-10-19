@@ -2,18 +2,22 @@
 #--require-config spotify-client-id
 #--require-config spotify-client-secret
 
-import base64, json, time
+import base64
+import time
+
 from src import ModuleManager, utils
+
 
 URL_SEARCH = "https://api.spotify.com/v1/search"
 URL_TOKEN = "https://accounts.spotify.com/api/token"
 
-
 class Module(ModuleManager.BaseModule):
+
 
     def on_load(self):
         self._token = None
         self._token_expires = None
+
 
     def _get_token(self):
         if self._token and time.time() < (self._token_expires + 10):
@@ -21,6 +25,8 @@ class Module(ModuleManager.BaseModule):
         else:
             client_id = self.bot.config["spotify-client-id"]
             client_secret = self.bot.config["spotify-client-secret"]
+
+            print(client_id)
             bearer = "%s:%s" % (client_id, client_secret)
             bearer = base64.b64encode(bearer.encode("utf8")).decode("utf8")
 
@@ -38,6 +44,7 @@ class Module(ModuleManager.BaseModule):
             self._token_expires = time.time() + page["expires_in"]
             return token
 
+
     @utils.hook("received.command.sp", alias_of="spotify")
     @utils.hook("received.command.spotify", min_args=1)
     def spotify(self, event):
@@ -48,9 +55,9 @@ class Module(ModuleManager.BaseModule):
         token = self._get_token()
         page = utils.http.request(URL_SEARCH,
                                   get_params={
-                                      "type": "track",
+                                      "type":  "track",
                                       "limit": 1,
-                                      "q": event["args"]
+                                      "q":     event["args"]
                                   },
                                   headers={
                                       "Authorization": "Bearer %s" % token
@@ -66,3 +73,7 @@ class Module(ModuleManager.BaseModule):
                 event["stderr"].write("No results found")
         else:
             raise utils.EventResultsError()
+
+    #@utils.hook("received.command.spotify", min_args=1)
+    #@utils.kwarg("help", "Receive 5 recommended tracks based on up to 5 artists")
+

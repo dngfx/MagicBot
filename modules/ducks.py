@@ -1,8 +1,12 @@
 #--depends-on commands
 #--depends-on config
 
-import random, re, time
-from src import EventManager, ModuleManager, utils
+import random
+import re
+import time
+
+from src import ModuleManager, utils
+
 """ Licence: WTFPL """
 
 DUCK_TAIL = "・゜゜・。。・゜゜"
@@ -28,30 +32,32 @@ COLORS = [
     utils.consts.PURPLE
 ]
 
-SPECIAL_DUCKS = [[{
-    "type": "Gold",
-    "color": DUCK_GOLD_COLOR,
-    "lang": "Golden",
-    "xpbonus": 5
-}],
-                 [{
-                     "type": "Metal",
-                     "color": DUCK_METAL_COLOR,
-                     "lang": "Metal",
-                     "xpbonus": 2
-                 }],
-                 [{
-                     "type": "Red",
-                     "color": DUCK_RED_COLOR,
-                     "lang": "Rabid",
-                     "xpbonus": 0.5
-                 },
-                  [{
-                      "type": "Rainbow",
-                      "color": COLORS,
-                      "lang": "Mythical",
-                      "xpbonus": 10
-                  }]]]
+SPECIAL_DUCKS = [
+    [{
+        "type":    "Gold",
+        "color":   DUCK_GOLD_COLOR,
+        "lang":    "Golden",
+        "xpbonus": 5
+    }],
+    [{
+        "type":    "Metal",
+        "color":   DUCK_METAL_COLOR,
+        "lang":    "Metal",
+        "xpbonus": 2
+    }],
+    [{
+        "type":    "Red",
+        "color":   DUCK_RED_COLOR,
+        "lang":    "Rabid",
+        "xpbonus": 0.5
+    }],
+    [{
+        "type":    "Rainbow",
+        "color":   COLORS,
+        "lang":    "Mythical",
+        "xpbonus": 10
+    }]
+]
 
 DEFAULT_MIN_MESSAGES = 40
 DEFAULT_MISS_COOLDOWN = 5
@@ -61,74 +67,78 @@ DEFAULT_SPAWN_CHANCE = 2  # Chance a duck will spawn when the minimum number of 
 DEFAULT_SPECIAL_CHANCE = 2  # Special chance in %
 DEFAULT_SPECIAL_ENABLED = False
 
-
 @utils.export("channelset", utils.BoolSetting("ducks-enabled", "Whether or not to spawn ducks"))
+@utils.export("channelset", utils.BoolSetting("announce-xp-after-ducks", "Whether or not to announce total XP gain after ducks"))
 @utils.export(
-    "channelset",
-    utils.BoolSetting("ducks-print-missed-time",
-                      "Whether or not to show how long in seconds you missed a duck by")
+        "channelset",
+        utils.BoolSetting("ducks-print-missed-time",
+                          "Whether or not to show how long in seconds you missed a duck by")
+)
+
+
+
+@utils.export(
+        "channelset",
+        utils.IntRangeSetting(
+                10,
+                200,
+                "ducks-min-messages",
+                "Minimum messages between ducks spawning (Min 10, max 200, default 40)"
+        )
 )
 @utils.export(
-    "channelset",
-    utils.IntRangeSetting(
-        10,
-        200,
-        "ducks-min-messages",
-        "Minimum messages between ducks spawning (Min 10, max 200, default 40)"
-    )
+        "channelset",
+        utils.IntRangeSetting(
+                2,
+                20,
+                "ducks-spawn-chance",
+                "Minimum messages between ducks spawning (Min 2, max 20, default 2)"
+        )
 )
 @utils.export(
-    "channelset",
-    utils.IntRangeSetting(
-        2,
-        20,
-        "ducks-spawn-chance",
-        "Minimum messages between ducks spawning (Min 2, max 10, default 2)"
-    )
-)
-@utils.export(
-    "channelset",
-    utils.IntRangeSetting(
-        2,
-        10,
-        "ducks-miss-cooldown",
-        "Minimum time in seconds between being able to go for a duck again (Min 2, max 10, default 5)"
-    )
+        "channelset",
+        utils.IntRangeSetting(
+                2,
+                10,
+                "ducks-miss-cooldown",
+                "Minimum time in seconds between being able to go for a duck again (Min 2, max 10, default 5)"
+        )
 )
 @utils.export("channelset", utils.IntRangeSetting(0, 50, "ducks-miss-chance", "Miss chance in % (Default 33%)"))
 @utils.export(
-    "channelset",
-    utils.IntRangeSetting(
-        2,
-        5,
-        "ducks-miss-chance-reduction",
-        "Reduces chance to miss by this amount if you miss a duck (Default 2%"
-    )
+        "channelset",
+        utils.IntRangeSetting(
+                2,
+                5,
+                "ducks-miss-chance-reduction",
+                "Reduces chance to miss by this amount if you miss a duck (Default 2%)"
+        )
 )
 @utils.export(
-    "channelset",
-    utils.BoolSetting("ducks-kick",
-                      "Whether or not to kick someone attempting to catch/kill a non-existent duck")
+        "channelset",
+        utils.BoolSetting("ducks-kick",
+                          "Whether or not to kick someone attempting to catch/kill a non-existent duck")
 )
 @utils.export(
-    "channelset",
-    utils.BoolSetting(
-        "ducks-prevent-user-highlight",
-        "Whether or not to prevent highlighting users with !friends/!enemies (Default True)"
-    )
+        "channelset",
+        utils.BoolSetting(
+                "ducks-prevent-user-highlight",
+                "Whether or not to prevent highlighting users with !friends/!enemies (Default True)"
+        )
 )
 @utils.export(
-    "channelset",
-    utils.BoolSetting(
-        "ducks-enable-special",
-        "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
-    )
+        "channelset",
+        utils.BoolSetting(
+                "ducks-enable-special",
+                "Whether or not to allow spawning special (Golden / Metal / Rabid) ducks"
+        )
 )
+
 @utils.export(
-    "channelset",
-    utils.IntSetting("ducks-special-chance",
-                     "Chance in percent a spawned duck will be special",
-                     example="2")
+        "channelset",
+        utils.IntSetting("ducks-special-chance",
+                         "Chance in percent a spawned duck will be special",
+                         example="2")
 )
 class Module(ModuleManager.BaseModule):
 
@@ -150,7 +160,6 @@ class Module(ModuleManager.BaseModule):
             channel.duck_cooldowns = {}
             channel._ducks_debug = testing_enabled
             channel._testing_channel = testing_channel
-            # {"dfx": { "cooldown_time": time, "missed_times": 0 }}
         else:
             channel._ducks_debug = testing_enabled
             channel._testing_channel = testing_channel
@@ -211,8 +220,13 @@ class Module(ModuleManager.BaseModule):
 
         random_duck_type = random.randint(0, 2)
 
+        rainbow_duck_chance = 5
+
+        if channel._ducks_debug == True:
+            rainbow_duck_chance = 33
+
         # 5% chance to generate a rainbow duck
-        if random.randint(0, 99) < 5:
+        if random.randint(0, 99) < rainbow_duck_chance:
             random_duck_type = 3
             channel.duck_is_special = True
             channel.duck_special_type = random_duck_type
@@ -235,7 +249,7 @@ class Module(ModuleManager.BaseModule):
         offset = random.randint(0, len(COLORS))
         out = ""
         for i, c in enumerate(args):
-            color = COLORS[(i+offset) % len(COLORS)]
+            color = COLORS[(i + offset) % len(COLORS)]
             out += utils.irc.color(c, color, terminate=False)
         return utils.irc.bold(out)
 
@@ -261,7 +275,7 @@ class Module(ModuleManager.BaseModule):
         if nick not in channel.duck_cooldowns:
             channel.duck_cooldowns[nick] = {
                 "cooldown_time": 0,
-                "missed_times": 0
+                "missed_times":  0
             }
 
         ustats = channel.duck_cooldowns[nick]
@@ -270,7 +284,7 @@ class Module(ModuleManager.BaseModule):
 
         # Are we shooting too fast?
         if timenow - ustats["cooldown_time"] < ducks_miss_cooldown:
-            err = "You're exhausted and fail to %s the duck, try again soon" % (action)
+            err = "You're exhausted and fail to %s the duck, try again soon" % action
             event["stderr"].write(err)
             return False
 
@@ -288,7 +302,7 @@ class Module(ModuleManager.BaseModule):
 
         channel.duck_cooldowns[nick] = {
             "cooldown_time": 0,
-            "missed_times": 0
+            "missed_times":  0
         }
         return True
 
@@ -315,7 +329,7 @@ class Module(ModuleManager.BaseModule):
         duck_special_lang = ""
         xp_text = ""
 
-        if channel.duck_is_special == True:
+        if channel.duck_is_special:
             duck_special_info = SPECIAL_DUCKS[channel.duck_special_type][0]
             duck_xp_modifier = duck_special_info["xpbonus"]
 
@@ -327,10 +341,10 @@ class Module(ModuleManager.BaseModule):
             channel_name = channel.name
 
             xpfrom, xpto = self.exports.get_one("xpaddinternal")(
-                "%s:%s:%s:%s" % (user_id, channel_id, channel_name, xp)
+                    "%s:%s:%s:%s" % (user_id, channel_id, channel_name, xp)
             )
-
-            xp_text = " Your XP has increased from %s to %s!" % (utils.irc.bold(xpfrom), utils.irc.bold(xpto))
+            if channel.get_setting("announce-xp-after-ducks", False):
+                xp_text = " Your XP has increased from %s to %s!" % (utils.irc.bold(xpfrom), utils.irc.bold(xpto))
 
         channel.duck_is_special = False
 
@@ -400,7 +414,7 @@ class Module(ModuleManager.BaseModule):
     def friends(self, event):
         query = self._target(event["target"], event["is_channel"], event["spec"][0])
 
-        stats = self._top_duck_stats(event["server"], event["target"], "ducks-befriended", "friends", query,)
+        stats = self._top_duck_stats(event["server"], event["target"], "ducks-befriended", "friends", query, )
         event["stdout"].write(stats)
 
     @utils.hook("received.command.enemies")
@@ -427,7 +441,7 @@ class Module(ModuleManager.BaseModule):
                     user_stats[nickname] = 0
                 user_stats[nickname] += value
 
-        top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)),)
+        top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
         return "Top duck %s%s: %s" % (description, channel_query_str, ", ".join(top_10),)
 
     def _get_nickname(self, server, target, nickname):
@@ -449,11 +463,11 @@ class Module(ModuleManager.BaseModule):
         all += [(chan, val, "trap") for chan, val in traps]
 
         current = {
-            "bef": 0,
+            "bef":  0,
             "trap": 0
         }
         overall = {
-            "bef": 0,
+            "bef":  0,
             "trap": 0
         }
 
@@ -477,12 +491,12 @@ class Module(ModuleManager.BaseModule):
             )
 
         event["stdout"].write(
-            "%s has befriended %s and killed %s ducks%s" % (
-                utils.irc.bold(target_user.nickname),
-                utils.irc.bold(overall["bef"]),
-                utils.irc.bold(overall["trap"]),
-                current_str,
-            )
+                "%s has befriended %s and killed %s ducks%s" % (
+                    utils.irc.bold(target_user.nickname),
+                    utils.irc.bold(overall["bef"]),
+                    utils.irc.bold(overall["trap"]),
+                    current_str,
+                )
         )
 
     @utils.hook("received.command.setduckfriends")

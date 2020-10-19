@@ -31,3 +31,15 @@ bot.key
 
 # vscode folder
 .vscode/*
+modules/steam_reference.py
+modules/misc.py
+.idea/*
+.prettierrc.json
+info.html
+info.json
+js/
+modules/steam.py.bak
+package.json
+requirements.new
+test.py
+trash.py

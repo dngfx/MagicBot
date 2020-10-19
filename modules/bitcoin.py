@@ -6,6 +6,7 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "BTC"
 
+
     @utils.hook("received.command.btc")
     def btc(self, event):
         """

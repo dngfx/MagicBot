@@ -1,4 +1,6 @@
-import codecs, re
+import codecs
+import re
+
 
 RE_ISUPPORT_ESCAPE = re.compile(r"\\x(\d\d)", re.I)
 RE_MODES = re.compile(r"[-+]\w+")

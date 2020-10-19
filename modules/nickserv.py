@@ -1,6 +1,5 @@
 #--depends-on config
 
-import base64
 from src import EventManager, ModuleManager, utils
 
 
@@ -9,6 +8,7 @@ from src import EventManager, ModuleManager, utils
                                      "Set the nickserv password for this server",
                                      example="hunter2"))
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.001", priority=EventManager.PRIORITY_URGENT)
     def on_connect(self, event):

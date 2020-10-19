@@ -1,6 +1,8 @@
-import re, typing, uuid
-from src import EventManager, IRCBot, IRCBuffer, IRCLine, IRCObject, IRCServer
-from src import IRCUser, utils
+import re
+import typing
+
+from src import IRCBot, IRCBuffer, IRCLine, IRCObject, IRCServer, IRCUser
+
 
 RE_MODES = re.compile(r"[-+]\w+")
 SETTING_CACHE_EXPIRATION = 60.0 * 5.0  # 5 minutes
@@ -8,6 +10,7 @@ SETTING_CACHE_EXPIRATION = 60.0 * 5.0  # 5 minutes
 
 class Channel(IRCObject.Object):
     name = ""
+
 
     def __init__(self, name: str, id, server: "IRCServer.Server", bot: "IRCBot.Bot"):
         self.name = server.irc_lower(name)
@@ -28,26 +31,34 @@ class Channel(IRCObject.Object):
 
         self._setting_cache_prefix = "channelsetting%s-" % self.id
 
+
     def __repr__(self) -> str:
         return "IRCChannel.Channel(%s|%s)" % (self.server.name, self.name)
+
 
     def __str__(self) -> str:
         return self.name
 
+
     def set_topic(self, topic: str):
         self.topic = topic
+
 
     def set_topic_setter(self, hostmask: IRCLine.Hostmask):
         self.topic_setter = hostmask
 
+
     def set_topic_time(self, unix_timestamp: int):
         self.topic_time = unix_timestamp
+
 
     def add_user(self, user: IRCUser.User):
         self.users.add(user)
 
+
     def user_count(self):
         return len(self.users)
+
 
     def remove_user(self, user: IRCUser.User):
         self.users.remove(user)
@@ -59,8 +70,10 @@ class Channel(IRCObject.Object):
                 if user in self.user_modes:
                     del self.user_modes[user]
 
+
     def has_user(self, user: IRCUser.User) -> bool:
         return user in self.users
+
 
     def mode_str(self) -> str:
         modes = []  # type: typing.List[typing.Tuple[str, typing.List[str]]]
@@ -84,6 +97,7 @@ class Channel(IRCObject.Object):
         else:
             return ""
 
+
     def add_mode(self, mode: str, arg: str = None):
         if not mode in self.modes:
             self.modes[mode] = set([])
@@ -97,6 +111,7 @@ class Channel(IRCObject.Object):
                     self.user_modes[user].add(mode)
             else:
                 self.modes[mode].add(arg.lower())
+
 
     def remove_mode(self, mode: str, arg: str = None):
         if not arg:
@@ -117,11 +132,13 @@ class Channel(IRCObject.Object):
             if mode in self.modes and not len(self.modes[mode]):
                 del self.modes[mode]
 
+
     def change_mode(self, remove: bool, mode: str, arg: str = None):
         if remove:
             self.remove_mode(mode, arg)
         else:
             self.add_mode(mode, arg)
+
 
     def parse_modes(self, modes: str, args: typing.List[str]) -> typing.List[typing.Tuple[str, typing.Optional[str]]]:
         new_modes: typing.List[typing.Tuple[str, typing.Optional[str]]] = []
@@ -147,16 +164,20 @@ class Channel(IRCObject.Object):
                 new_modes.append((mode_str, new_arg))
         return new_modes
 
+
     def _setting_cache_key(self, key: str) -> str:
         return self._setting_cache_prefix + key
 
+
     def _cache_setting(self, key: str, value: typing.Any) -> str:
         return self.bot.cache.temporary_cache(key, value, SETTING_CACHE_EXPIRATION)
+
 
     def set_setting(self, setting: str, value: typing.Any):
         self.bot.database.channel_settings.set(self.id, setting, value)
         cache_key = self._setting_cache_key(setting)
         self._cache_setting(self._setting_cache_key(setting), value)
+
 
     def get_setting(self, setting: str, default: typing.Any = None) -> typing.Any:
         cache_key = self._setting_cache_key(setting)
@@ -172,6 +193,7 @@ class Channel(IRCObject.Object):
         else:
             return value
 
+
     def find_settings(self,
                       pattern: str = None,
                       prefix: str = None,
@@ -183,6 +205,7 @@ class Channel(IRCObject.Object):
         else:
             raise ValueError("Please provide 'pattern' or 'prefix'")
 
+
     def del_setting(self, setting: str):
         self.bot.database.channel_settings.delete(self.id, setting)
 
@@ -190,11 +213,14 @@ class Channel(IRCObject.Object):
         if self.bot.cache.has_item(cache_key):
             self.bot.cache.remove(cache_key)
 
+
     def set_user_setting(self, user_id: int, setting: str, value: typing.Any):
         self.bot.database.user_channel_settings.set(user_id, self.id, setting, value)
 
+
     def get_user_setting(self, user_id: int, setting: str, default: typing.Any = None) -> typing.Any:
         return self.bot.database.user_channel_settings.get(user_id, self.id, setting, default)
+
 
     def find_user_settings(self,
                            user_id: int,
@@ -208,30 +234,38 @@ class Channel(IRCObject.Object):
         else:
             raise ValueError("Please provide 'pattern' or 'prefix'")
 
+
     def del_user_setting(self, user_id: int, setting: str):
         self.bot.database.user_channel_settings.delete(user_id, self.id, setting)
 
+
     def find_all_by_setting(self, setting: str, default: typing.Any = []) -> typing.List[typing.Any]:
         return self.bot.database.user_channel_settings.find_all_by_setting(self.id, setting, default)
+
 
     def send_message(self,
                      text: str,
                      tags: dict = {}):
         return self.server.send_message(self.name, text, tags=tags)
 
+
     def send_notice(self,
                     text: str,
                     tags: dict = {}):
         return self.server.send_notice(self.name, text, tags=tags)
 
+
     def send_tagmsg(self, tags: dict):
         return self.server.send_tagmsg(self.name, tags)
+
 
     def _chunks(self, chunk: int, n: int) -> typing.List[typing.List[int]]:
         return [list(range(i, i + chunk)) for i in range(0, n, chunk)]
 
+
     def send_mode(self, mode: str = None, target: typing.List[str] = None):
         return self.server.send_mode(self.name, mode, target)
+
 
     def send_modes(self, modes: typing.List[typing.Tuple[str, str]], add: bool):
         chunk_n = min(6, int(self.server.isupport.get("MODES", "3") or "6"))
@@ -243,8 +277,10 @@ class Channel(IRCObject.Object):
             mode_str = "%s%s" % ("+" if add else "-", "".join(chunk_modes))
             self.server.send_mode(self.name, mode_str, chunk_args)
 
+
     def send_kick(self, target: str, reason: str = None):
         return self.server.send_kick(self.name, target, reason)
+
 
     def send_kicks(self, targets: typing.List[str], reason: str = None):
         chunk_n = min(4, self.server.targmax.get("KICK", 1))
@@ -253,20 +289,26 @@ class Channel(IRCObject.Object):
             nicks = targets[chunk[0]:chunk[0] + len(chunk)]
             self.server.send_kick(chan_str, ",".join(nicks), reason)
 
+
     def send_ban(self, hostmask: str):
         return self.server.send_mode(self.name, "+b", [hostmask])
+
 
     def send_unban(self, hostmask: str):
         return self.server.send_mode(self.name, "-b", [hostmask])
 
+
     def send_topic(self, topic: str):
         return self.server.send_topic(self.name, topic)
+
 
     def send_part(self, reason: str = None):
         return self.server.send_part(self.name, reason)
 
+
     def send_invite(self, target: str):
         return self.server.send_invite(self.name, target)
+
 
     def mode_or_above(self, user: IRCUser.User, mode: str) -> bool:
         mode_orders = list(self.server.prefix_modes)
@@ -276,8 +318,10 @@ class Channel(IRCObject.Object):
                 return True
         return False
 
+
     def has_mode(self, user: IRCUser.User, mode: str) -> bool:
         return user in self.modes.get(mode, [])
+
 
     def get_user_modes(self, user: IRCUser.User) -> typing.Set:
         return self.user_modes.get(user, set([]))

@@ -1,14 +1,19 @@
-import datetime, os
+import datetime
+import os
+
 from src import PollHook, utils
+
 
 EXPIRATION = 60  # 1 minute
 
 
 class LockFile(PollHook.PollHook):
 
+
     def __init__(self, filename: str):
         self._filename = filename
         self._next_lock = None
+
 
     def available(self):
         now = utils.datetime.utcnow()
@@ -23,17 +28,21 @@ class LockFile(PollHook.PollHook):
 
         return True
 
+
     def lock(self):
         with open(self._filename, "w") as lock_file:
             last_lock = utils.datetime.utcnow()
             lock_file.write("%s" % utils.datetime.format.iso8601(last_lock))
             self._next_lock = last_lock + datetime.timedelta(seconds=EXPIRATION / 2)
 
+
     def next(self):
         return max(0, (self._next_lock - utils.datetime.utcnow()).total_seconds())
 
+
     def call(self):
         self.lock()
+
 
     def unlock(self):
         if os.path.isfile(self._filename):

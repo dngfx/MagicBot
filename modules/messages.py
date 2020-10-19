@@ -1,9 +1,19 @@
-import re
+import re, pprint
+
 from src import ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
     _name = "MSG"
+
+    @utils.hook("received.command.mstrip", alias_of="messagestrip")
+    @utils.hook("received.command.messagestrip", channel_only=True)
+    @utils.kwarg("min_args", 1)
+    def strip(self, event):
+        channel = event["target"]
+        text = " ".join(event["args_split"])
+        text = utils.irc.strip_all(text)
+        channel.send_message("Stripped Message —— %s" % text)
 
     @utils.hook("received.command.msearch")
     @utils.spec("!r~channel !<pattern>string")

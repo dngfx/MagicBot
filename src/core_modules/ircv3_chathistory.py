@@ -2,6 +2,7 @@
 
 from src import ModuleManager, utils
 
+
 TAG = utils.irc.MessageTag("msgid", "draft/msgid")
 CHATHISTORY_BATCH = utils.irc.BatchType("chathistory")
 
@@ -11,6 +12,7 @@ HISTORY_BATCH = utils.irc.BatchType("history")
 
 @utils.export("cap", EVENTPLAYBACK_CAP)
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.batch.end")
     def batch_end(self, event):

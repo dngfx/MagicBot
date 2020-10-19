@@ -1,5 +1,9 @@
-import datetime, socket, struct
+import datetime
+import socket
+import struct
+
 from src import ModuleManager, utils
+
 
 DEFAULT_PORT = 64738
 
@@ -23,6 +27,7 @@ SETTING = utils.FunctionSetting(_parse,
 @utils.export("channelset", SETTING)
 @utils.export("serverset", SETTING)
 class Module(ModuleManager.BaseModule):
+
 
     @utils.hook("received.command.mumble")
     @utils.kwarg("help", "Get user and bandwidth stats for a mumble server")

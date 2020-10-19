@@ -1,16 +1,17 @@
-from src import ModuleManager, utils
+from src import utils
 from . import colors
 
+
 EVENT_CATEGORIES = {
-    "ping": [
+    "ping":          [
         "ping"  # new webhook received
     ],
-    "code": ["push"],
-    "pr-minimal": ["merge_request/open",
-                   "merge_request/close",
-                   "merge_request/reopen",
-                   "merge_request/merge"],
-    "pr": [
+    "code":          ["push"],
+    "pr-minimal":    ["merge_request/open",
+                      "merge_request/close",
+                      "merge_request/reopen",
+                      "merge_request/merge"],
+    "pr":            [
         "merge_request/open",
         "merge_request/close",
         "merge_request/reopen",
@@ -19,9 +20,9 @@ EVENT_CATEGORIES = {
         "note+mergerequest",
         "confidential_note+mergerequest"
     ],
-    "pr-all": ["merge_request",
-               "note+mergerequest",
-               "confidential_note+mergerequest"],
+    "pr-all":        ["merge_request",
+                      "note+mergerequest",
+                      "confidential_note+mergerequest"],
     "issue-minimal": [
         "issue/open",
         "issue/close",
@@ -30,7 +31,7 @@ EVENT_CATEGORIES = {
         "confidential_issue/close",
         "confidential_issue/reopen"
     ],
-    "issue": [
+    "issue":         [
         "issue/open",
         "issue/close",
         "issue/reopen",
@@ -42,25 +43,25 @@ EVENT_CATEGORIES = {
         "note+issue",
         "confidential_note+issue"
     ],
-    "issue-all": ["issue",
-                  "confidential_issue",
-                  "note+issue",
-                  "confidential_note+issue"],
-    "repo": ["tag_push"]
+    "issue-all":     ["issue",
+                      "confidential_issue",
+                      "note+issue",
+                      "confidential_note+issue"],
+    "repo":          ["tag_push"]
 }
 
 COMMENT_ACTIONS = {
     "created": "commented",
-    "edited": "edited a comment",
+    "edited":  "edited a comment",
     "deleted": "deleted a comment"
 }
 
 ISSUE_ACTIONS = {
-    "open": "opened",
-    "close": "closed",
+    "open":   "opened",
+    "close":  "closed",
     "reopen": "reopened",
     "update": "updated",
-    "merge": "merged"
+    "merge":  "merged"
 }
 
 WIKI_ACTIONS = {
@@ -72,10 +73,12 @@ WIKI_ACTIONS = {
 
 class GitLab(object):
 
+
     def is_private(self, data, headers):
         if "project" in data:
             return not data["project"]["visibility_level"] == 20
         return False
+
 
     def names(self, data, headers):
         if "project" in data:
@@ -91,10 +94,12 @@ class GitLab(object):
 
         return full_name, repo_username, repo_name, organisation
 
+
     def branch(self, data, headers):
         if "ref" in data:
             return data["ref"].rpartition("/")[2]
         return None
+
 
     def event(self, data, headers):
         event = headers["X-GitLab-Event"].rsplit(" ", 1)[0].lower()
@@ -120,8 +125,10 @@ class GitLab(object):
 
         return [event] + list(filter(None, [event_action, category, category_action]))
 
+
     def event_categories(self, event):
         return EVENT_CATEGORIES.get(event, [event])
+
 
     def webhook(self, full_name, event, data, headers):
         if event == "push":
@@ -137,8 +144,10 @@ class GitLab(object):
         elif event == "wiki_page":
             return self.wiki_page(data)
 
+
     def _short_hash(self, hash):
         return hash[:7]
+
 
     def tag_push(self, full_name, data):
         create = not data["after"].strip("0") == ""
@@ -147,6 +156,7 @@ class GitLab(object):
         action = "created" if create else "deleted"
 
         return [["%s %s a tag: %s" % (author, action, tag), None]]
+
 
     def push(self, full_name, data):
         outputs = []
@@ -171,6 +181,7 @@ class GitLab(object):
 
         return outputs
 
+
     def merge_request(self, full_name, data):
         number = utils.irc.color("!%s" % data["object_attributes"]["iid"], colors.COLOR_ID)
         action = data["object_attributes"]["action"]
@@ -190,6 +201,7 @@ class GitLab(object):
         url = data["object_attributes"]["url"]
         return [["[MR] %s %s: %s" % (author, action_desc, pr_title), url]]
 
+
     def issues(self, full_name, data):
         if not "action" in data["object_attributes"]:
             return
@@ -203,12 +215,14 @@ class GitLab(object):
 
         return [["[issue] %s %s %s: %s" % (author, action, number, issue_title), url]]
 
+
     def note(self, full_name, data):
         type = data["object_attributes"]["noteable_type"]
         if type == "Issue":
             return self._note(full_name, data, data["issue"])
         elif type == "MergeRequest":
             return self._note(full_name, data, data["merge_request"])
+
 
     def _note(self, full_name, data, object):
         number = utils.irc.color("#%s" % object["iid"], colors.COLOR_ID)
@@ -219,6 +233,7 @@ class GitLab(object):
         commenter = utils.irc.bold(data["user"]["username"])
         url = data["object_attributes"]["url"]
         return [["[%s] %s commented on %s: %s" % (type, commenter, number, title), url]]
+
 
     def wiki_page(self, data):
         author = utils.irc.bold(data["user"]["username"])

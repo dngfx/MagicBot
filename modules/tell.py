@@ -5,6 +5,7 @@ from src import EventManager, ModuleManager, utils
 
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("received.message.channel", priority=EventManager.PRIORITY_HIGH)
     def channel_message(self, event):
         messages = event["channel"].get_user_setting(event["user"].get_id(), "to", [])
@@ -19,6 +20,7 @@ class Module(ModuleManager.BaseModule):
             event["channel"].del_user_setting(event["user"].get_id(), "to")
 
     @utils.hook("received.command.to", alias_of="tell")
+    @utils.hook("received.command.notice", alias_of="tell")
     @utils.hook("received.command.tell")
     @utils.kwarg("min_args", 2)
     @utils.kwarg("channel_only", True)
@@ -36,8 +38,8 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError("Users can only have 5 messages stored")
 
         messages.append(
-            [event["user"].nickname,
-             " ".join(event["args_split"][1:]),
-             utils.datetime.format.iso8601_now()])
+                [event["user"].nickname,
+                 " ".join(event["args_split"][1:]),
+                 utils.datetime.format.iso8601_now()])
         event["target"].set_user_setting(target_user.get_id(), "to", messages)
         event["stdout"].write("Message saved")

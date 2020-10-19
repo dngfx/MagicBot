@@ -1,11 +1,14 @@
-import typing, urllib.parse
+import urllib.parse
+
 import socks
+
 from src import ModuleManager, utils
+
 
 TYPES = {
     "socks4": socks.SOCKS4,
     "socks5": socks.SOCKS5,
-    "http": socks.HTTP
+    "http":   socks.HTTP
 }
 
 
@@ -22,6 +25,7 @@ def _parse(value):
                                     example="socks5://localhost:9050"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("preprocess.connect")
     def new_server(self, event):
         proxy = event["server"].get_setting("proxy", None)
@@ -34,8 +38,10 @@ class Module(ModuleManager.BaseModule):
 
             event["server"].socket._make_socket = self._socket_factory(type, proxy_parsed.hostname, proxy_parsed.port)
 
+
     def _socket_factory(self, ptype, phost, pport):
         def _(host, port, bind, timeout):
             return socks.create_connection((host, port), timeout, bind, ptype, phost, pport)
+
 
         return _

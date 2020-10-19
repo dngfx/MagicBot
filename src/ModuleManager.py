@@ -1,5 +1,16 @@
-import dataclasses, datetime, enum, gc, glob, importlib, importlib.util, io
-import inspect, os, sys, typing, uuid
+import dataclasses
+import datetime
+import enum
+import gc
+import glob
+import importlib
+import importlib.util
+import inspect
+import os
+import sys
+import typing
+import uuid
+
 from src import Config, EventManager, Exports, IRCBot, Timers, utils
 from src.Logging import Logger as log
 
@@ -46,6 +57,7 @@ class ModuleNotLoadableWarning(ModuleWarning):
 
 class ModuleDependencyNotFulfilled(ModuleException):
 
+
     def __init__(self, module, dependency):
         ModuleException.__init__(self, "Dependency for %s not fulfilled: %s" % (module, dependency))
         self.module = module
@@ -63,6 +75,7 @@ class ModuleType(enum.Enum):
 
 class TryReloadResult(object):
 
+
     def __init__(self, success: bool, message: str):
         self.success = success
         self.message = message
@@ -77,17 +90,22 @@ class BaseModule(object):
     timers: Timers.Timers
     log: log
 
+
     def on_load(self):
         pass
+
 
     def unload(self):
         pass
 
+
     def on_pause(self):
         pass
 
+
     def on_resume(self):
         pass
+
 
     def data_directory(self, filename: str):
         path, filename = os.path.split(filename)
@@ -105,6 +123,7 @@ class ModuleDefinition(object):
     type: ModuleType
     hashflags: typing.List[typing.Tuple[str, typing.Optional[str]]]
     is_core: bool
+
 
     def get_dependencies(self):
         dependencies = []
@@ -129,15 +148,16 @@ class LoadedModule(object):
 
 class ModuleManager(object):
 
+
     def __init__(
-        self,
-        events: EventManager.Events,
-        exports: Exports.Exports,
-        timers: Timers.Timers,
-        config: Config.Config,
-        log: log,
-        core_modules: str,
-        extra_modules: typing.List[str]
+            self,
+            events: EventManager.Events,
+            exports: Exports.Exports,
+            timers: Timers.Timers,
+            config: Config.Config,
+            log: log,
+            core_modules: str,
+            extra_modules: typing.List[str]
     ):
         self.events = events
         self.exports = exports
@@ -149,6 +169,7 @@ class ModuleManager(object):
 
         self.modules = {}  # type: typing.Dict[str, LoadedModule]
 
+
     def _list_modules(self, directory: str, is_core: bool) -> typing.Dict[str, ModuleDefinition]:
         modules = []
         for file_module in glob.glob(os.path.join(directory, "*.py")):
@@ -159,6 +180,7 @@ class ModuleManager(object):
 
         return {definition.name: definition
                 for definition in modules}
+
 
     def list_modules(self,
                      whitelist: typing.List[str],
@@ -178,7 +200,8 @@ class ModuleManager(object):
         modules.update(core_modules)
         return modules
 
-    def define_module(self, type: ModuleType, filename: str, is_core: bool,) -> ModuleDefinition:
+
+    def define_module(self, type: ModuleType, filename: str, is_core: bool, ) -> ModuleDefinition:
         if type == ModuleType.DIRECTORY:
             name = os.path.dirname(filename)
         else:
@@ -186,6 +209,7 @@ class ModuleManager(object):
         name = self._module_name(name)
 
         return ModuleDefinition(name, filename, type, utils.parse.hashflags(filename), is_core)
+
 
     def find_module(self, name: str) -> ModuleDefinition:
         type = ModuleType.FILE
@@ -203,8 +227,10 @@ class ModuleManager(object):
 
         raise ModuleNotFoundException(name)
 
+
     def _module_name(self, path: str) -> str:
         return os.path.basename(path).rsplit(".py", 1)[0].lower()
+
 
     def _module_paths(self, name: str) -> typing.List[typing.Tuple[bool, str]]:
         paths = []
@@ -213,8 +239,10 @@ class ModuleManager(object):
             paths.append((i == 0, os.path.join(directory, name)))
         return paths
 
+
     def _import_name(self, name: str, context: str) -> str:
         return "%s_%s" % (name, context)
+
 
     def from_context(self, context: str) -> typing.Optional[LoadedModule]:
         for module in self.modules.values():
@@ -222,12 +250,14 @@ class ModuleManager(object):
                 return module
         return None
 
+
     def from_name(self, name: str) -> typing.Optional[LoadedModule]:
         name_lower = name.lower()
         for module in self.modules.values():
             if module.name.lower() == name_lower:
                 return module
         return None
+
 
     def _check_hashflags(self, bot: "IRCBot.Bot", definition: ModuleDefinition) -> None:
         for hashflag, value in definition.hashflags:
@@ -240,11 +270,12 @@ class ModuleManager(object):
                     # nope, required config option not present.
                     raise ModuleNotLoadableWarning("required config not present")
 
+
     def _load_module(
-        self,
-        bot: "IRCBot.Bot",
-        definition: ModuleDefinition,
-        check_dependency: bool = True
+            self,
+            bot: "IRCBot.Bot",
+            definition: ModuleDefinition,
+            check_dependency: bool = True
     ) -> LoadedModule:
         if definition.name in self.modules:
             raise ModuleNameCollisionException("Module name '%s' " "attempted to be used twice" % definition.name)
@@ -271,20 +302,20 @@ class ModuleManager(object):
             raise ModuleLoadException("module '%s' doesn't have a " "'Module' class." % definition.name)
         if not inspect.isclass(module_object_pointer):
             raise ModuleLoadException(
-                "module '%s' has a 'Module' attribute "
-                "but it is not a class." % definition.name
+                    "module '%s' has a 'Module' attribute "
+                    "but it is not a class." % definition.name
             )
 
         context_events = self.events.new_context(context)
         context_exports = self.exports.new_context(context)
         context_timers = self.timers.new_context(context)
         module_object = module_object_pointer(
-            definition,
-            bot,
-            context_events,
-            context_exports,
-            context_timers,
-            self.log
+                definition,
+                bot,
+                context_events,
+                context_exports,
+                context_timers,
+                self.log
         )
         module_object.on_load()
 
@@ -310,28 +341,33 @@ class ModuleManager(object):
         branch, commit = utils.git_commit(bot.directory)
 
         return LoadedModule(
-            definition.name,
-            module_title,
-            module_object,
-            context,
-            import_name,
-            definition.is_core,
-            commit=commit
+                definition.name,
+                module_title,
+                module_object,
+                context,
+                import_name,
+                definition.is_core,
+                commit=commit
         )
+
 
     def load_module(self, bot: "IRCBot.Bot", definition: ModuleDefinition) -> LoadedModule:
         try:
             loaded_module = self._load_module(bot, definition, check_dependency=False)
         except ModuleWarning as warning:
-            log.warn(log, "Module '%s' not loaded" % definition.name)
+            log.warn(message=("Module '%s' not loaded" % definition.name), context="Server", server="Modules",
+                     formatting=True)
             raise
         except Exception as e:
-            log.error(log, "Failed to load module \"%s\": %s" % (definition.name, str(e)))
+            log.error(message=("Failed to load module \"%s\": %s" % (definition.name, str(e))), context="Server",
+                      server="Modules", formatting=True)
             raise
 
         self.modules[loaded_module.name] = loaded_module
-        log.debug(log, "Module '%s' loaded" % loaded_module.name)
+        log.debug(message=("Module '%s' loaded" % loaded_module.name), context="Server", server="Modules",
+                  formatting=True)
         return loaded_module
+
 
     def _dependency_sort(self, definitions: typing.List[ModuleDefinition]) -> typing.List[ModuleDefinition]:
         definitions_ordered = []
@@ -345,7 +381,9 @@ class ModuleManager(object):
             for dep in deps:
                 if not dep in definition_dependencies:
                     # unknown dependency!
-                    log.warn(log, "Module '%s' not loaded - unfulfilled dependency '%s'" % (name, dep))
+                    log.warn(message="Module '%s' not loaded - unfulfilled dependency '%s'" % (name, dep),
+                             context="Server", server="Modules",
+                             formatting=True)
                     del definition_dependencies[name]
 
         while definition_dependencies:
@@ -370,7 +408,9 @@ class ModuleManager(object):
                 for name, deps in definition_dependencies.items():
                     for dep_name in deps:
                         if name in definition_dependencies[dep_name]:
-                            log.warn(log, "Direct circular dependency detected: %s\<->%s" % (name, dep_name))
+                            log.warn(message=("Direct circular dependency detected: %s\<->%s" % (name, dep_name)),
+                                     context="Server", server="Modules",
+                                     formatting=True)
                             changed = True
                             # snap a circular dependence
                             deps.remove(dep_name)
@@ -380,19 +420,22 @@ class ModuleManager(object):
 
         return [definition_names[name] for name in definitions_ordered]
 
+
     def load_modules(
-        self,
-        bot: "IRCBot.Bot",
-        whitelist: typing.List[str] = [],
-        blacklist: typing.List[str] = []
+            self,
+            bot: "IRCBot.Bot",
+            whitelist: typing.List[str] = [],
+            blacklist: typing.List[str] = []
     ) -> None:
         loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
 
         for definition in nonloadable:
-            log.warn(log, "Not loading module '%s'" % definition.name)
+            log.warn(message="Not loading module '%s'" % definition.name, context="Server", server="Modules",
+                     formatting=True)
 
         for definition in loadable:
             self.load_module(bot, definition)
+
 
     def unload_module(self, name: str):
         if not name in self.modules:
@@ -404,6 +447,7 @@ class ModuleManager(object):
 
         self._unload_module(loaded_module)
         del self.modules[loaded_module.name]
+
 
     def _unload_module(self, loaded_module: LoadedModule):
         if hasattr(loaded_module.module, "unload"):
@@ -433,18 +477,17 @@ class ModuleManager(object):
         references -= 1  # one of the refs is from getrefcount
 
         log.debug(
-            log,
-            "Module '%s' unloaded (%d reference%s)" % (loaded_module.name,
-                                                       references,
-                                                       "" if references == 1 else "s")
+                message="Module '%s' unloaded (%d reference%s)" % (loaded_module.name,
+                                                                   references,
+                                                                   "" if references == 1 else "s")
         )
         if references > 0:
             log.debug(
-                log,
-                "References left for '%s': %s" %
-                (loaded_module.name,
-                 ", ".join([str(referrer) for referrer in referrers]))
+                    message="References left for '%s': %s" %
+                            (loaded_module.name,
+                             ", ".join([str(referrer) for referrer in referrers]))
             )
+
 
     def try_reload_module(self, bot: "IRCBot.Bot", name: str):
         loaded_module = self.modules.pop(name)
@@ -459,6 +502,7 @@ class ModuleManager(object):
             raise
 
         self._unload_module(loaded_module)
+
 
     def try_reload_modules(self, bot: "IRCBot.Bot", whitelist: typing.List[str], blacklist: typing.List[str]):
         loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
@@ -486,14 +530,15 @@ class ModuleManager(object):
 
             definition, exception = failed
             return TryReloadResult(
-                False,
-                "Failed to load %s (%s), rolling back reload" % (definition.name,
-                                                                 str(exception))
+                    False,
+                    "Failed to load %s (%s), rolling back reload" % (definition.name,
+                                                                     str(exception))
             )
         else:
             for module in old_modules.values():
                 self._unload_module(module)
             return TryReloadResult(True, "Reloaded %d modules" % len(self.modules.keys()))
+
 
     def _list_valid_modules(self, bot: "IRCBot.Bot", whitelist: typing.List[str], blacklist: typing.List[str]):
         module_definitions = self.list_modules(whitelist, blacklist)

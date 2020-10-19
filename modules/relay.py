@@ -8,12 +8,15 @@ from src import EventManager, ModuleManager, utils
 @utils.export("channelset", utils.BoolSetting("relay-extras", "Whether or not to relay joins/parts/quits/modes/etc"))
 class Module(ModuleManager.BaseModule):
 
+
     @utils.hook("new.server")
     def new_server(self, event):
         event["server"]._relay_ignore = []
 
+
     def _get_relays(self, channel):
         return channel.get_setting("channel-relays", [])
+
 
     def _relay(self, event, channel):
         if ("parsed_line" in event and event["parsed_line"].id in event["server"]._relay_ignore):
@@ -45,18 +48,22 @@ class Module(ModuleManager.BaseModule):
 
                 self.bot.trigger(self._send_factory(server, relay_channel.name, relay_message))
 
+
     def _send_factory(self, server, channel_name, message):
         def _():
             line = server.send_message(channel_name, message)
             server._relay_ignore.append(line.parsed_line.id)
 
+
         return _
+
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
     @utils.kwarg("priority", EventManager.PRIORITY_LOW)
     def formatted(self, event):
         self._relay(event, event["channel"])
+
 
     @utils.hook("formatted.join")
     @utils.hook("formatted.part")
@@ -74,6 +81,7 @@ class Module(ModuleManager.BaseModule):
             for channel in event["user"].channels:
                 if channel.get_setting("relay-extras", False):
                     self._relay(event, channel)
+
 
     @utils.hook("received.command.relaygroup")
     @utils.kwarg("help", "Edit configured relay groups")
