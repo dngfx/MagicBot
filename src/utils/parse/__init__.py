@@ -138,6 +138,9 @@ def comma_format(number):
     return str(f"{number:,}")
 
 
+comma_format_number = comma_format
+
+
 def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int, str]]:
     i = 0
     max = len(s) - 1

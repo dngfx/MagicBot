@@ -1,10 +1,6 @@
-import dataclasses
-import re
-import string
-import typing
+import dataclasses, re, string, typing
 
 from . import consts
-
 
 ASCII_UPPER = string.ascii_uppercase
 ASCII_LOWER = string.ascii_lowercase

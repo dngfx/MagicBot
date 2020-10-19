@@ -40,7 +40,10 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("raw.received.error")
     def error(self, event):
         log.error(
-            "ERROR received from %s: %s" % (str(event["server"]), event["line"].args[0])
+            message=(
+                "ERROR received from %s: %s"
+                % (str(event["server"]), event["line"].args[0])
+            )
         )
 
     @utils.hook("raw.received.fail")

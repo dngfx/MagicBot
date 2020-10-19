@@ -95,16 +95,7 @@ class Control(PollSource.PollSource):
 
         keepalive = True
 
-        if command == "version":
-            client.version = int(data)
-        # elif command == "log":
-        # client.log_level = Logging.LEVELS[data.lower()]
-        elif command == "rehash":
-            log.info("Rehashing bot config")
-            self._bot.config.load()
-            log.info("Bot config rehashed")
-            keepalive = False
-        elif command == "reload":
+        if command == "reload":
             result = self._bot.try_reload_modules()
             response_data = result.message
             keepalive = False

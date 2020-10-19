@@ -1,10 +1,4 @@
-import base64
-import binascii
-import hmac
-import os
-import socket
-import ssl
-import typing
+import base64, binascii, hmac, os, socket, ssl, typing
 
 
 def ssl_context(

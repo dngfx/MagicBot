@@ -64,7 +64,7 @@ class Module(ModuleManager.BaseModule):
         if event["action"]:
             format = "* {SYM}{~NICK} {MSG}"
         else:
-            format = "\<{SYM}{~NICK}> {MSG}"
+            format = "\\<{SYM}{~NICK}> {MSG}"
 
         return {"MSG": event["message"], "SYM": symbols}, format
 
