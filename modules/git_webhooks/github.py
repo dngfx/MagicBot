@@ -1,6 +1,7 @@
 from src import utils
 from src.Logging import Logger as log
 from . import colors
+import itertools
 
 
 COMMIT_URL = "https://github.com/%s/commit/%s"
