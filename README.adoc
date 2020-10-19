@@ -1,0 +1,46 @@
+= MagicBot
+
+Python3 module driven IRC bot, with many custom modules.
+
+= Heritage / Source
+
+Please see https://git.io/bitbot
+This is a fork / slowly becoming a rewrite of the fantastic https://git.io/bitbot[BitBot] by https://github.com/jesopo[Jesopo]
+
+= VERY IMPORTANT NOTE!
+
+When starting the bot, make sure to use this command:
+
+`LOGURU_AUTOINIT=no ./magicbotd`
+
+You do _not_ want LOGURU_AUTOINIT enabled.
+
+== Setup
+
+Setup is the same as BitBot, see below
+
+=== Requirements
+
+`$ pip3 install --user -r requirements.txt`
+
+=== Config
+
+See link:docs/help/config.md[docs/help/config.md].
+
+== MagicBot's networks
+
+MagicBot is currently only on https://www.rizon.net/[Rizon]
+
+== Contact/Support
+
+If you need support with setting up this bot it might be an idea to use https://git.io/bitbot[BitBot] instead, as more support is offered. I will help if I can.
+
+I (df) can be found at https://qchat.rizon.net/?channels=premium[#premium on Rizon].
+
+Alternatively connect via your irc client irc://irc.rizon.net:+6697/#premium (Must use SSL)
+
+== License
+
+Unless expressly marked otherwise inside the file, all files in this project are licensed under GNU General Public License v2.0 - see link:LICENSE[LICENSE] for details.
+
+Parts licenced under the WTFPL will have comments in the file marking it as such.

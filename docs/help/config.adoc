@@ -1,0 +1,65 @@
+== Setting up MagicBot
+
+* Move `docs/bot.conf.example` to `~/.magicbot/bot.conf` and fill in the config options you care about. Ones blank or removed will disable relevant functionality.
+* Run `./bitbotd -a` to add a server.
+* Run `./bitbotctl command master-password` to get the master admin password (needed to add regular admin accounts)
+* Run `./bitbotd` to start the bot.
+* Join `#bitbot` on a server with the bot (or invite it to another channel)
+* `/msg &lt;bot&gt; register &lt;password here&gt;` to register your nickname with the bot
+* (use `/msg &lt;bot&gt; identify &lt;password&gt;` to log in in the future)
+* `/msg &lt;bot&gt; masterlogin &lt;master admin password&gt;` to login as master admin
+* `/msg &lt;bot&gt; permission add &lt;your nickname&gt; *` to give your account admin permissions
+
+=== Configure client TLS certificate
+
+Generate a TLS keypair and point `bot.conf`'s `tls-key` to the private key and `tls-certificate` to the public key.
+
+=== Configure SASL
+
+Configure the bot to use SASL to authenticate (usually used for `NickServ` identification)
+
+`EXTERNAL` usually mean client TLS certificate authentication; `USERPASS` is a MagicBot-specific term that selects the strongest user/password algorithm.
+
+____
+
+/msg &lt;bot&gt; config server sasl userpass &lt;username&gt;:&lt;password&gt;
+
+/msg &lt;bot&gt; config server sasl plain &lt;username&gt;:&lt;password&gt;
+
+/msg &lt;bot&gt; config server sasl scram-sha-1 &lt;username&gt;:&lt;password&gt;
+
+/msg &lt;bot&gt; config server sasl scram-sha-256 &lt;username&gt;:&lt;password&gt;
+
+/msg &lt;bot&gt; config server sasl external
+
+____
+
+=== Commands on-connect
+
+The `perform.py` module allows the bot to execute a saved list of raw IRC commands against a server it's connecting to. Use `/msg &lt;bot&gt; perform add &lt;raw irc command&gt;` to add to the current server's list of commands (`{NICK}` in a raw command will be replaced with the bot's current nick.)
+
+=== Config options
+
+==== View available config options
+
+____
+
+/msg &lt;bot&gt; config bot|server|channel|user
+
+____
+
+==== Set config options
+
+____
+
+/msg &lt;bot&gt; config bot &lt;setting&gt; &lt;value&gt;
+
+/msg &lt;bot&gt; config server &lt;setting&gt; &lt;value&gt;
+
+/msg &lt;bot&gt; config channel:#bitbot &lt;setting&gt; &lt;value&gt;
+
+/msg &lt;bot&gt; config user &lt;setting&gt; &lt;value&gt;
+
+/msg &lt;bot&gt; config user:other_user &lt;setting&gt; &lt;value&gt;
+
+____
