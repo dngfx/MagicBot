@@ -1,7 +1,7 @@
 from src import IRCBot, ModuleManager, utils
 
 
-DBVERSION = "v1.0.2"
+DBVERSION = IRCBot.VERSION
 SOURCEURL = "https://git.io/magicirc"
 
 
