@@ -50,8 +50,6 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.part")
     @utils.kwarg("help", "Part from the current or given channel")
     @utils.kwarg("permission", "part")
-    @utils.kwarg("require_mode", "high")
-    @utils.kwarg("require_access", "high,part")
     @utils.spec("!r~channel")
     def part(self, event):
         event["server"].send_part(event["spec"][0].name)

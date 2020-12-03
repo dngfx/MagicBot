@@ -66,7 +66,7 @@ class Module(ModuleManager.BaseModule):
         else:
             format = "\\<{SYM}{~NICK}> {MSG}"
 
-        return {"MSG": event["message"].replace("<", "\<"), "SYM": symbols}, format
+        return {"MSG": event["message"], "SYM": symbols}, format
 
     @utils.hook("send.message.channel")
     @utils.hook("received.message.channel")
@@ -89,7 +89,10 @@ class Module(ModuleManager.BaseModule):
         if channel:
             symbols = self._mode_symbols(user, channel, event["server"])
 
-        return {"MSG": event["message"].replace("<", "\<"), "SYM": symbols}, "-{SYM}{~NICK}- {MSG}"
+        return {
+            "MSG": event["message"].replace("<", "\<"),
+            "SYM": symbols,
+        }, "-{SYM}{~NICK}- {MSG}"
 
     def _channel_notice(self, event, user, channel):
         formatting, line = self._on_notice(event, user, channel)
