@@ -144,7 +144,7 @@ class ParsedLine(object):
                 else:
                     pieces.append(arg)
 
-        return tags, " ".join(pieces).replace("\r", "")
+        return tags, " ".join(pieces).replace("\r", "").replace("\<", "<")
 
     def format(self) -> str:
         tags, line = self._format()

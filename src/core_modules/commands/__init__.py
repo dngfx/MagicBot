@@ -308,7 +308,10 @@ class Module(ModuleManager.BaseModule):
 
         line_str = obj.pop()
         if obj.prefix:
-            line_str = "[%s] %s" % (utils.irc.color(obj.prefix, color), line_str)
+            line_str = "[%s] %s" % (
+                utils.irc.color(obj.prefix, color),
+                line_str,
+            )
         method = self._command_method(server, target, is_channel)
 
         if not method in ["PRIVMSG", "NOTICE"]:
@@ -325,7 +328,7 @@ class Module(ModuleManager.BaseModule):
                         valid = left
                         trunc = right[0] + trunc
             obj.insert("%s %s" % (STR_CONTINUED, trunc))
-            valid = valid + STR_MORE
+            valid = (valid + STR_MORE).replace("\<", "<")
         line = IRCLine.parse_line(valid)
         if obj._assured:
             line.assure()
