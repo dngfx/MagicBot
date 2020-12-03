@@ -4,16 +4,15 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     _name = "Hostmasks"
 
-
     @utils.hook("new.user")
     def new_user(self, event):
+
         userhost = event["user"].userhost()
         if not userhost == None:
             known_hostmasks = event["user"].get_setting("known-hostmasks", [])
             if not userhost in known_hostmasks:
                 known_hostmasks.append(userhost)
                 event["user"].set_setting("known-hostmasks", known_hostmasks)
-
 
     @utils.hook("received.command.maskfind")
     @utils.kwarg("min_args", 1)
@@ -37,6 +36,9 @@ class Module(ModuleManager.BaseModule):
             outs = []
             for nickname, userhost in sorted(nicknames):
                 outs.append("%s (%s)" % (utils.irc.bold(nickname), userhost))
-            event["stdout"].write("%s (%d/%d): %s" % (hostmask_str, len(nicknames), searched, ", ".join(outs)))
+            event["stdout"].write(
+                "%s (%d/%d): %s"
+                % (hostmask_str, len(nicknames), searched, ", ".join(outs))
+            )
         else:
             event["stderr"].write("Hostmask not found")

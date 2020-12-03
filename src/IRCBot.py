@@ -287,6 +287,7 @@ class Bot(object):
     def _timed_reconnect(self, timer: Timers.Timer):
         server_id = timer.kwargs["server_id"]
         params = timer.kwargs.get("connection_params", None)
+
         if not self.reconnect(server_id, params):
             timer.redo()
         else:

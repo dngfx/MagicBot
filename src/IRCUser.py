@@ -22,6 +22,7 @@ class User(IRCObject.Object):
         self.channels: typing.Set[IRCChannel.Channel] = set([])
 
         self._whois_sent = False
+        self._last_whois = 0
 
         self.account = None
 

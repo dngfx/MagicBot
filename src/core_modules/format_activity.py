@@ -73,11 +73,6 @@ class Module(ModuleManager.BaseModule):
     def channel_message(self, event):
         formatting, line = self._privmsg(event, event["channel"], event["user"])
 
-        # print(formatting, line)
-
-        # pp = pprint.PrettyPrinter(depth=10)
-        # pp.pprint(vars(event))
-
         self._event(
             "message.channel",
             event["server"],

@@ -1,6 +1,7 @@
 # --depends-on commands
 
 from src import EventManager, ModuleManager, utils
+import time, pprint
 
 
 HOSTMASKS_SETTING = "hostmask-account"
@@ -59,13 +60,19 @@ class Module(ModuleManager.BaseModule):
         )
 
     @utils.export("is-identified")
-    def _is_identified(self, user):
+    def _is_identified(self, server, user):
         if not user._id_override:
             return True
 
-        if user.nickname_lower in self.whois_nicks and user._whois_sent == False:
-            event["server"].send_whois(user.nickname_lower)
+        time_now = time.time() - user._last_whois
+        if user.nickname_lower in self.whois_nicks and time_now > 30:
+            server.send_whois(user.nickname_lower)
             user._whois_sent = True
+
+        if not user._id_override:
+            return True
+        else:
+            return False
 
     def _signout(self, user):
         user._id_override = None
@@ -110,6 +117,7 @@ class Module(ModuleManager.BaseModule):
         user._hostmask_account = None
         user._account_override = None
         user._master_admin = False
+        user._last_whois = time.time()
 
     def _set_hostmask(self, server, user):
         account = self._find_hostmask(server, user)
@@ -124,7 +132,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.whox")
     @utils.hook("received.message.private")
     def chghost(self, event):
-        if not self._is_identified(event["user"]):
+        if not self._is_identified(event["server"], event["user"]):
             self._set_hostmask(event["server"], event["user"])
 
     @utils.hook("received.whox")
@@ -133,7 +141,7 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.account.logout")
     @utils.hook("received.join")
     def check_account(self, event):
-        if not self._is_identified(event["user"]):
+        if not self._is_identified(event["server"], event["user"]):
             if event["user"].account:
                 self._has_identified(
                     event["server"], event["user"], event["user"].account
@@ -146,20 +154,21 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("priority", EventManager.PRIORITY_HIGH)
     def account_tag(self, event):
         account = ACCOUNT_TAG.get_value(event["line"].tags)
-        if not self._is_identified(event["user"]):
+        if not self._is_identified(event["server"], event["user"]):
             if not account == None:
                 self._has_identified(event["server"], event["user"], account)
 
-    def _get_permissions(self, user):
-        if self._is_identified(user):
+    def _get_permissions(self, server, user):
+        if self._is_identified(server, user):
             return user.get_setting("permissions", [])
         return []
 
-    def _has_permission(self, user, permission):
+    def _has_permission(self, server, user, permission):
         if user._master_admin:
             return True
 
-        permissions = self._get_permissions(user)
+        permissions = self._get_permissions(server, user)
+        print(permissions)
         if permission in permissions:
             return True
         else:
@@ -260,16 +269,19 @@ class Module(ModuleManager.BaseModule):
         if subcommand == "list":
             event["stdout"].write(
                 "Permissions for %s: %s"
-                % (target_user.nickname, ", ".join(self._get_permissions(target_user)))
+                % (
+                    target_user.nickname,
+                    ", ".join(self._get_permissions(event["server"], target_user)),
+                )
             )
         elif subcommand == "clear":
-            if not self._get_permissions(target_user):
+            if not self._get_permissions(event["server"], target_user):
                 raise utils.EventError("%s has no permissions" % target_user.nickname)
             target_user.del_setting("permissions")
             event["stdout"].write("Cleared permissions for %s" % target_user.nickname)
         else:
             permissions = event["spec"][2].split()
-            user_permissions = self._get_permissions(target_user)
+            user_permissions = self._get_permissions(event["server"], target_user)
 
             if subcommand == "add":
                 new = list(set(permissions) - set(user_permissions))
@@ -354,9 +366,9 @@ class Module(ModuleManager.BaseModule):
         permission = event["hook"].get_kwarg("permission", None)
         authenticated = event["hook"].get_kwarg("authenticated", False)
         if not permission == None:
-            allowed = self._has_permission(event["user"], permission)
+            allowed = self._has_permission(event["server"], event["user"], permission)
         elif authenticated:
-            allowed = self._is_identified(event["user"])
+            allowed = self._is_identified(event["server"], event["user"])
         else:
             return
 
@@ -365,9 +377,11 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("check.command.permission")
     def check_permission(self, event):
         return self._assert(
-            self._has_permission(event["user"], event["request_args"][0])
+            self._has_permission(
+                event["server"], event["user"], event["request_args"][0]
+            )
         )
 
     @utils.hook("check.command.authenticated")
     def check_authenticated(self, event):
-        return self._assert(self._is_identified(event["user"]))
+        return self._assert(self._is_identified(event["server"], event["user"]))
