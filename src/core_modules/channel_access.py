@@ -25,8 +25,6 @@ class Module(ModuleManager.BaseModule):
         identified = (user._account_override is None and user.account is None) is False
         matched = list(set(required_access) & set(user_access))
 
-        print(user_access, identified, matched)
-
         return ("*" in user_access or matched) and identified
 
     def _command_check(self, event, channel, require_access):
@@ -45,7 +43,6 @@ class Module(ModuleManager.BaseModule):
     def preprocess_command(self, event):
         require_access = event["hook"].get_kwarg("require_access")
         if require_access:
-            print(require_access)
             channel = event["kwargs"].get(
                 "channel", event["target"] if event["is_channel"] else None
             )
