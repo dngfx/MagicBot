@@ -29,6 +29,9 @@ def _identified_304(server, user, account, event):
     user._id_override = server.get_user_id(account)
     user._account_override = account
 
+    if user.account is None:
+        user.account = account
+
 
 def handle_311(event):
     nickname = event["line"].args[1]

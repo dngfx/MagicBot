@@ -33,7 +33,7 @@ class Module(ModuleManager.BaseModule):
                 previous = None
                 for mode, _ in event["server"].prefix_modes:
                     if mode == "o":
-                        require_mode = previous or mone
+                        require_mode = previous or mode
                         break
                     previous = mode
             elif require_mode == "highest":
@@ -61,6 +61,7 @@ class Module(ModuleManager.BaseModule):
     def check_command(self, event):
         target = event["target"]
         mode = event["request_args"][0]
+        print(mode, target)
         if len(event["request_args"]) > 1:
             target = event["request_args"][0]
             mode = event["request_args"][1]

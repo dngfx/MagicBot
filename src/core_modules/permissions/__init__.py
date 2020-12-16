@@ -11,6 +11,7 @@ ACCOUNT_TAG = utils.irc.MessageTag("account")
 
 class Module(ModuleManager.BaseModule):
     whois_nicks = []
+    init_nicks = []
 
     @utils.hook("new.server")
     def new_server(self, event):
@@ -61,15 +62,20 @@ class Module(ModuleManager.BaseModule):
 
     @utils.export("is-identified")
     def _is_identified(self, server, user):
-        if not user._id_override:
+        has_override = user._account_override is None and user.account is None
+        if not has_override:
             return True
 
         time_now = time.time() - user._last_whois
-        if user.nickname_lower in self.whois_nicks and time_now > 30:
+        if (user.nickname_lower in self.whois_nicks and time_now > 300) or (
+            user._whois_sent is False
+        ):
             server.send_whois(user.nickname_lower)
             user._whois_sent = True
+            user._last_whois = time.time()
 
-        if not user._id_override:
+        has_override = user._account_override is None and user.account is None
+        if not has_override:
             return True
         else:
             return False
@@ -119,6 +125,10 @@ class Module(ModuleManager.BaseModule):
         user._master_admin = False
         user._last_whois = time.time()
 
+        if nick not in self.init_nicks:
+            self.init_nicks.append(nick)
+            self._is_identified(event["server"], event["user"])
+
     def _set_hostmask(self, server, user):
         account = self._find_hostmask(server, user)
         if not account == None:
@@ -126,11 +136,17 @@ class Module(ModuleManager.BaseModule):
             user._hostmask_account = (hostmask, account)
             self._has_identified(server, user, account)
 
+    @utils.hook("received.message.private")
+    @utils.hook("received.message.channel")
+    def _priv_msg(self, event):
+        if event["user"].nickname_lower not in self.init_nicks:
+            self.new_user(event)
+            self._is_identified(event["server"], event["user"])
+
     @utils.hook("received.chghost")
     @utils.hook("received.nick")
     @utils.hook("received.who")
     @utils.hook("received.whox")
-    @utils.hook("received.message.private")
     def chghost(self, event):
         if not self._is_identified(event["server"], event["user"]):
             self._set_hostmask(event["server"], event["user"])
@@ -168,7 +184,9 @@ class Module(ModuleManager.BaseModule):
             return True
 
         permissions = self._get_permissions(server, user)
-        print(permissions)
+        if "*" in permissions:
+            return True
+
         if permission in permissions:
             return True
         else:

@@ -25,6 +25,7 @@ class User(IRCObject.Object):
         self._last_whois = 0
 
         self.account = None
+        self._account_override = None
 
         self.away = False
         self.away_message: typing.Optional[str] = None
