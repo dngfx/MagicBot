@@ -130,6 +130,8 @@ class Module(ModuleManager.BaseModule):
             subject_text = " — %s" % utils.irc.bold(st)
 
         total_posters = info["unique_ips"]
+        if total_posters > 1:
+            total_posters = total_posters - 1
         total_replies = info["replies"]
 
         replies_text = (
