@@ -43,3 +43,4 @@ package.json
 requirements.new
 test.py
 trash.py
+.history/*

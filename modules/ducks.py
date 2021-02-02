@@ -1,9 +1,7 @@
 # --depends-on commands
 # --depends-on config
 
-import random
-import re
-import time
+import random, re, time
 
 from src import ModuleManager, utils
 

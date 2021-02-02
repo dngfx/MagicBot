@@ -9,6 +9,7 @@ SECONDS_MAX_DESCRIPTION = "920 weeks"
 
 
 class Module(ModuleManager.BaseModule):
+    @utils.hook("received.command.food", alias_of="in")
     @utils.hook("received.command.remindme", alias_of="in")
     @utils.hook("received.command.in", min_args=2)
     @utils.kwarg("help", "Set a reminder")
