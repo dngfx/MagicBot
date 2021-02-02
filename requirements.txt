@@ -1,11 +1,11 @@
 beautifulsoup4     ==4.9.1
-cryptography       ==3.0
+cryptography       ==3.2
 dataclasses        ==0.6
 dnspython          ==2.0.0
 feedparser         ==5.2.1
 html5lib           ==1.1
 isodate            ==0.6.0
-lxml               ==4.5.2
+lxml               ==4.6.2
 netifaces          ==0.10.9
 PySocks            ==1.7.1
 python-dateutil    ==2.8.1
