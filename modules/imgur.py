@@ -1,14 +1,15 @@
-#--depends-on commands
-#--depends-on config
-#--require-config imgur-api-key
+# --depends-on commands
+# --depends-on config
+# --require-config imgur-api-key
+# --require-config imgur-api-secret
 
 import datetime
 import re
 
 from hurry.filesize import alternative, size
+from imgurpython import ImgurClient
 
 from src import ModuleManager, utils
-
 
 REGEX_IMAGE = re.compile("https?://(?:i\.)?imgur.com/(\w{2,})")
 REGEX_ALBUM = re.compile("https?://(?:i\.)?imgur.com/a/(\w+)")
@@ -21,6 +22,7 @@ IMAGE_FORMAT = "%s%s%sA %s image, %s, %sx%s, with %s view%s, posted %s%s"
 URL_IMAGE = "https://api.imgur.com/3/image/%s"
 URL_GALLERY = "https://api.imgur.com/3/gallery/%s"
 URL_ALBUM = "https://api.imgur.com/3/album/%s"
+URL_REHOST = "https://api.imgur.com/3/upload"
 
 ARROW_UP = "↑"
 ARROW_DOWN = "↓"
@@ -29,13 +31,12 @@ NSFW_TEXT = "(NSFW)"
 
 
 @utils.export(
-        "channelset",
-        utils.BoolSetting("auto-imgur",
-                          "Disable/Enable automatically getting info from Imgur URLs")
+    "channelset",
+    utils.BoolSetting(
+        "auto-imgur", "Disable/Enable automatically getting info from Imgur URLs"
+    ),
 )
 class Module(ModuleManager.BaseModule):
-
-
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "imgur")
@@ -52,7 +53,6 @@ class Module(ModuleManager.BaseModule):
             event.eat()
             return True
 
-
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
     @utils.kwarg("command", "imgur")
@@ -61,7 +61,6 @@ class Module(ModuleManager.BaseModule):
         if event["target"].get_setting("auto-imgur", False):
             self._parse_gallery(event, event["match"].group(1))
             event.eat()
-
 
     @utils.hook("command.regex")
     @utils.kwarg("ignore_action", False)
@@ -72,12 +71,10 @@ class Module(ModuleManager.BaseModule):
             self._parse_album(event, event["match"].group(1))
             event.eat()
 
-
     def _parse_gallery(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-                URL_GALLERY % hash,
-                headers={"Authorization": "Client-ID %s" % api_key}
+            URL_GALLERY % hash, headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:
@@ -96,7 +93,9 @@ class Module(ModuleManager.BaseModule):
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
-        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime("%e %b, %Y at %H:%M")
+        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime(
+            "%e %b, %Y at %H:%M"
+        )
         images = data["images_count"]
         image_plural = "" if images == 1 else "s"
 
@@ -111,17 +110,15 @@ class Module(ModuleManager.BaseModule):
             image_plural,
             utils.irc.bold(views),
             utils.irc.bold(time),
-            bracket_right
+            bracket_right,
         )
 
         event["stdout"].write(output)
 
-
     def _parse_album(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-                URL_ALBUM % hash,
-                headers={"Authorization": "Client-ID %s" % api_key}
+            URL_ALBUM % hash, headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:
@@ -140,7 +137,9 @@ class Module(ModuleManager.BaseModule):
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
-        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime("%e %b, %Y at %H:%M")
+        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime(
+            "%e %b, %Y at %H:%M"
+        )
         images = data["images_count"]
         image_plural = "" if images == 1 else "s"
 
@@ -156,17 +155,15 @@ class Module(ModuleManager.BaseModule):
             utils.irc.bold(views),
             views_plural,
             utils.irc.bold(time),
-            bracket_right
+            bracket_right,
         )
 
         event["stdout"].write(output)
 
-
     def _parse_image(self, event, hash):
         api_key = self.bot.config["imgur-api-key"]
         result = utils.http.request(
-                URL_IMAGE % hash,
-                headers={"Authorization": "Client-ID %s" % api_key}
+            URL_IMAGE % hash, headers={"Authorization": "Client-ID %s" % api_key}
         )
 
         if result.code == 404:
@@ -185,7 +182,9 @@ class Module(ModuleManager.BaseModule):
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
-        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime("%e %b, %Y at %H:%M")
+        time = datetime.datetime.utcfromtimestamp(data["datetime"]).strftime(
+            "%e %b, %Y at %H:%M"
+        )
         mime = data["type"].split("/")[-1]
         width = data["width"]
         height = data["height"]
@@ -205,7 +204,30 @@ class Module(ModuleManager.BaseModule):
             utils.irc.bold(views),
             views_plural,
             utils.irc.bold(time),
-            bracket_right
+            bracket_right,
         )
 
         event["stdout"].write(output)
+
+    @utils.hook("received.command.rehost", channel_only=True)
+    @utils.kwarg("permission", "rehost")
+    def rehost(self, event):
+        channel = event["target"]
+        args = event["args_split"]
+
+        if len(args) is not 1:
+            event["stderr"].write("You must provide exactly one link to rehost.")
+            return
+
+        url = args[0]
+
+        imgur_client = ImgurClient(
+            self.bot.config["imgur-api-key"], self.bot.config["imgur-api-secret"]
+        )
+
+        upload = imgur_client.upload_from_url(url, config=None, anon=True)
+
+        if upload["link"] is not "":
+            event["stdout"].write("Your image was rehosted. URL: %s" % upload["link"])
+        else:
+            event["stderr"].write("Image upload unsuccessful")

@@ -366,7 +366,7 @@ class Module(ModuleManager.BaseModule):
             duck_special_lang,
             utils.irc.bold(seconds),
             action,
-            utils.irc.bold(action_count),
+            utils.irc.bold(utils.parse.comma_format(action_count)),
             ducks_plural,
             utils.irc.bold(channel.name),
             xp_text,
@@ -467,10 +467,15 @@ class Module(ModuleManager.BaseModule):
                     user_stats[nickname] = 0
                 user_stats[nickname] += value
 
+        print(user_stats)
+
         top_10 = utils.top_10(
             user_stats,
             convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)),
+            value_format=lambda v: utils.parse.comma_format(v),
         )
+
+        print(top_10)
         return "Top duck %s%s: %s" % (
             description,
             channel_query_str,
@@ -512,8 +517,8 @@ class Module(ModuleManager.BaseModule):
         current_str = ""
         if current:
             current_str = " (%s Befriended, %s Killed in %s)" % (
-                utils.irc.bold(current["bef"]),
-                utils.irc.bold(current["trap"]),
+                utils.irc.bold(utils.parse.comma_format(current["bef"])),
+                utils.irc.bold(utils.parse.comma_format(current["trap"])),
                 utils.irc.bold(event["target"].name),
             )
 
@@ -521,8 +526,8 @@ class Module(ModuleManager.BaseModule):
             "%s has befriended %s and killed %s ducks%s"
             % (
                 utils.irc.bold(target_user.nickname),
-                utils.irc.bold(overall["bef"]),
-                utils.irc.bold(overall["trap"]),
+                utils.irc.bold(utils.parse.comma_format(overall["bef"])),
+                utils.irc.bold(utils.parse.comma_format(overall["trap"])),
                 current_str,
             )
         )
