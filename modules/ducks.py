@@ -1,7 +1,7 @@
 # --depends-on commands
 # --depends-on config
 
-import random, re, time
+import random, re, time, math
 
 from src import ModuleManager, utils
 
@@ -274,6 +274,13 @@ class Module(ModuleManager.BaseModule):
         ducks_miss_cooldown = channel.get_setting(
             "ducks-miss-cooldown", DEFAULT_MISS_COOLDOWN
         )
+
+        user_id = user.get_id()
+        friend_count = channel.get_user_setting(user_id, "ducks-befriened", 0)
+        enemy_count = channel.get_user_setting(user_id, "ducks-shot", 0)
+
+        accuracy = math.ceil(66 * (friend_count + enemy_count) / 100)
+        duck_miss_chance = duck_miss_chance - accuracy
 
         missed = False
         timenow = time.time()
