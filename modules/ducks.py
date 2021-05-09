@@ -489,6 +489,47 @@ class Module(ModuleManager.BaseModule):
             ", ".join(top_10),
         )
 
+    @utils.hook("received.command.duckaccuracy")
+    @utils.kwarg("help", "Show your duck accuracy.")
+    def get_accuracy(self, event):
+        befs = event["user"].get_channel_settings_per_setting("ducks-befriended")
+        traps = event["user"].get_channel_settings_per_setting("ducks-shot")
+
+        if not befs and not traps:
+            event["stderr"].write("You've never interacted with ducks before!")
+            return
+
+        all = [(chan, val, "bef") for chan, val in befs]
+        all += [(chan, val, "trap") for chan, val in traps]
+
+        duck_miss_chance = event["target"].get_setting(
+            "ducks-miss-chance", DEFAULT_MISS_CHANCE
+        )
+
+        current = {"bef": 0, "trap": 0}
+        overall = {"bef": 0, "trap": 0}
+
+        for channel_name, value, action in all:
+            if not action in overall:
+                overall[action] = 0
+            overall[action] += value
+
+            if event["is_channel"]:
+                channel_name_lower = event["server"].irc_lower(channel_name)
+                if channel_name_lower == event["target"].name:
+                    current[action] = value
+
+        accuracy = 66 * (current[action] + overall[action]) / 100
+        duck_miss_chance = duck_miss_chance - accuracy
+
+        accuracyStr = round(duck_miss_chance, 2)
+        accuracyStr = str(accuracyStr)
+        accuracyStr = accuracyStr.rsplit("0")[0] if accuracyStr != "0" else "0"
+
+        event["stdout"].write(
+            "Accuracy bonus for %s: %s" % (utils.irc.bold(event["user"]), (accuracyStr))
+        )
+
     def _get_nickname(self, server, target, nickname):
         nickname = server.get_user(nickname).nickname
         if target.get_setting("ducks-prevent-highlight", True):
