@@ -44,3 +44,4 @@ requirements.new
 test.py
 trash.py
 .history/*
+modules/.vscode/settings.json

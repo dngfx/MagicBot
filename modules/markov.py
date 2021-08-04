@@ -40,11 +40,13 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("command", "markov-trigger")
     @utils.kwarg("pattern", re.compile(".+"))
     def channel_message(self, event):
+
         markov_chance = event["target"].get_setting("markov-chance", 0)
         if random.randint(0, 99) < markov_chance:
             words = event["message"].split()
             random.shuffle(words)
             for word in words:
+
                 out = self._generate(event["target"].id, [word])
                 if out:
                     event["stdout"].prefix = None
@@ -61,17 +63,16 @@ class Module(ModuleManager.BaseModule):
         # event["target"].id
         channelid = event["target"].id
         if channelid == 1 or event["target"].name == "#premium":
-            event["target"].send_kick(
-                event["user"].nickname, "Don't try and clear the markov chain!"
-            )
-            # event["stderr"].write("Cannot clear markov chain in this channel")
+            event["stderr"].write(
+                "The markov chain for this channel is not clearable.")
             return
 
         if self.bot.database.has_table("markov") and channelid != 1:
             self.bot.database.execute(
                 """DELETE FROM markov WHERE channel_id = '%s'""" % event["target"].id
             )
-            event["stdout"].write("Deleted markov chain for %s" % event["target"].name)
+            event["stdout"].write(
+                "Deleted markov chain for %s" % event["target"].name)
 
     @utils.hook("received.command.markovlog")
     @utils.kwarg("min_args", 1)
@@ -92,7 +93,8 @@ class Module(ModuleManager.BaseModule):
         if page.code == 200:
             event["stdout"].write("Importing...")
             self._load_thread = threading.Thread(
-                target=self._load_loop, args=[event["target"].id, page.decode()]
+                target=self._load_loop, args=[
+                    event["target"].id, page.decode()]
             )
             self._load_thread.daemon = True
             self._load_thread.start()
@@ -123,7 +125,7 @@ class Module(ModuleManager.BaseModule):
         inserts.append([None, words[0], words[1]])
 
         for i in range(words_n - 2):
-            inserts.append(words[i : i + 3])
+            inserts.append(words[i: i + 3])
 
         inserts.append([words[-2], words[-1], None])
 
@@ -183,6 +185,8 @@ class Module(ModuleManager.BaseModule):
             out = self._generate(channel.id, first_words)
             if not out == None:
                 stdout.prefix = None
+                if re.search("^\.", out):
+                    out = "" + out
                 stdout.write(out)
             else:
                 stderr.write("Failed to generate markov chain")

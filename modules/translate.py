@@ -33,6 +33,9 @@ class Module(ModuleManager.BaseModule):
                 target_language = language_match.group(2)
             phrase = phrase.split(" ", 1)[1]
 
+        if source_language == "jp":
+            source_language = "ja"
+
         page = utils.http.request(
             URL_TRANSLATE,
             method="POST",
@@ -58,5 +61,5 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write(
                 "Failed to translate, try checking "
-                "source/target languages (" + URL_LANGUAGES + ")"
+                "source/target languages " + utils.irc.bold(URL_LANGUAGES)
             )

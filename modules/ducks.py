@@ -520,7 +520,7 @@ class Module(ModuleManager.BaseModule):
                     current[action] = value
 
         accuracy = 66 * (current[action] + overall[action]) / 100
-        duck_miss_chance = duck_miss_chance - accuracy
+        duck_miss_chance = accuracy
 
         accuracyStr = round(duck_miss_chance, 2)
         accuracyStr = str(accuracyStr)

@@ -21,6 +21,6 @@ emoji-country-flag ==1.2.1
 hurry.filesize     ==0.9
 loguru             ==0.5.1
 steam              ==1.0.2
-uk-covid19         ==1.2.0
+uk-covid19         >=1.2.0
 ircstyle           ==0.1.4
 lark-parser		   >=0.7.7
