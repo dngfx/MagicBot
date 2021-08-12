@@ -1,14 +1,18 @@
 # --depends-on commands
 # --depends-on config
 
-import random, re, time, math
+import random
+import re
+import time
+import math
 
 from src import ModuleManager, utils
 
 """ Licence: WTFPL """
 
 DUCK_TAIL = "・゜゜・。。・゜゜"
-DUCK = ["\\_o< ", "\\_O< ", "\\_0< ", "\\_\u00f6< ", "\\_\u00f8< ", "\\_\u00f3< "]
+DUCK = ["\\_o< ", "\\_O< ", "\\_0< ",
+        "\\_\u00f6< ", "\\_\u00f8< ", "\\_\u00f3< "]
 DUCK_NOISE = ["QUACK!", "FLAP FLAP!", "quack!", "squawk!", "HONK HONK HONK"]
 
 DUCK_GOLD_COLOR = utils.consts.GOLD
@@ -40,7 +44,8 @@ SPECIAL_DUCKS = [
 DEFAULT_MIN_MESSAGES = 40
 DEFAULT_MISS_COOLDOWN = 5
 DEFAULT_MISS_CHANCE = 33  # Miss chance in %
-DEFAULT_MISS_CHANCE_REDUCTION = 2  # How many % the miss chance goes down when you miss
+# How many % the miss chance goes down when you miss
+DEFAULT_MISS_CHANCE_REDUCTION = 2
 DEFAULT_SPAWN_CHANCE = (
     2  # Chance a duck will spawn when the minimum number of messages have been reached
 )
@@ -49,7 +54,8 @@ DEFAULT_SPECIAL_ENABLED = False
 
 
 @utils.export(
-    "channelset", utils.BoolSetting("ducks-enabled", "Whether or not to spawn ducks")
+    "channelset", utils.BoolSetting(
+        "ducks-enabled", "Whether or not to spawn ducks")
 )
 @utils.export(
     "channelset",
@@ -94,7 +100,8 @@ DEFAULT_SPECIAL_ENABLED = False
 )
 @utils.export(
     "channelset",
-    utils.IntRangeSetting(0, 50, "ducks-miss-chance", "Miss chance in % (Default 33%)"),
+    utils.IntRangeSetting(0, 50, "ducks-miss-chance",
+                          "Miss chance in % (Default 33%)"),
 )
 @utils.export(
     "channelset",
@@ -164,7 +171,8 @@ class Module(ModuleManager.BaseModule):
 
         if ducks_enabled and not channel.duck_active and not channel.duck_lines == -1:
             channel.duck_lines += 1
-            min_lines = channel.get_setting("ducks-min-messages", DEFAULT_MIN_MESSAGES)
+            min_lines = channel.get_setting(
+                "ducks-min-messages", DEFAULT_MIN_MESSAGES)
 
             if (
                 channel._ducks_debug == True
@@ -203,7 +211,8 @@ class Module(ModuleManager.BaseModule):
 
     def _build_duck(self, channel):
         duck = (
-            DUCK_TAIL + random.choice(DUCK) + utils.irc.bold(random.choice(DUCK_NOISE))
+            DUCK_TAIL + random.choice(DUCK) +
+            utils.irc.bold(random.choice(DUCK_NOISE))
         )
         duck_special_enabled = channel.get_setting(
             "ducks-enable-special", DEFAULT_SPECIAL_ENABLED
@@ -267,7 +276,8 @@ class Module(ModuleManager.BaseModule):
 
     # channel.duck_cooldowns =  {"dfx": { "cooldown_time": time, "missed_times": 0 }}
     def _has_shot_duck(self, event, channel, user, action):
-        duck_miss_chance = channel.get_setting("ducks-miss-chance", DEFAULT_MISS_CHANCE)
+        duck_miss_chance = channel.get_setting(
+            "ducks-miss-chance", DEFAULT_MISS_CHANCE)
         duck_miss_reduction = channel.get_setting(
             "ducks-miss-chance-reduction", DEFAULT_MISS_CHANCE_REDUCTION
         )
@@ -288,7 +298,8 @@ class Module(ModuleManager.BaseModule):
         action = "shoot" if action == "killed" else "befriend"
 
         if nick not in channel.duck_cooldowns:
-            channel.duck_cooldowns[nick] = {"cooldown_time": 0, "missed_times": 0}
+            channel.duck_cooldowns[nick] = {
+                "cooldown_time": 0, "missed_times": 0}
 
         ustats = channel.duck_cooldowns[nick]
 
@@ -387,7 +398,8 @@ class Module(ModuleManager.BaseModule):
             "ducks-print-missed-time", False
         ):
             seconds = round(time.time() - duck_timestamp, 2)
-            message += " The last duck was %s seconds ago!" % utils.irc.bold(seconds)
+            message += " The last duck was %s seconds ago!" % utils.irc.bold(
+                seconds)
 
         if channel.get_setting("ducks-kick"):
             channel.send_kick(user.nickname, message)
@@ -437,7 +449,8 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Show top 10 duck friends")
     @utils.spec("?<channel>word")
     def friends(self, event):
-        query = self._target(event["target"], event["is_channel"], event["spec"][0])
+        query = self._target(
+            event["target"], event["is_channel"], event["spec"][0])
 
         stats = self._top_duck_stats(
             event["server"],
@@ -452,7 +465,8 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Show top 10 duck enemies")
     @utils.spec("?<channel>word")
     def enemies(self, event):
-        query = self._target(event["target"], event["is_channel"], event["spec"][0])
+        query = self._target(
+            event["target"], event["is_channel"], event["spec"][0])
 
         stats = self._top_duck_stats(
             event["server"], event["target"], "ducks-shot", "enemies", query
@@ -474,15 +488,13 @@ class Module(ModuleManager.BaseModule):
                     user_stats[nickname] = 0
                 user_stats[nickname] += value
 
-        print(user_stats)
-
         top_10 = utils.top_10(
             user_stats,
-            convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)),
+            convert_key=lambda n: utils.irc.bold(
+                self._get_nickname(server, target, n)),
             value_format=lambda v: utils.parse.comma_format(v),
         )
 
-        print(top_10)
         return "Top duck %s%s: %s" % (
             description,
             channel_query_str,
@@ -492,7 +504,8 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.duckaccuracy")
     @utils.kwarg("help", "Show your duck accuracy.")
     def get_accuracy(self, event):
-        befs = event["user"].get_channel_settings_per_setting("ducks-befriended")
+        befs = event["user"].get_channel_settings_per_setting(
+            "ducks-befriended")
         traps = event["user"].get_channel_settings_per_setting("ducks-shot")
 
         if not befs and not traps:
@@ -527,7 +540,8 @@ class Module(ModuleManager.BaseModule):
         accuracyStr = accuracyStr.rsplit("0")[0] if accuracyStr != "0" else "0"
 
         event["stdout"].write(
-            "Accuracy bonus for %s: %s" % (utils.irc.bold(event["user"]), (accuracyStr))
+            "Accuracy bonus for %s: %s" % (
+                utils.irc.bold(event["user"]), (accuracyStr))
         )
 
     def _get_nickname(self, server, target, nickname):
@@ -558,7 +572,8 @@ class Module(ModuleManager.BaseModule):
                 overall[action] += value
 
                 if event["is_channel"]:
-                    channel_name_lower = event["server"].irc_lower(channel_name)
+                    channel_name_lower = event["server"].irc_lower(
+                        channel_name)
                     if channel_name_lower == event["target"].name:
                         current[action] = value
 
@@ -592,7 +607,8 @@ class Module(ModuleManager.BaseModule):
         user_id = target_user.get_id()
         event["target"].set_user_setting(user_id, "ducks-befriended", amount)
 
-        event["stdout"].write("Set %s's befriended ducks to %d" % (target_user, amount))
+        event["stdout"].write(
+            "Set %s's befriended ducks to %d" % (target_user, amount))
 
     @utils.hook("received.command.setduckenemies")
     @utils.kwarg("permission", "setducks")
@@ -606,7 +622,8 @@ class Module(ModuleManager.BaseModule):
         user_id = target_user.get_id()
         event["target"].set_user_setting(user_id, "ducks-shot", amount)
 
-        event["stdout"].write("Set %s's killed ducks to %d" % (target_user, amount))
+        event["stdout"].write("Set %s's killed ducks to %d" %
+                              (target_user, amount))
 
     @utils.hook("received.command.resetuserducks")
     @utils.kwarg("permission", "setducks")
