@@ -18,7 +18,8 @@ REGEX_PARENS = re.compile(r"\(([^)]+)\)(\+\+|--)")
 
 @utils.export(
     "channelset",
-    utils.BoolSetting("karma-pattern", "Enable/disable parsing ++/-- karma format"),
+    utils.BoolSetting(
+        "karma-pattern", "Enable/disable parsing ++/-- karma format"),
 )
 class Module(ModuleManager.BaseModule):
     def _karma_str(self, karma):
@@ -36,9 +37,9 @@ class Module(ModuleManager.BaseModule):
         event["user"]._last_negative_karma = None
 
     def _check_throttle(self, user, positive):
-        bypass_throttle = user.get_setting("permissions", None)
+        #bypass_throttle = user.get_setting("permissions", None)
         # if bypass_throttle != None and "*" in bypass_throttle:
-        # return [True, KARMA_DELAY_SECONDS]
+        #    return [True, KARMA_DELAY_SECONDS]
 
         timestamp = None
         if positive:
@@ -220,9 +221,11 @@ class Module(ModuleManager.BaseModule):
                 target_user.del_setting(setting)
 
             if karma:
-                event["stdout"].write("Cleared karma by %s" % target_user.nickname)
+                event["stdout"].write("Cleared karma by %s" %
+                                      target_user.nickname)
             else:
-                event["stderr"].write("No karma to clear by %s" % target_user.nickname)
+                event["stderr"].write(
+                    "No karma to clear by %s" % target_user.nickname)
         elif subcommand == "for":
             setting = "karma-%s" % event["spec"][1]
             karma = event["server"].get_all_user_settings(setting)
@@ -231,9 +234,11 @@ class Module(ModuleManager.BaseModule):
                 user.del_setting(setting)
 
             if karma:
-                event["stdout"].write("Cleared karma for %s" % event["spec"][1])
+                event["stdout"].write(
+                    "Cleared karma for %s" % event["spec"][1])
             else:
-                event["stderr"].write("No karma to clear for %s" % event["spec"][1])
+                event["stderr"].write(
+                    "No karma to clear for %s" % event["spec"][1])
         else:
             raise utils.EventError("Unknown subcommand '%s'" % subcommand)
 
@@ -280,11 +285,18 @@ class Module(ModuleManager.BaseModule):
             else:
                 karma_stats[karma_name] = amount
 
-        sort_karma = utils.top_10(
-            karma_stats,
-            convert_key=lambda n: utils.irc.bold(n),
-            value_format=lambda n: utils.irc.color(n, color),
-        )
+        if sort_order == "Lowest":
+            sort_karma = utils.bot_10(
+                karma_stats,
+                convert_key=lambda n: utils.irc.bold(n),
+                value_format=lambda n: utils.irc.color(n, color),
+            )
+        else:
+            sort_karma = utils.top_10(
+                karma_stats,
+                convert_key=lambda n: utils.irc.bold(n),
+                value_format=lambda n: utils.irc.color(n, color),
+            )
 
         # top_10 = utils.top_10(user_stats, convert_key=lambda n: utils.irc.bold(self._get_nickname(server, target, n)), )
         return "%s karma: %s" % (sort_order, ", ".join(sort_karma))

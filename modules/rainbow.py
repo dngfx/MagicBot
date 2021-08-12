@@ -21,7 +21,8 @@ COLORS = [
 
 @utils.export(
     "channelset",
-    utils.BoolSetting("rainbow", "Enable/disable allowing rainbowification of strings"),
+    utils.BoolSetting(
+        "rainbow", "Enable/disable allowing rainbowification of strings"),
 )
 class Module(ModuleManager.BaseModule):
     @utils.hook("received.command.rainbow")

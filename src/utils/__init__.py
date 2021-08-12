@@ -76,9 +76,26 @@ def top_10(
 
     top_10_items = []
     for key in top_10:
-        top_10_items.append("%s (%s)" % (convert_key(key), value_format(items[key])))
+        top_10_items.append("%s (%s)" %
+                            (convert_key(key), value_format(items[key])))
 
     return top_10_items
+
+
+def bot_10(
+    items: typing.Dict[typing.Any, typing.Any],
+    convert_key: TOP_10_CALLABLE = lambda x: x,
+    value_format: TOP_10_CALLABLE = lambda x: x,
+):
+    bot_10 = sorted(items.keys())
+    bot_10 = sorted(bot_10, key=items.get, reverse=False)[:10]
+
+    bot_10_items = []
+    for key in bot_10:
+        bot_10_items.append("%s (%s)" %
+                            (convert_key(key), value_format(items[key])))
+
+    return bot_10_items
 
 
 class CaseInsensitiveDict(dict):
@@ -123,7 +140,8 @@ def _raise_deadline():
 
 @contextlib.contextmanager
 def deadline(seconds: int = 10):
-    old_handler = signal.signal(signal.SIGALRM, lambda _1, _2: _raise_deadline())
+    old_handler = signal.signal(
+        signal.SIGALRM, lambda _1, _2: _raise_deadline())
     old_seconds, _ = signal.setitimer(signal.ITIMER_REAL, seconds, 0)
 
     try:
