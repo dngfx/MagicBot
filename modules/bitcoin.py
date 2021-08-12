@@ -17,9 +17,10 @@ class Module(ModuleManager.BaseModule):
         if page:
             if currency in page:
                 conversion = page[currency]
-                buy, sell = conversion["buy"], conversion["sell"]
+                buy, sell = utils.parse.comma_format_float(
+                    conversion["buy"]), utils.parse.comma_format_float(conversion["sell"])
                 event["stdout"].write(
-                    "1 BTC = %.2f %s (buy) %.2f %s "
+                    "1 BTC = %s %s (buy) %s %s "
                     "(sell)" % (buy, currency, sell, currency)
                 )
             else:
