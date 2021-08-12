@@ -109,11 +109,11 @@ class Module(ModuleManager.BaseModule):
         user._hostmask_account = None
         user._account_override = None
         user._master_admin = False
-        user._sent_who = time.time()
+        user._sent_who = time.time()"""
 
         if nick not in self.init_nicks:
             self.init_nicks.append(nick)
-            self._is_identified(event["server"], event["user"])"""
+            """self._is_identified(event["server"], event["user"])"""
 
     def _set_hostmask(self, server, user):
         account = self._find_hostmask(server, user)
