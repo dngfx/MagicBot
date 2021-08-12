@@ -107,7 +107,7 @@ class Module(ModuleManager.BaseModule):
 
         karma_total = self._karma_str(self._get_karma(server, target))
 
-        return True, "%s now has %s karma (%s from %s)" % (
+        return True, "%s now has %s karma (%s from %s)" % (
             nick,
             karma_total,
             karma_str,

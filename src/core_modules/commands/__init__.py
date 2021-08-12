@@ -67,7 +67,8 @@ SETTING_COMMANDMETHOD = utils.OptionsSetting(
 )
 @utils.export(
     "channelset",
-    utils.BoolSetting("commands", "Disable/enable responding to commands in-channel"),
+    utils.BoolSetting(
+        "commands", "Disable/enable responding to commands in-channel"),
 )
 @utils.export(
     "channelset",
@@ -201,7 +202,8 @@ class Module(ModuleManager.BaseModule):
         self, check_kwargs, user, check: typing.Union[utils.Check, utils.MultiCheck]
     ):
         checks = check.to_multi()  # both Check and MultiCheck has this func
-        is_success, message = self._check("check", check_kwargs, checks.requests())
+        is_success, message = self._check(
+            "check", check_kwargs, checks.requests())
         if not is_success:
             raise utils.EventError("%s: %s" % (user.nickname, message))
 
@@ -219,7 +221,8 @@ class Module(ModuleManager.BaseModule):
         **kwargs
     ):
         module_name = (
-            self._get_prefix(hook) or self.bot.modules.from_context(hook.context).title
+            self._get_prefix(hook) or self.bot.modules.from_context(
+                hook.context).title
         )
         stdout = outs.StdOut(module_name)
         stderr = outs.StdOut(module_name)
@@ -249,7 +252,8 @@ class Module(ModuleManager.BaseModule):
 
         event_kwargs.update(kwargs)
 
-        check_assert = lambda check: self._check_assert(event_kwargs, user, check)
+        def check_assert(check): return self._check_assert(
+            event_kwargs, user, check)
         event_kwargs["check_assert"] = check_assert
 
         eaten = False
@@ -258,7 +262,8 @@ class Module(ModuleManager.BaseModule):
 
         if check_success:
             event_kwargs.update(event_kwargs.pop("kwargs"))
-            new_event = self.events.on(hook.event_name).make_event(**event_kwargs)
+            new_event = self.events.on(
+                hook.event_name).make_event(**event_kwargs)
 
             try:
                 hook.call(new_event)
@@ -308,7 +313,7 @@ class Module(ModuleManager.BaseModule):
 
         line_str = obj.pop()
         if obj.prefix:
-            line_str = "[%s] %s" % (
+            line_str = "[%s] %s" % (
                 utils.irc.color(obj.prefix, color),
                 line_str,
             )
@@ -344,7 +349,8 @@ class Module(ModuleManager.BaseModule):
             )
             error = None
             if usage:
-                error = "Not enough arguments, usage: %s" % usage.replace("<", "\<")
+                error = "Not enough arguments, usage: %s" % usage.replace(
+                    "<", "\<")
             else:
                 error = "Not enough arguments (minimum: %d)" % min_args
             return utils.consts.PERMISSION_HARD_FAIL, error
@@ -360,13 +366,15 @@ class Module(ModuleManager.BaseModule):
         if not commands_enabled:
             return
 
-        command_prefix = self._command_prefix(event["server"], event["channel"])
+        command_prefix = self._command_prefix(
+            event["server"], event["channel"])
         command = None
         args = ""
         if event["message_split"][0].startswith(command_prefix):
             if not event["channel"].get_setting("prefixed-commands", True):
                 return
-            command = event["message_split"][0].replace(command_prefix, "", 1).lower()
+            command = event["message_split"][0].replace(
+                command_prefix, "", 1).lower()
             if " " in event["message"]:
                 args = event["message"].split(" ", 1)[1]
         elif len(event["message_split"]) > 1 and self.is_highlight(
