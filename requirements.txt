@@ -24,3 +24,4 @@ steam              ==1.0.2
 uk-covid19         >=1.2.0
 ircstyle           ==0.1.4
 lark-parser		   >=0.7.7
+imgurpython        >=1.1.7
