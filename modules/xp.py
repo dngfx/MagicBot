@@ -1,6 +1,6 @@
-#--depends-on commands
-#--depends-on config
-#--depends-on permissions
+# --depends-on commands
+# --depends-on config
+# --depends-on permissions
 
 from src import ModuleManager, utils
 
@@ -8,25 +8,21 @@ from src import ModuleManager, utils
 @utils.export("channelset", utils.BoolSetting("xp-enabled", "Is the XP module enabled?"))
 class Module(ModuleManager.BaseModule):
 
-
     def _user_all(self, user):
         return self.bot.database.execute_fetchall("SELECT channel_id, count FROM words WHERE user_id=?",
                                                   [user.get_id()])
 
-
     def _get_user_info_from_id(self, id):
         return self.bot.database.execute_fetchone("SELECT server_id, nickname FROM users WHERE user_id=?", [id])
-
 
     def _get_server_from_id(self, id):
         return self.bot.get_server_by_id(id)
 
-
     def _getLevel(self, points):
-        levels = [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2500, 3000, 5000, 7500, 10000, 15000, 20000, 30000, 50000, 100000, 250000]
+        levels = [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2500, 3000,
+                  5000, 7500, 10000, 15000, 20000, 30000, 50000, 100000, 250000]
         lvl = len([x for x in levels if points > x])
         return lvl
-
 
     @utils.hook("received.command.xp", channel_only=True)
     @utils.kwarg("help", "See your XP score!")
@@ -41,8 +37,8 @@ class Module(ModuleManager.BaseModule):
         level = self._getLevel(cur_xp)
         level = 1 if level == 0 else level
 
-        event["stdout"].write("%s has %s XP. They're level %s" % (nick, cur_xp, utils.irc.bold(str(level))))
-
+        event["stdout"].write("%s has %s XP. They're level %s" % (
+            nick, cur_xp, utils.irc.bold(str(level))))
 
     @utils.hook("received.command.xpaddinternal")
     @utils.kwarg("help", "See your XP score!")
