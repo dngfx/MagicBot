@@ -7,22 +7,7 @@ REGEX_307 = re.compile("(plexus-|Unreal3)")
 
 
 def handle_307(event):
-    version = event["server"].version
-    if REGEX_307.search(version) is None:
-        return
-
-    line = event["line"]
-
-    # ournick = line.args[0]
-    nickname = line.args[1]
-    idstring = line.args[2]
-
-    if event["server"].is_own_nickname(nickname):
-        return
-
-    if idstring.split(" identified for ")[1] == "this nick":
-        user = event["server"].get_target(nickname)
-        _identified_304(event["server"], user, user.nickname, event)
+    return
 
 
 def _identified_304(server, user, account, event):

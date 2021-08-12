@@ -5,7 +5,8 @@ def handle_332(events, event):
     channel = event["server"].channels.get(event["line"].args[1])
     topic = event["line"].args.get(2)
     channel.set_topic(topic)
-    events.on("received.332").call(channel=channel, server=event["server"], topic=topic)
+    events.on("received.332").call(channel=channel,
+                                   server=event["server"], topic=topic)
 
 
 def topic(events, event):
@@ -13,7 +14,8 @@ def topic(events, event):
     channel = event["server"].channels.get(event["line"].args[0])
     topic = event["line"].args.get(1)
     channel.set_topic(topic)
-    events.on("received.topic").call(channel=channel, server=event["server"], topic=topic, user=user)
+    events.on("received.topic").call(channel=channel,
+                                     server=event["server"], topic=topic, user=user)
 
 
 def handle_333(events, event):
@@ -24,7 +26,8 @@ def handle_333(events, event):
 
     channel.set_topic_setter(topic_setter)
     channel.set_topic_time(topic_time)
-    events.on("received.333").call(channel=channel, setter=topic_setter, set_at=topic_time, server=event["server"])
+    events.on("received.333").call(channel=channel,
+                                   setter=topic_setter, set_at=topic_time, server=event["server"])
 
 
 def handle_353(event):
@@ -45,7 +48,8 @@ def handle_353(event):
         if event["server"].has_capability_str("userhost-in-names"):
             hostmask = IRCLine.parse_hostmask(nickname)
             nickname = hostmask.nickname
-            user = event["server"].get_user(hostmask.nickname, username=hostmask.username, hostname=hostmask.hostname)
+            user = event["server"].get_user(
+                hostmask.nickname, username=hostmask.username, hostname=hostmask.hostname)
         else:
             user = event["server"].get_user(nickname)
         user.join_channel(channel)
@@ -89,9 +93,9 @@ def join(events, event):
 
     if is_self:
         channel.send_mode()
-        events.on("self.join").call(channel=channel, server=event["server"], account=account, realname=realname)
+        events.on("self.join").call(channel=channel,
+                                    server=event["server"], account=account, realname=realname)
     else:
-        event["server"].send_whois(user.nickname)
         events.on("received.join").call(channel=channel,
                                         user=user,
                                         server=event["server"],
@@ -107,13 +111,15 @@ def part(events, event):
     event["server"].part_user(channel, user)
 
     if not event["server"].is_own_nickname(event["line"].source.nickname):
-        events.on("received.part").call(channel=channel, reason=reason, user=user, server=event["server"])
+        events.on("received.part").call(channel=channel,
+                                        reason=reason, user=user, server=event["server"])
     else:
         event["server"].channels.remove(channel)
         for user in channel.users.copy():
             event["server"].part_user(channel, user)
 
-        events.on("self.part").call(channel=channel, reason=reason, server=event["server"])
+        events.on("self.part").call(channel=channel,
+                                    reason=reason, server=event["server"])
 
 
 def handle_324(events, event):
@@ -155,7 +161,8 @@ def kick(events, event):
                                         server=event["server"])
     else:
         event["server"].channels.remove(channel)
-        events.on("self.kick").call(channel=channel, reason=reason, user=user, server=event["server"])
+        events.on("self.kick").call(channel=channel,
+                                    reason=reason, user=user, server=event["server"])
 
     channel.remove_user(target_user)
     target_user.part_channel(channel)

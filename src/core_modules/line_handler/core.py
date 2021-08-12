@@ -62,7 +62,7 @@ def handle_005(events, event):
     if "QUIET" in isupport:
         quiet = dict(enumerate(isupport["QUIET"].split(",")))
         prefix = quiet.get(1, "")
-        list_numeric = qiuet.get(2, "367")  # RPL_BANLIST
+        list_numeric = quiet.get(2, "367")  # RPL_BANLIST
         end_numeric = quiet.get(3, "368")  # RPL_ENDOFBANLIST
         event["server"].quiet = [quiet[0], prefix, list_numeric, end_numeric]
     if "TARGMAX" in isupport:
@@ -120,7 +120,7 @@ def mode(events, event):
         _own_modes(event["server"], modes)
 
         events.on("self.mode").call(modes=modes, server=event["server"])
-        event["server"].send_who(event["server"].nickname)
+        # event["server"].send_who(event["server"].nickname)
 
 
 def handle_221(event):
@@ -143,6 +143,8 @@ def handle_352(events, event):
     nickname = event["line"].args[5]
     username = event["line"].args[2]
     hostname = event["line"].args[3]
+    status = event["line"].args[6]
+    is_identified = "r" in status
 
     if event["server"].is_own_nickname(nickname):
         event["server"].username = username
@@ -151,6 +153,8 @@ def handle_352(events, event):
     target = event["server"].get_user(nickname)
     target.username = username
     target.hostname = hostname
+    target.is_identified = is_identified
+
     events.on("received.who").call(server=event["server"], user=target)
 
 

@@ -101,6 +101,3 @@ class User(IRCObject.Object):
 
     def send_tagmsg(self, tags: dict):
         self.server.send_tagmsg(self.nickname, tags)
-
-    def whois_send(self, nick):
-        self.whois_sent = True

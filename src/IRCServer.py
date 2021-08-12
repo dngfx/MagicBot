@@ -49,8 +49,10 @@ class Server(IRCObject.Object):
         self.realname = None  # type: typing.Optional[str]
         self.hostname = None  # type: typing.Optional[str]
 
-        self.capability_queue = {}  # type: typing.Dict[str, utils.irc.Capability]
-        self.capabilities_requested = {}  # type: typing.Dict[str, utils.irc.Capability]
+        # type: typing.Dict[str, utils.irc.Capability]
+        self.capability_queue = {}
+        # type: typing.Dict[str, utils.irc.Capability]
+        self.capabilities_requested = {}
 
         self._capabilities_waiting = set([])  # type: typing.Set[str]
         self.agreed_capabilities = set([])  # type: typing.Set[str]
@@ -69,7 +71,8 @@ class Server(IRCObject.Object):
         self.channel_list_modes = ["b"]  # type: typing.List[str]
         self.channel_parametered_modes = ["k"]  # type: typing.List[str]
         self.channel_setting_modes = ["l"]  # type: typing.List[str]
-        self.channel_modes = ["n", "i", "m", "t", "p", "s"]  # type: typing.List[str]
+        self.channel_modes = ["n", "i", "m", "t",
+                              "p", "s"]  # type: typing.List[str]
         self.quiet: typing.Optional[typing.List[str]] = None
 
         self.channel_types = ["#"]
@@ -344,7 +347,8 @@ class Server(IRCObject.Object):
     def _post_send(self, lines: typing.List[IRCLine.SentLine]):
         for line in lines:
             line.events.on("send").call()
-            self.events.on("raw.send").call_unsafe(server=self, line=line.parsed_line)
+            self.events.on("raw.send").call_unsafe(
+                server=self, line=line.parsed_line)
 
     def send(
         self, line_parsed: IRCLine.ParsedLine, immediate: bool = False
@@ -520,7 +524,7 @@ class Server(IRCObject.Object):
         return self.send(self._line("INVITE", [target, channel_name]))
 
     def send_whois(self, target: str) -> typing.Optional[IRCLine.SentLine]:
-        return self.send(self._line("WHOIS", [target]))
+        return True  # self.send(self._line("WHOIS", [target]))
 
     def send_whowas(
         self, target: str, amount: int = None, server: str = None

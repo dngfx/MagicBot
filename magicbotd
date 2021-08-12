@@ -9,7 +9,12 @@ if sys.version_info < (3, 6):
     sys.stderr.write("MagicBot requires python 3.6.0 or later\n")
     sys.exit(src.utils.consts.Exit.WRONGVERSION)
 
-import atexit, argparse, faulthandler, os, platform, typing
+import atexit
+import argparse
+import faulthandler
+import os
+import platform
+import typing
 from src import Cache, Config, Control, Database, EventManager, Exports, IRCBot
 from src import LockFile, ModuleManager, Timers, utils
 from src.Logging import Logger as log
@@ -21,7 +26,8 @@ directory = os.path.dirname(os.path.realpath(__file__))
 home = os.path.expanduser("~")
 default_data = os.path.join(home, ".magicbot-stable")
 
-arg_parser = argparse.ArgumentParser(description="Python3 event-driven modular IRC bot")
+arg_parser = argparse.ArgumentParser(
+    description="Python3 event-driven modular IRC bot")
 
 arg_parser.add_argument("--version", "-v", action="store_true")
 
@@ -49,7 +55,8 @@ arg_parser.add_argument(
     action="store_true",
 )
 
-arg_parser.add_argument("--remove-server", "-R", help="Remove a server by it's alias")
+arg_parser.add_argument("--remove-server", "-R",
+                        help="Remove a server by it's alias")
 
 args = arg_parser.parse_args()
 
@@ -59,9 +66,11 @@ if args.version:
 config = Config.Config("bot", args.config)
 config.load()
 
-DATA_DIR = os.path.expanduser(config.get("data-directory", "~/.magicbot-stable"))
+DATA_DIR = os.path.expanduser(config.get(
+    "data-directory", "~/.magicbot-stable"))
 LOG_DIR = config.get("log-directory", "{DATA}/logs/").format(DATA=DATA_DIR)
-DATABASE = config.get("database", "sqlite3:{DATA}/bot.db").format(DATA=DATA_DIR)
+DATABASE = config.get(
+    "database", "sqlite3:{DATA}/bot.db").format(DATA=DATA_DIR)
 LOCK_FILE = config.get("lock-file", "{DATA}/bot.lock").format(DATA=DATA_DIR)
 SOCK_FILE = config.get("sock-file", "{DATA}/bot.sock").format(DATA=DATA_DIR)
 
@@ -83,7 +92,8 @@ startup_info = "Starting MagicBot %s (Running on Python v%s, db %s)" % (
 )
 
 log = log(log_level)
-log.info(message=startup_info, server="Startup", context="Server", formatting=True)
+log.info(message=startup_info, server="Startup",
+         context="Server", formatting=True)
 
 lock_file = LockFile.LockFile(LOCK_FILE)
 if not lock_file.available():

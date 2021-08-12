@@ -5,6 +5,8 @@ from src import EventManager, IRCLine, ModuleManager, utils
 
 
 class Module(ModuleManager.BaseModule):
+    channels_who = []
+
     def _execute(self, server, commands, **kwargs):
         for command in commands:
             line = command.format(**kwargs)
@@ -21,6 +23,9 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("self.join", priority=EventManager.PRIORITY_URGENT)
     def on_join(self, event):
+        if event["channel"].name not in self.channels_who:
+            event["server"].send_who(event["channel"].name)
+            self.channels_who.append(event["channel"].name)
         commands = event["channel"].get_setting("perform", [])
         self._execute(
             event["server"],
@@ -65,7 +70,8 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("usage", "remove <index>")
     @utils.kwarg("permission", "perform")
     def perform(self, event):
-        event["stdout"].write(self._perform(event["server"], event["args_split"]))
+        event["stdout"].write(self._perform(
+            event["server"], event["args_split"]))
 
     @utils.hook("received.command.cperform", min_args=1)
     @utils.kwarg("min_args", 1)
@@ -76,4 +82,5 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("usage", "remove <index>")
     @utils.kwarg("permission", "cperform")
     def cperform(self, event):
-        event["stdout"].write(self._perform(event["target"], event["args_split"]))
+        event["stdout"].write(self._perform(
+            event["target"], event["args_split"]))
