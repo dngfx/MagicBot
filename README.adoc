@@ -10,8 +10,9 @@ This is a fork / slowly becoming a rewrite of the fantastic https://git.io/bitbo
 = VERY IMPORTANT NOTE!
 
 When starting the bot, make sure to use this command:
+(switch out python 3.8 with anything, I use pypy) 
 
-`LOGURU_AUTOINIT=no ./magicbotd`
+`LOGURU_AUTOINIT=no python3.8 ./magicbotd`
 
 You do _not_ want LOGURU_AUTOINIT enabled.
 
