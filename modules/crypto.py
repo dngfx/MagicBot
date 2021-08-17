@@ -17,7 +17,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("help", "Shows market information about the coin requested")
     @utils.spec("!<coin>word")
     def show_stats(self, event):
-        coin = event["spec"][0]
+        coin = event["spec"][0].upper()
         page = utils.http.request(
             (API_URL % "assets"), get_params={"search": coin, "limit": 1}
         ).json()
@@ -44,7 +44,8 @@ class Module(ModuleManager.BaseModule):
         arrow = ARROW_UP if chg_positive else ARROW_DOWN
         chg_text = utils.irc.bold(utils.irc.color(chg + "% " + arrow, color))
         avg_parts = info["vwap24Hr"].split(".")
-        avg_price = "%s.%s" % (utils.parse.comma_format(avg_parts[0]), avg_parts[1][:2])
+        avg_price = "%s.%s" % (utils.parse.comma_format(
+            avg_parts[0]), avg_parts[1][:2])
 
         event["stdout"].write(
             "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s"
@@ -68,16 +69,18 @@ class Module(ModuleManager.BaseModule):
 
         page = utils.http.request(
             API_URL % "markets",
-            get_params={"baseSymbol": coin, "quoteSymbol": currency, "limit": 1},
+            get_params={"baseSymbol": coin,
+                        "quoteSymbol": currency, "limit": 1},
         ).json()
         data = page["data"]
 
         if not data:
-            event["stderr"].write("Invalid Cryptocurrency (%s)" % utils.irc.bold(coin))
+            event["stderr"].write(
+                "Invalid Cryptocurrency (%s)" % utils.irc.bold(coin))
             return
 
         info = data[0]
-        price = str(int(amount) / int(info["priceQuote"].split(".")[0]))
+        price = str(int(amount) / int(info["priceQuote"].split(".")[0]))[:8]
         # symbol = info["quoteSymbol"]
 
         event["stdout"].write(
@@ -100,7 +103,8 @@ class Module(ModuleManager.BaseModule):
 
         page = utils.http.request(
             API_URL % "markets",
-            get_params={"baseSymbol": coin, "quoteSymbol": currency, "limit": 1},
+            get_params={"baseSymbol": coin,
+                        "quoteSymbol": currency, "limit": 1},
         ).json()
         data = page["data"]
 
@@ -112,7 +116,8 @@ class Module(ModuleManager.BaseModule):
 
         info = data[0]
         price_parts = info["priceQuote"].split(".")
-        price = "%s.%s" % (price_parts[0], price_parts[1][:2])
+        price = "%s.%s" % (utils.parse.comma_format_number(
+            price_parts[0]), price_parts[1][:2])
         # symbol = info["quoteSymbol"]
 
         event["stdout"].write(
