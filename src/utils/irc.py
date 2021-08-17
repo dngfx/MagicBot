@@ -1,4 +1,7 @@
-import dataclasses, re, string, typing
+import dataclasses
+import re
+import string
+import typing
 
 from . import consts
 
@@ -92,6 +95,10 @@ def underline(s: str) -> str:
     return f"{consts.UNDERLINE}{s}{consts.UNDERLINE}"
 
 
+def italic(s: str) -> str:
+    return f"{consts.ITALIC}{s}{consts.ITALIC}"
+
+
 FORMAT_TOKENS = [consts.BOLD, consts.RESET, consts.UNDERLINE]
 FORMAT_STRIP = [
     "\x08",  # backspace.
@@ -99,7 +106,7 @@ FORMAT_STRIP = [
     "\x02",  # Bold
     "\x1D",  # Italics
     "\x1F",  # Underline
-    "\x07",  #  Bell
+    "\x07",  # Bell
     "\x1E",  # strikethrough
     "\x11",  # monospace
     "\x16",  # Reverse
