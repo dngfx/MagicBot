@@ -186,7 +186,7 @@ class Module(ModuleManager.BaseModule):
             if not out == None:
                 stdout.prefix = None
                 if re.search("^\.", out):
-                    out = "" + out
+                    out = "" + utils.strip_font(out)
                 stdout.write(out)
             else:
                 stderr.write("Failed to generate markov chain")

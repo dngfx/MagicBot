@@ -17,7 +17,8 @@ class Module(ModuleManager.BaseModule):
         except ModuleManager.ModuleNotLoadedException:
             raise utils.EventError(ERR_NOTLOADED % name)
         except ModuleManager.ModuleWarning as warning:
-            raise utils.EventError("Module '%s' not loaded: %s" % (name, str(warning)))
+            raise utils.EventError(
+                "Module '%s' not loaded: %s" % (name, str(warning)))
         except Exception as e:
             raise utils.EventError(("Failed to reload module '%s'" % (name)))
 
@@ -54,9 +55,11 @@ class Module(ModuleManager.BaseModule):
         name = event["spec"][0]
         if name in self.bot.modules.modules:
             raise utils.EventError("Module '%s' is already loaded" % name)
-        definition = self._catch(name, lambda: self.bot.modules.find_module(name))
+        definition = self._catch(
+            name, lambda: self.bot.modules.find_module(name))
 
-        self._catch(name, lambda: self.bot.modules.load_module(self.bot, definition))
+        self._catch(name, lambda: self.bot.modules.load_module(
+            self.bot, definition))
         event["stdout"].write("Loaded '%s'" % name)
 
     @utils.hook("received.command.unloadmodule")
@@ -84,7 +87,8 @@ class Module(ModuleManager.BaseModule):
                 % module_name
             )
             return
-        self._catch(name, lambda: self.bot.modules.try_reload_module(self.bot, name))
+        self._catch(
+            name, lambda: self.bot.modules.try_reload_module(self.bot, name))
         event["stdout"].write("Reloaded '%s'" % name)
 
     @utils.hook("received.command.reloadallmodules")
@@ -141,4 +145,5 @@ class Module(ModuleManager.BaseModule):
 
         blacklist.append(name)
         self._save_blacklist(config, blacklist)
-        event["stdout"].write("Module '%s' has been disabled%s" % (name, and_unloaded))
+        event["stdout"].write(
+            "Module '%s' has been disabled%s" % (name, and_unloaded))

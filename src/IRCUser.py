@@ -20,6 +20,7 @@ class User(IRCObject.Object):
         self.realname: typing.Optional[str] = None
         self.bot = bot
         self.channels: typing.Set[IRCChannel.Channel] = set([])
+        self._master_admin = False
 
         self._whois_sent = False
         self._last_whois = 0

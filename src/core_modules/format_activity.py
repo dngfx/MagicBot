@@ -71,7 +71,8 @@ class Module(ModuleManager.BaseModule):
     @utils.hook("send.message.channel")
     @utils.hook("received.message.channel")
     def channel_message(self, event):
-        formatting, line = self._privmsg(event, event["channel"], event["user"])
+        formatting, line = self._privmsg(
+            event, event["channel"], event["user"])
 
         self._event(
             "message.channel",
@@ -164,7 +165,8 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("self.join")
     def self_join(self, event):
-        self._on_join(event, event["server"].get_user(event["server"].nickname))
+        self._on_join(event, event["server"].get_user(
+            event["server"].nickname))
 
     @utils.hook("received.chghost")
     def _on_chghost(self, event):
@@ -231,10 +233,12 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("self.part")
     def self_part(self, event):
-        self._on_part(event, event["server"].get_user(event["server"].nickname))
+        self._on_part(event, event["server"].get_user(
+            event["server"].nickname))
 
     def _on_nick(self, event, user):
-        formatting = {"~ONICK": event["old_nickname"], "~NNICK": event["new_nickname"]}
+        formatting = {"~ONICK": event["old_nickname"],
+                      "~NNICK": event["new_nickname"]}
 
         minimal = "{~ONICK} changed nickname to {~NNICK}"
         line = minimal
@@ -255,7 +259,8 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("self.nick")
     def self_nick(self, event):
-        self._on_nick(event, event["server"].get_user(event["server"].nickname))
+        self._on_nick(event, event["server"].get_user(
+            event["server"].nickname))
 
     @utils.hook("received.invite")
     def invite(self, event):
@@ -321,11 +326,13 @@ class Module(ModuleManager.BaseModule):
 
     @utils.hook("received.topic")
     def on_topic(self, event):
-        self._on_topic(event, event["user"].nickname, "changed", event["topic"])
+        self._on_topic(event, event["user"].nickname,
+                       "changed", event["topic"])
 
     @utils.hook("received.333")
     def on_333(self, event):
-        self._on_topic(event, event["setter"].nickname, "set", event["channel"].topic)
+        self._on_topic(event, event["setter"].nickname,
+                       "set", event["channel"].topic)
 
         dt = utils.datetime.format.datetime_human(
             utils.datetime.timestamp(event["set_at"])

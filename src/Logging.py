@@ -1,5 +1,4 @@
 import logging
-import logging
 import sys
 
 from loguru import logger as log
@@ -24,7 +23,7 @@ class Logger(object):
         log.add(
             logging.StreamHandler(sys.stdout),
             colorize=True,
-            format="<b><green>[{time:HH:mm:ss!UTC}]</green> {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
+            format="<b><green>[{time:HH:mm:ss!UTC}]</green> File: {file} - Line: {line} - {function: <20} <level>[ {level: ^7} ]</level></b> [ <m><b>{extra[server]}</b></m>:<e><b>{extra[context]}</b></e>{extra[padding]} ] <level>{message}</level>",
             level=log_level,
         )
 
@@ -55,7 +54,8 @@ class Logger(object):
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
         log.padding = max(0, (20 - len(formatted_len)))
-        context = {"server": server, "context": context, "padding": " " * log.padding}
+        context = {"server": server, "context": context,
+                   "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("INFO", message)
         return True
 
@@ -65,7 +65,8 @@ class Logger(object):
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
         log.padding = max(0, (20 - len(formatted_len)))
-        context = {"server": server, "context": context, "padding": " " * log.padding}
+        context = {"server": server, "context": context,
+                   "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("SUCCESS", message)
         return True
 
@@ -75,7 +76,8 @@ class Logger(object):
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
         log.padding = max(0, (20 - len(formatted_len)))
-        context = {"server": server, "context": context, "padding": " " * log.padding}
+        context = {"server": server, "context": context,
+                   "padding": " " * log.padding}
         log.level("DEBUG")
         log.bind(**context).opt(colors=True, depth=1).log("DEBUG", message)
         return True
@@ -86,7 +88,8 @@ class Logger(object):
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
         log.padding = max(0, (20 - len(formatted_len)))
-        context = {"server": server, "context": context, "padding": " " * log.padding}
+        context = {"server": server, "context": context,
+                   "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("WARNING", message)
         return True
 
@@ -98,7 +101,8 @@ class Logger(object):
             server, context, message = formatter(server, context, message)
         formatted_len = " " * (len(server) + len(context))
         log.padding = max(0, (20 - len(formatted_len)))
-        context = {"server": server, "context": context, "padding": " " * log.padding}
+        context = {"server": server, "context": context,
+                   "padding": " " * log.padding}
         log.bind(**context).opt(colors=True, depth=1).log("ERROR", message)
         return True
 
