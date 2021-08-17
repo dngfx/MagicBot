@@ -20,8 +20,9 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError(
                 "Module '%s' not loaded: %s" % (name, str(warning)))
         except Exception as e:
-            return
-            raise utils.EventError(("refcount '%s'" % (name)))
+            print(e)
+            pass
+            #raise utils.EventError(("refcount '%s'" % (name)))
 
     @utils.hook("received.command.modinfo")
     @utils.spec("!<module>word")
