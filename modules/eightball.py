@@ -19,7 +19,6 @@ CHOICES = [
     "The answer is unclear",
     "Absolutely",
     "Dubious at best",
-    "I'm on a break, ask again later",
     "As I see it, yes",
     "It is certain",
     "Naturally",
