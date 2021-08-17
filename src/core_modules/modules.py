@@ -20,7 +20,8 @@ class Module(ModuleManager.BaseModule):
             raise utils.EventError(
                 "Module '%s' not loaded: %s" % (name, str(warning)))
         except Exception as e:
-            raise utils.EventError(("Failed to reload module '%s'" % (name)))
+            return
+            raise utils.EventError(("refcount '%s'" % (name)))
 
     @utils.hook("received.command.modinfo")
     @utils.spec("!<module>word")
@@ -87,6 +88,7 @@ class Module(ModuleManager.BaseModule):
                 % module_name
             )
             return
+
         self._catch(
             name, lambda: self.bot.modules.try_reload_module(self.bot, name))
         event["stdout"].write("Reloaded '%s'" % name)

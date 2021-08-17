@@ -168,11 +168,13 @@ class ModuleManager(object):
     ) -> typing.Dict[str, ModuleDefinition]:
         modules = []
         for file_module in glob.glob(os.path.join(directory, "*.py")):
-            modules.append(self.define_module(ModuleType.FILE, file_module, is_core))
+            modules.append(self.define_module(
+                ModuleType.FILE, file_module, is_core))
 
         for directory_module in glob.glob(os.path.join(directory, "*", "__init__.py")):
             modules.append(
-                self.define_module(ModuleType.DIRECTORY, directory_module, is_core)
+                self.define_module(ModuleType.DIRECTORY,
+                                   directory_module, is_core)
             )
 
         return {definition.name: definition for definition in modules}
@@ -186,7 +188,8 @@ class ModuleManager(object):
         for directory in self._extra_modules:
             for name, module in self._list_modules(directory, False).items():
                 if not name in extra_modules and (
-                    name in whitelist or (not whitelist and not name in blacklist)
+                    name in whitelist or (
+                        not whitelist and not name in blacklist)
                 ):
                     extra_modules[name] = module
 
@@ -262,7 +265,8 @@ class ModuleManager(object):
             elif hashflag == "require-config" and value:
                 if not self.config.get(value.lower(), None):
                     # nope, required config option not present.
-                    raise ModuleNotLoadableWarning("required config not present")
+                    raise ModuleNotLoadableWarning(
+                        "required config not present")
 
     def _load_module(
         self,
@@ -279,7 +283,8 @@ class ModuleManager(object):
             dependencies = definition.get_dependencies()
             for dependency in dependencies:
                 if not dependency in self.modules:
-                    raise ModuleDependencyNotFulfilled(definition.name, dependency)
+                    raise ModuleDependencyNotFulfilled(
+                        definition.name, dependency)
 
         self._check_hashflags(bot, definition)
 
@@ -313,7 +318,8 @@ class ModuleManager(object):
         )
         module_object.on_load()
 
-        module_title = getattr(module_object, "_name", None) or definition.name.title()
+        module_title = getattr(module_object, "_name",
+                               None) or definition.name.title()
 
         # per-module @export magic
         if utils.decorators.has_magic(module_object):
@@ -348,7 +354,8 @@ class ModuleManager(object):
         self, bot: "IRCBot.Bot", definition: ModuleDefinition
     ) -> LoadedModule:
         try:
-            loaded_module = self._load_module(bot, definition, check_dependency=False)
+            loaded_module = self._load_module(
+                bot, definition, check_dependency=False)
         except ModuleWarning as warning:
             log.warn(
                 message=("Module '%s' not loaded" % definition.name),
@@ -359,7 +366,8 @@ class ModuleManager(object):
             raise
         except Exception as e:
             log.error(
-                message=('Failed to load module "%s": %s' % (definition.name, str(e))),
+                message=('Failed to load module "%s": %s' %
+                         (definition.name, str(e))),
                 context="Server",
                 server="Modules",
                 formatting=True,
@@ -381,7 +389,8 @@ class ModuleManager(object):
         definitions_ordered = []
 
         definition_names = {d.name: d for d in definitions}
-        definition_dependencies = {d.name: d.get_dependencies() for d in definitions}
+        definition_dependencies = {
+            d.name: d.get_dependencies() for d in definitions}
 
         for name, deps in list(definition_dependencies.items())[:]:
             for dep in deps:
@@ -442,7 +451,8 @@ class ModuleManager(object):
         whitelist: typing.List[str] = [],
         blacklist: typing.List[str] = [],
     ) -> None:
-        loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
+        loadable, nonloadable = self._list_valid_modules(
+            bot, whitelist, blacklist)
 
         for definition in nonloadable:
             log.warn(
@@ -493,6 +503,7 @@ class ModuleManager(object):
         references -= 1  # 'del module' removes one reference
         references -= 1  # one of the refs is from getrefcount
 
+
         log.debug(
             message="Module '%s' unloaded (%d reference%s)"
             % (loaded_module.name, references, "" if references == 1 else "s")
@@ -526,7 +537,8 @@ class ModuleManager(object):
         whitelist: typing.List[str],
         blacklist: typing.List[str],
     ):
-        loadable, nonloadable = self._list_valid_modules(bot, whitelist, blacklist)
+        loadable, nonloadable = self._list_valid_modules(
+            bot, whitelist, blacklist)
 
         old_modules = self.modules
         self.modules = {}

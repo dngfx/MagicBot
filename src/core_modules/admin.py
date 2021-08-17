@@ -1,7 +1,8 @@
 # --depends-on commands
 # --depends-on permissions
 
-import sys, pprint
+import sys
+import pprint
 
 from src import IRCBot, IRCLine, ModuleManager, utils, Config
 from src.Logging import Logger as log
@@ -55,11 +56,11 @@ class Module(ModuleManager.BaseModule):
         event["server"].send_part(event["spec"][0].name)
 
     @utils.hook("received.command.rehashconfig")
+    @utils.hook("received.command.rehashcfg")
     @utils.kwarg("help", "Reloads the config file of the bot")
     @utils.kwarg("permission", "rehash-config")
     def rehash(self, event):
         # idek
-        print(self.bot.config["spotify-client-id"])
 
         log.info("Now Rehashing Bot Config")
         config = self.bot.get_config("bot")
@@ -95,7 +96,8 @@ class Module(ModuleManager.BaseModule):
         if server:
             line = server.send_quit("Reconnecting")
             line.events.on("send").hook(
-                lambda e: self.bot.reconnect(server.id, server.connection_params)
+                lambda e: self.bot.reconnect(
+                    server.id, server.connection_params)
             )
             if not server == event["server"]:
                 event["stdout"].write("Reconnecting to %s" % alias)
