@@ -3,7 +3,7 @@ import typing
 from .parse import argument_spec
 
 
-BITBOT_MAGIC = "__bitbot"
+BITBOT_MAGIC = "__magicbot"
 
 
 class BitBotMagic(object):
@@ -19,7 +19,8 @@ class BitBotMagic(object):
         self._kwargs.insert(0, (key, value))
 
     def get_hooks(self):
-        hooks: typing.List[typing.Tuple[str, typing.List[Tuple[str, typing.Any]]]] = []
+        hooks: typing.List[typing.Tuple[str,
+                                        typing.List[typing.Tuple[str, typing.Any]]]] = []
         for hook, kwargs in self._hooks:
             hooks.append((hook, self._kwargs.copy() + list(kwargs.items())))
         return hooks
