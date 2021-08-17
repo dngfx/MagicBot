@@ -114,7 +114,8 @@ class Bot(object):
         )
 
         self._poll_timeouts.append(
-            ListLambdaPollHook(lambda: self.servers.values(), self._throttle_timeout)
+            ListLambdaPollHook(lambda: self.servers.values(),
+                               self._throttle_timeout)
         )
 
         self._poll_sources = []  # typing.List[PollSource.PollSource]
@@ -189,7 +190,8 @@ class Bot(object):
         if any(sys.exc_info()):
             exc_info = True
 
-        log.critical(message=("panic() called: %s" % reason), exc_info=exc_info)
+        log.critical(message=("panic() called: %s" %
+                     reason), exc_info=exc_info)
         sys.exit(utils.consts.Exit.PANIC)
 
     def get_config(self, name: str) -> Config.Config:
@@ -277,12 +279,17 @@ class Bot(object):
         for poll_timeout in self._poll_timeouts:
             timeouts.append(poll_timeout.next())
 
-        min_secs = min([timeout for timeout in timeouts if not timeout == None])
+        min_secs = min(
+            [timeout for timeout in timeouts if not timeout == None])
         return max([min_secs, 0])
 
     def disconnect(self, server: IRCServer.Server):
         del self.servers[server.fileno()]
         self._trigger_both()
+
+    def remove_server(self, server_id):
+        server = self.get_server_by_id(server_id)
+        self.disconnect(server)
 
     def _timed_reconnect(self, timer: Timers.Timer):
         server_id = timer.kwargs["server_id"]
@@ -303,6 +310,8 @@ class Bot(object):
             args = typing.cast(
                 utils.irc.IRCConnectionParameters, connection_params
             ).args
+
+        self.remove_server(server_id)
 
         server = self.add_server(server_id, False, args)
         server.reconnected = True
