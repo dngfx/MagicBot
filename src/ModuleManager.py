@@ -441,7 +441,8 @@ class ModuleManager(object):
                             deps.remove(dep_name)
                             definition_dependencies[dep_name].remove(name)
             if not changed:
-                raise ModuleCircularDependency()
+                pass
+                #raise ModuleCircularDependency()
 
         return [definition_names[name] for name in definitions_ordered]
 
@@ -502,7 +503,6 @@ class ModuleManager(object):
         del module
         references -= 1  # 'del module' removes one reference
         references -= 1  # one of the refs is from getrefcount
-
 
         log.debug(
             message="Module '%s' unloaded (%d reference%s)"

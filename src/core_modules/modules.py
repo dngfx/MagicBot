@@ -69,6 +69,7 @@ class Module(ModuleManager.BaseModule):
     @utils.kwarg("permission", "unloadmodule")
     @utils.spec("!<name>wordlower")
     def unload(self, event):
+        return True
         name = event["spec"][0]
         if not name in self.bot.modules.modules:
             raise utils.EventError(ERR_NOTLOADED % name)
@@ -93,16 +94,6 @@ class Module(ModuleManager.BaseModule):
         self._catch(
             name, lambda: self.bot.modules.try_reload_module(self.bot, name))
         event["stdout"].write("Reloaded '%s'" % name)
-
-    @utils.hook("received.command.reloadallmodules")
-    @utils.kwarg("help", "Reload all modules")
-    @utils.kwarg("permission", "reloadallmodules")
-    def reload_all(self, event):
-        result = self.bot.try_reload_modules()
-        if result.success:
-            event["stdout"].write(result.message)
-        else:
-            event["stderr"].write(result.message)
 
     def _get_blacklist(self):
         config = self.bot.get_config("modules")
