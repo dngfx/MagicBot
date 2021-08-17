@@ -224,8 +224,8 @@ class Module(ModuleManager.BaseModule):
             self._get_prefix(hook) or self.bot.modules.from_context(
                 hook.context).title
         )
-        stdout = outs.StdOut(utils.irc.bold(module_name))
-        stderr = outs.StdOut(utils.irc.bold(module_name))
+        stdout = outs.StdOut(module_name)
+        stderr = outs.StdOut(module_name)
 
         ret = False
         has_out = False
@@ -314,7 +314,7 @@ class Module(ModuleManager.BaseModule):
         line_str = obj.pop()
         if obj.prefix:
             line_str = "[%s] %s" % (
-                utils.irc.color(obj.prefix, color),
+                utils.irc.bold(utils.irc.color(obj.prefix, color)),
                 line_str,
             )
         method = self._command_method(server, target, is_channel)
