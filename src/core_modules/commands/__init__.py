@@ -224,8 +224,8 @@ class Module(ModuleManager.BaseModule):
             self._get_prefix(hook) or self.bot.modules.from_context(
                 hook.context).title
         )
-        stdout = outs.StdOut(module_name)
-        stderr = outs.StdOut(module_name)
+        stdout = outs.StdOut(utils.irc.bold(module_name))
+        stderr = outs.StdOut(utils.irc.bold(module_name))
 
         ret = False
         has_out = False
