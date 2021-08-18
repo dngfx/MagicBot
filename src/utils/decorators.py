@@ -39,7 +39,7 @@ def get_magic(obj: typing.Any):
 
 
 def has_magic(obj: typing.Any):
-    return hasattr(obj, BITBOT_MAGIC)
+    return hasattr(obj, MAGICBOT_MAGIC)
 
 
 def hook(event: str, **kwargs):
