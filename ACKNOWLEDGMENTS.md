@@ -1,1 +1,1 @@
-= Jesopo [bitbot](https://bitbot.dev) - the foundation for dongbot
+= Jesopo [bitbot](https://github.com/jesopo/bitbot) - the foundation for dongbot
