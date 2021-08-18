@@ -48,12 +48,15 @@ class Module(ModuleManager.BaseModule):
             avg_parts[0]), avg_parts[1][:2])
 
         event["stdout"].write(
-            "%s (%s) Last 24H — Trade Vol: %s — Avg Price: %s — Chg: %s"
+            "%s (%s) Last 24H — %s: %s — %s: %s — %s: %s"
             % (
                 info["name"],
                 utils.irc.bold(info["symbol"]),
-                utils.irc.bold("$" + trade_vol_formatted),
-                utils.irc.bold("$" + avg_price),
+                utils.irc.bold("Trade Vol"),
+                ("$" + trade_vol_formatted),
+                utils.irc.bold("Avg Price"),
+                ("$" + avg_price),
+                utils.irc.bold("Chg"),
                 chg_text,
             )
         )
