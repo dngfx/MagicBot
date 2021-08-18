@@ -366,6 +366,9 @@ class Module(ModuleManager.BaseModule):
         if not commands_enabled:
             return
 
+        if event["user"].account == None:
+            event["server"].send_who(event["user"].nickname_lower)
+
         command_prefix = self._command_prefix(
             event["server"], event["channel"])
         command = None
