@@ -157,7 +157,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             % (method, self.client_address[0], self.client_address[1], path)
         )
 
-        response = _bot.trigger(lambda: self._handle(method, path, endpoint, args))
+        response = _bot.trigger(
+            lambda: self._handle(method, path, endpoint, args))
         self._respond(response)
 
         log.debug(
@@ -181,10 +182,12 @@ class MagicBotIPv6HTTPd(http.server.HTTPServer):
 
 @utils.export("botset", utils.BoolSetting("rest-api", "Enable/disable REST API"))
 @utils.export(
-    "botset", utils.BoolSetting("rest-api-minify", "Enable/disable REST API minifying")
+    "botset", utils.BoolSetting(
+        "rest-api-minify", "Enable/disable REST API minifying")
 )
 @utils.export(
-    "botset", utils.Setting("rest-api-host", "Public hostname:port for the REST API")
+    "botset", utils.Setting(
+        "rest-api-host", "Public hostname:port for the REST API")
 )
 class Module(ModuleManager.BaseModule):
     _name = "REST"
@@ -205,7 +208,7 @@ class Module(ModuleManager.BaseModule):
 
     def _start_httpd(self):
         port = int(self.bot.config.get("api-port", str(DEFAULT_PORT)))
-        self.httpd = BitBotIPv6HTTPd(("::1", port), Handler)
+        self.httpd = MagicBotIPv6HTTPd(("::1", port), Handler)
 
         self.thread = threading.Thread(target=self.httpd.serve_forever)
         self.thread.daemon = True
@@ -262,9 +265,11 @@ class Module(ModuleManager.BaseModule):
                     "api-key-%s" % new_key,
                     {"comment": alias, "permissions": event["spec"][2] or []},
                 )
-                event["stdout"].write("New API key '%s': %s" % (alias, new_key))
+                event["stdout"].write(
+                    "New API key '%s': %s" % (alias, new_key))
             else:
-                event["stderr"].write("API key alias '%s' already exists" % alias)
+                event["stderr"].write(
+                    "API key alias '%s' already exists" % alias)
         elif subcommand == "remove":
             if not len(event["args_split"]) > 1:
                 raise utils.EventError("Please provide a key alias to remove")
@@ -272,7 +277,8 @@ class Module(ModuleManager.BaseModule):
             if not found == None:
                 self.bot.del_setting(found)
                 key = found.replace("api-key-", "", 1)
-                event["stdout"].write("Deleted API key %s ('%s')" % (key, alias))
+                event["stdout"].write(
+                    "Deleted API key %s ('%s')" % (key, alias))
             else:
                 event["stderr"].write("Count not find API key '%s'" % alias)
 
