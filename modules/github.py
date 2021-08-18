@@ -205,7 +205,7 @@ class Module(ModuleManager.BaseModule):
         elif state == "closed":
             state = utils.irc.color("closed", COLOR_NEGATIVE)
 
-        return "(%s PR%s, %s) %s â†’ %s [%s/%s] %s %s" % (
+        return "(%s PR%s, %s) %s - %s [%s/%s] %s %s" % (
             repo,
             number,
             state,
