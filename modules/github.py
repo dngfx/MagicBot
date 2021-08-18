@@ -4,6 +4,7 @@
 import re
 
 from src import ModuleManager, utils
+from loguru import logger as log
 
 
 COLOR_BRANCH = utils.consts.ORANGE
