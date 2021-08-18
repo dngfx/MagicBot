@@ -29,7 +29,7 @@ API_PULL_URL = "https://api.github.com/repos/%s/%s/pulls/%s"
     utils.Setting(
         "github-default-repo",
         "Set the default github repo for the current channel",
-        example="jesopo/bitbot",
+        example="dngfx/MagicBot",
     ),
 )
 @utils.export(
@@ -99,7 +99,8 @@ class Module(ModuleManager.BaseModule):
         page = self._get(API_COMMIT_URL % (username, repository, commit))
         if page and page.code == 200:
             page = page.json()
-            repo = utils.irc.color("%s/%s" % (username, repository), COLOR_REPO)
+            repo = utils.irc.color(
+                "%s/%s" % (username, repository), COLOR_REPO)
             sha = utils.irc.color(page["sha"][:8], COLOR_ID)
             return "(%s@%s) %s - %s %s" % (
                 repo,
@@ -313,7 +314,8 @@ class Module(ModuleManager.BaseModule):
             ref = event["match"].group(0)
             if self._auto_github_cooldown(event["target"], ref):
                 try:
-                    result = self._get_info(event["target"], event["match"].group(0))
+                    result = self._get_info(
+                        event["target"], event["match"].group(0))
                 except utils.EventError:
                     return
                 if result:

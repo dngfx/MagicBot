@@ -4,7 +4,7 @@ You can either configure SASL through `!serverset sasl` from an registered and i
 
 ## USERPASS Mechanism
 
-BitBot supports a special SASL mechanism name: `USERPASS`. This internally
+MagicBot supports a special SASL mechanism name: `USERPASS`. This internally
 represents "pick the strongest username:password algorithm"
 
 ## !serverset sasl

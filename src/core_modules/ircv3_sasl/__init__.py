@@ -39,7 +39,7 @@ HARDFAIL = utils.BoolSetting(
         _parse,
         "sasl",
         "Set the sasl username/password for this server",
-        example="PLAIN BitBot:hunter2",
+        example="PLAIN MagicBot:hunter2",
         format=utils.sensitive_format,
     ),
 )

@@ -97,7 +97,7 @@ log.info(message=startup_info, server="Startup",
 
 lock_file = LockFile.LockFile(LOCK_FILE)
 if not lock_file.available():
-    log.critical("Database is locked. Is BitBot already running?")
+    log.critical("Database is locked. Is MagicBot already running?")
     sys.exit(utils.consts.Exit.LOCKED)
 
 atexit.register(lock_file.unlock)

@@ -175,7 +175,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return
 
 
-class BitBotIPv6HTTPd(http.server.HTTPServer):
+class MagicBotIPv6HTTPd(http.server.HTTPServer):
     address_family = socket.AF_INET6
 
 

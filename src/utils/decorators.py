@@ -3,10 +3,10 @@ import typing
 from .parse import argument_spec
 
 
-BITBOT_MAGIC = "__magicbot"
+MAGICBOT_MAGIC = "__magicbot"
 
 
-class BitBotMagic(object):
+class MagicBotMagic(object):
     def __init__(self):
         self._hooks: typing.List[typing.Tuple[str, dict]] = []
         self._kwargs: typing.List[typing.Tuple[str, typing.Any]] = []
@@ -34,8 +34,8 @@ class BitBotMagic(object):
 
 def get_magic(obj: typing.Any):
     if not has_magic(obj):
-        setattr(obj, BITBOT_MAGIC, BitBotMagic())
-    return getattr(obj, BITBOT_MAGIC)
+        setattr(obj, MAGICBOT_MAGIC, MagicBotMagic())
+    return getattr(obj, MAGICBOT_MAGIC)
 
 
 def has_magic(obj: typing.Any):
