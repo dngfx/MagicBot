@@ -23,8 +23,8 @@ class Module(ModuleManager.BaseModule):
         event["stdout"].write("Source: MagicBot %s (%s)" %
                               (DBVERSION, SOURCEURL))
 
-    @utils.hook("received.command.stats")
-    def source(self, event):
+    @utils.hook("received.command.info")
+    def info(self, event):
         with open('/proc/self/status') as f:
             memusage = f.read().split('VmRSS:')[1].split('\n')[0][:-3]
 
@@ -46,5 +46,5 @@ class Module(ModuleManager.BaseModule):
 
         print(total_modules)
 
-        event["stdout"].write("Powered by MagicBot %s. Using %s MB RAM, Serving %d channel(s) across %d server(s) with %s loaded modules." % (
-            DBVERSION, utils.irc.bold(memusage), total_channels, servers, utils.irc.bold(total_modules)))
+        event["stdout"].write("Powered by MagicBot %s. Using %s MB RAM, Serving %d channel(s) across %d server(s) with %s loaded modules. (%s)" % (
+            DBVERSION, utils.irc.bold(memusage), total_channels, servers, utils.irc.bold(total_modules), SOURCEURL))
