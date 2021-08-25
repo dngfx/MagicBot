@@ -63,7 +63,8 @@ class Module(ModuleManager.BaseModule):
 
             if match_line.from_self:
                 format = "%s"
-                event["stdout"].write(format % (match_message))
+                event["stdout"].write(
+                    format % (match_message.replace("[03Sed] ", "")))
                 return
 
             format = "<%s> %s"
