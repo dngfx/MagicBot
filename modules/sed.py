@@ -37,6 +37,7 @@ class Module(ModuleManager.BaseModule):
 
         try:
             sed = utils.parse.sed.parse(event["message"])
+
         except:
             traceback.print_exc()
             event["stderr"].write("Invalid regex in pattern")
@@ -50,16 +51,20 @@ class Module(ModuleManager.BaseModule):
         match_message = None
         with utils.deadline():
             for line in event["target"].buffer.get_all(for_user):
-                if not line.from_self:
-                    match = sed.match(line.message)
-                    if not match == line.message:
-                        match_line = line
-                        match_message = match
-                        break
+                match = sed.match(line.message)
+                if not match == line.message:
+                    match_line = line
+                    match_message = match
+                    break
 
         if match_line:
             if match_line.action:
                 format = "* %s %s"
-            else:
-                format = "<%s> %s"
+
+            if match_line.from_self:
+                format = "%s"
+                event["stdout"].write(format % (match_message))
+                return
+
+            format = "<%s> %s"
             event["stdout"].write(format % (match_line.sender, match_message))
