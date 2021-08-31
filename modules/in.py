@@ -1,4 +1,4 @@
-#--depends-on commands
+# --depends-on commands
 import time
 
 from src import ModuleManager, utils
@@ -33,10 +33,12 @@ class Module(ModuleManager.BaseModule):
                 event["stdout"].write("Saved")
             else:
                 event["stderr"].write(
-                    "The given time is above the max (%s)" % (SECONDS_MAX_DESCRIPTION)
+                    "The given time is above the max (%s)" % (
+                        SECONDS_MAX_DESCRIPTION)
                 )
         else:
-            event["stderr"].write("Please provided a valid time above 0 seconds")
+            event["stderr"].write(
+                "Please provide a valid time above 0 seconds")
 
     @utils.hook("timer.in")
     def timer_due(self, event):
@@ -80,8 +82,10 @@ class Module(ModuleManager.BaseModule):
                 raise utils.EventError("You do not have that many reminders")
 
             timer = found[actual_index]
-            event["stdout"].write("Reminder %d: %s" % (index, timer.kwargs["message"]))
+            event["stdout"].write("Reminder %d: %s" %
+                                  (index, timer.kwargs["message"]))
         else:
             event["stdout"].write(
-                "%s: you have %d reminders" % (event["user"].nickname, len(found))
+                "%s: you have %d reminders" % (
+                    event["user"].nickname, len(found))
             )
