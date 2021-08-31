@@ -27,7 +27,7 @@ class Module(ModuleManager.BaseModule):
 
     def _get_wordcount(self, channel):
         return self.bot.database.execute_fetchall(
-            "SELECT user_id, SUM(count) as total FROM words WHERE channel_id=? AND user_id != 3 GROUP BY user_id ORDER BY total DESC LIMIT 2",
+            "SELECT user_id, SUM(count) as total FROM words WHERE channel_id=? AND user_id != 209 GROUP BY user_id ORDER BY total DESC LIMIT 2",
             [channel.id],
         )
 

@@ -48,6 +48,20 @@ class Module(ModuleManager.BaseModule):
         else:
             event["stderr"].write("Line was filtered")
 
+    @utils.hook("received.command.sync", channel_only=True)
+    @utils.kwarg("help", "Sync the channel")
+    @utils.kwarg("permission", "sync-channel")
+    def sync_channel(self, event):
+        server = event["server"]
+        channel = event["target"].name
+        text = "sync %s" % channel
+        line = server.send_message("ChanServ", text)
+        if not line == None:
+            server.send_message(channel, "Channel %s synced" %
+                                utils.irc.bold(channel))
+        else:
+            server.send_messsage(channel, "Line was filtered")
+
     @utils.hook("received.command.part")
     @utils.kwarg("help", "Part from the current or given channel")
     @utils.kwarg("permission", "part")
