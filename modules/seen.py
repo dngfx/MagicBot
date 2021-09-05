@@ -9,7 +9,8 @@ from src import ModuleManager, utils
 class Module(ModuleManager.BaseModule):
     def _change_seen(self, channel, user, action):
         user.set_setting("seen", time.time())
-        channel.set_user_setting(user.get_id(), "seen-info", {"action": action})
+        channel.set_user_setting(
+            user.get_id(), "seen-info", {"action": action})
 
     @utils.hook("formatted.message.channel")
     @utils.hook("formatted.notice.channel")
@@ -24,7 +25,8 @@ class Module(ModuleManager.BaseModule):
     @utils.spec("!<nickname>ouser")
     def seen(self, event):
         user = event["spec"][0]
-        seen_seconds = user.get_setting("seen")
+        seen_seconds = user.get_setting("seen") or None
+        seen_info = ""
 
         if seen_seconds:
             seen_info = None
@@ -33,8 +35,10 @@ class Module(ModuleManager.BaseModule):
                     user.get_id(), "seen-info", None
                 )
                 if seen_info:
-                    seen_info = " (%s%s)" % (seen_info["action"], utils.consts.RESET)
-
+                    seen_info = " (%s%s)" % (
+                        seen_info["action"], utils.consts.RESET)
+                else:
+                    seen_info = ""
             since = utils.datetime.format.to_pretty_since(
                 time.time() - seen_seconds, max_units=2
             )
