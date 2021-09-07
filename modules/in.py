@@ -89,3 +89,41 @@ class Module(ModuleManager.BaseModule):
                 "%s: you have %d reminders" % (
                     event["user"].nickname, len(found))
             )
+
+    @utils.hook("received.command.inlistchannel", min_args=1)
+    @utils.kwarg("permission", "utillist")
+    @utils.kwarg("private_only", True)
+    @utils.spec("!string")
+    def in_list_channel(self, event):
+        target_channel = event["spec"][0].lower()
+        target_user = event["user"]
+        timers = self.timers.find_all("in")
+        found = []
+
+        for timer in timers:
+            timer_channel = timer.kwargs["target"].lower()
+            if timer_channel != target_channel:
+                continue
+
+            timer_message = timer.kwargs["message"]
+            timer_sender = timer.kwargs["nickname"]
+            timer_date = utils.datetime.format.to_pretty_time(
+                timer.kwargs["due_time"])
+
+            output = "%s: %s — %s: %s — %s: %s" % (utils.irc.bold("Sender"), timer_sender, utils.irc.bold(
+                "Message"), timer_message, utils.irc.bold("Time until"), timer_date)
+            found.append([output])
+
+        if len(found) == 0:
+            event["stderr"].write(
+                "No reminders for channel %s" % target_channel)
+        else:
+            output = ""
+            length = len(found)
+            i = 0
+            while i < length:
+                output = output + " —— " + found[i][0]
+                i = i+1
+
+            event["stdout"].write("Reminders for channel %s %s" %
+                                  (target_channel, output))
