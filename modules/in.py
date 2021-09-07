@@ -90,6 +90,7 @@ class Module(ModuleManager.BaseModule):
                     event["user"].nickname, len(found))
             )
 
+    @utils.hook("received.command.chanreminders", alias_of="inlistchannel", min_args=1)
     @utils.hook("received.command.inlistchannel", min_args=1)
     @utils.kwarg("permission", "utillist")
     @utils.kwarg("private_only", True)
@@ -107,23 +108,23 @@ class Module(ModuleManager.BaseModule):
 
             timer_message = timer.kwargs["message"]
             timer_sender = timer.kwargs["nickname"]
-            timer_date = utils.datetime.format.to_pretty_time(
-                timer.kwargs["due_time"])
+            timer_date = utils.datetime.format.to_pretty_until(
+                timer.kwargs["due_time"] - int(time.time()), 3)
 
-            output = "%s: %s — %s: %s — %s: %s" % (utils.irc.bold("Sender"), timer_sender, utils.irc.bold(
-                "Message"), timer_message, utils.irc.bold("Time until"), timer_date)
+            output = "%s: %s — in %s" % (utils.irc.bold(timer_sender),
+                                         timer_message, timer_date)
             found.append([output])
 
         if len(found) == 0:
             event["stderr"].write(
                 "No reminders for channel %s" % target_channel)
         else:
-            output = ""
+            output = found[0][0]
             length = len(found)
-            i = 0
+            i = 1
             while i < length:
-                output = output + " —— " + found[i][0]
+                output = output + " ———— " + found[i][0]
                 i = i+1
 
-            event["stdout"].write("Reminders for channel %s %s" %
+            event["stdout"].write("Reminders for channel %s —— %s" %
                                   (target_channel, output))

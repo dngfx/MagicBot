@@ -31,7 +31,8 @@ ARROW_DOWN = "↓"
     ),
 )
 @utils.export(
-    "channelset", utils.BoolSetting("youtube-safesearch", "Turn safe search off/on")
+    "channelset", utils.BoolSetting(
+        "youtube-safesearch", "Turn safe search off/on")
 )
 class Module(ModuleManager.BaseModule):
     def get_video_page(self, video_id):
@@ -56,15 +57,20 @@ class Module(ModuleManager.BaseModule):
             statistics = item["statistics"]
             content = item["contentDetails"]
 
-            video_uploaded_at = utils.datetime.parse.iso8601(snippet["publishedAt"])
-            video_uploaded_at = utils.datetime.format.date_human(video_uploaded_at)
+            video_uploaded_at = utils.datetime.parse.iso8601(
+                snippet["publishedAt"])
+            video_uploaded_at = utils.datetime.format.date_human(
+                video_uploaded_at)
 
             video_uploader = snippet["channelTitle"]
             video_title = utils.irc.bold(snippet["title"])
 
-            video_views = utils.parse.shorten_volume(statistics.get("viewCount"))
-            video_likes = utils.parse.shorten_volume(statistics.get("likeCount"))
-            video_dislikes = utils.parse.shorten_volume(statistics.get("dislikeCount"))
+            video_views = utils.parse.shorten_volume(
+                statistics.get("viewCount"))
+            video_likes = utils.parse.shorten_volume(
+                statistics.get("likeCount"))
+            video_dislikes = utils.parse.shorten_volume(
+                statistics.get("dislikeCount"))
 
             video_opinions = ""
             if video_likes and video_dislikes:
@@ -81,7 +87,8 @@ class Module(ModuleManager.BaseModule):
                 video_views_str = ", %s views" % video_views
 
             td = utils.datetime.parse.iso8601_duration(content["duration"])
-            video_duration = utils.datetime.format.to_pretty_time(td.total_seconds())
+            video_duration = utils.datetime.format.to_pretty_time(
+                td.total_seconds())
 
             url = URL_YOUTUBESHORT % video_id
 
@@ -117,14 +124,14 @@ class Module(ModuleManager.BaseModule):
             content = item["contentDetails"]
 
             count = content["itemCount"]
-
+            plural = "video" if count == 1 else "videos"
             return (
                 "%s - %s (%s %s)"
                 % (
-                    snippet["channelTitle"],
-                    snippet["title"],
-                    count,
-                    "video" if count == 1 else "videos",
+                    utils.irc.bold(snippet["channelTitle"]),
+                    utils.irc.bold(snippet["title"]),
+                    utils.irc.bold(count),
+                    utils.irc.bold(plural),
                 ),
                 URL_PLAYLIST % playlist_id,
             )
@@ -184,7 +191,8 @@ class Module(ModuleManager.BaseModule):
         from_url = url is not None
 
         if not url:
-            safe_setting = event["target"].get_setting("youtube-safesearch", False)
+            safe_setting = event["target"].get_setting(
+                "youtube-safesearch", False)
             safe = "moderate" if safe_setting else "none"
             search_page = utils.http.request(
                 URL_YOUTUBESEARCH,
@@ -229,4 +237,10 @@ class Module(ModuleManager.BaseModule):
             if out is not None:
                 out, short_url = out
                 event.eat()
-                event["stdout"].write(out)
+                if "/playlist" in short_url:
+                    short_url_shortened = self.exports.get_one(
+                        "shorturl")(event["server"], short_url)
+                    event["stdout"].write("%s —— %s" % (
+                        out, utils.irc.underline(short_url_shortened)))
+                else:
+                    event["stdout"].write(out)
