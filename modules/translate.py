@@ -8,7 +8,7 @@ from src import ModuleManager, utils
 
 URL_TRANSLATE = "https://translation.googleapis.com/language/translate/v2"
 URL_LANGUAGES = "https://cloud.google.com/translate/docs/languages"
-REGEX_LANGUAGES = re.compile("(\w+)?[:| ](\w+)? ")
+REGEX_LANGUAGES = re.compile("(\w+)?[:| |\-](\w+)? ")
 
 
 class Module(ModuleManager.BaseModule):
