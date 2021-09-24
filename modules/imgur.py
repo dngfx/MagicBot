@@ -89,7 +89,7 @@ class Module(ModuleManager.BaseModule):
 
         data = result["data"]
 
-        nsfw = ("%s " % utils.irc.bold(NSFW_TEXT)) if data["nsfw"] == True else ""
+        nsfw = ("%s " % utils.irc.color(utils.irc.bold(NSFW_TEXT), utils.consts.RED)) if data["nsfw"] == True else ""
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
@@ -133,7 +133,7 @@ class Module(ModuleManager.BaseModule):
 
         data = result["data"]
 
-        nsfw = ("%s " % utils.irc.bold(NSFW_TEXT)) if data["nsfw"] == True else ""
+        nsfw = ("%s " % utils.irc.color(utils.irc.bold(NSFW_TEXT), utils.consts.RED)) if data["nsfw"] == True else ""
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
@@ -178,7 +178,7 @@ class Module(ModuleManager.BaseModule):
 
         data = result["data"]
 
-        nsfw = ("%s " % utils.irc.bold(NSFW_TEXT)) if data["nsfw"] == True else ""
+        nsfw = ("%s " % utils.irc.color(utils.irc.bold(NSFW_TEXT), utils.consts.RED)) if data["nsfw"] == True else ""
         title = ("%s " % data["title"]) if data["title"] else ""
         views = data["views"]
         views_plural = "" if views == 1 else "s"
