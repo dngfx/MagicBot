@@ -11,7 +11,7 @@ setuptools.setup(
     version=version,
     scripts=["magicbotd", "magicbotctl"],
     author="dngfx",
-    author_email="email@misconfigured.link",
+    author_email="magicbot@imgbear.com",
     description="Modular event-driven IRC bot",
     long_description=long_description,
     long_description_content_type="text/markdown",
