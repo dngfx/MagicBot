@@ -1,4 +1,4 @@
-idna		   ==2.10
+idna               ==2.10
 beautifulsoup4     ==4.9.1
 cryptography       >=3.3.2
 dataclasses        ==0.6
@@ -23,5 +23,5 @@ loguru             ==0.5.1
 steam              ==1.0.2
 uk-covid19         >=1.2.0
 ircstyle           ==0.1.4
-lark-parser		   >=0.7.7
+lark-parser        >=0.7.7
 imgurpython        >=1.1.7
