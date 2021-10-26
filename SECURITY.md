@@ -6,4 +6,4 @@ THE CURRENT VERSION
 
 ## Reporting a Vulnerability
 
-MESSAGE ME AND TELL ME WTF AND I'LL FIX IT PLS THANKS
+Message me (@dngfx) with the vulnerability and I'll patch it as soon as possible.
