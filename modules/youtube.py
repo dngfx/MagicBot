@@ -69,18 +69,13 @@ class Module(ModuleManager.BaseModule):
                 statistics.get("viewCount"))
             video_likes = utils.parse.shorten_volume(
                 statistics.get("likeCount"))
-            video_dislikes = utils.parse.shorten_volume(
-                statistics.get("dislikeCount"))
 
             video_opinions = ""
-            if video_likes and video_dislikes:
+            if video_likes:
                 likes = utils.irc.color(
                     "%s%s" % (video_likes, ARROW_UP), utils.consts.GREEN
                 )
-                dislikes = utils.irc.color(
-                    "%s%s" % (ARROW_DOWN, video_dislikes), utils.consts.RED
-                )
-                video_opinions = " (%s %s)" % (likes, dislikes)
+                video_opinions = " (%s)" % (likes)
 
             video_views_str = ""
             if video_views:
