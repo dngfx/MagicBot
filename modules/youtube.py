@@ -20,7 +20,7 @@ URL_YOUTUBESHORT = "https://youtu.be/%s"
 URL_VIDEO = "https://www.youtube.com/watch?v=%s"
 URL_PLAYLIST = "https://www.youtube.com/playlist?list=%s"
 
-ARROW_UP = "↑"
+ARROW = "↑"
 
 
 @utils.export(
@@ -72,7 +72,7 @@ class Module(ModuleManager.BaseModule):
             video_opinions = ""
             if video_likes:
                 likes = utils.irc.color(
-                    "%s%s" % (video_likes, ARROW_UP), utils.consts.GREEN
+                    "%s%s" % (video_likes, ARROW), utils.consts.GREEN
                 )
                 video_opinions = " (%s)" % (likes)
 
