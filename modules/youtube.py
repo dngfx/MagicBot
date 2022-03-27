@@ -21,7 +21,6 @@ URL_VIDEO = "https://www.youtube.com/watch?v=%s"
 URL_PLAYLIST = "https://www.youtube.com/playlist?list=%s"
 
 ARROW_UP = "↑"
-ARROW_DOWN = "↓"
 
 
 @utils.export(
