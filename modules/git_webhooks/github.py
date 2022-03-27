@@ -71,8 +71,6 @@ EVENT_CATEGORIES = {
     ],
     "team": ["membership"],
     "star": [
-        # "watch" is a misleading name for this event so this add "star" as an
-        # alias for "watch"
         "watch"
     ],
 }
