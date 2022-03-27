@@ -64,8 +64,8 @@ EVENT_CATEGORIES = {
     "issue-all": ["issues", "issue_comment"],
     "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
     "repo": [
-        "create",  # a repository, branch or tag has been created
-        "delete",  # same as above but deleted
+        "create",
+        "delete",
         "release",
         "fork",
     ],
