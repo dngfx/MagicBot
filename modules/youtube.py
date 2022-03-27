@@ -9,7 +9,7 @@ from src import ModuleManager, utils
 
 
 REGEX_YOUTUBE = re.compile(
-    "https?://(?:www\.|m\.)?(?:youtu.be/|youtube.com/)\\S+", re.I
+    "https?://(?:www\.|music\.|m\.)?(?:youtu.be/|youtube.com/)\\S+", re.I
 )
 
 URL_YOUTUBESEARCH = "https://www.googleapis.com/youtube/v3/search"

@@ -34,8 +34,8 @@ class Module(ModuleManager.BaseModule):
         target_user = event["server"].get_user(event["args_split"][0])
         messages = event["target"].get_user_setting(target_user.get_id(), "to", [])
 
-        if len(messages) >= 20:
-            raise utils.EventError("Users can only have 20 messages stored")
+        if len(messages) >= 35:
+            raise utils.EventError("Max tells foe this user reached")
 
         messages.append(
             [
