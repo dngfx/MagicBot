@@ -64,7 +64,7 @@ EVENT_CATEGORIES = {
     "issue-all": ["issues", "issue_comment"],
     "issue-comment-minimal": ["issue_comment/created", "issue_comment/deleted"],
     "repo": [
-        "create",
+        "create",  # a repository, branch or tag has been created
         "delete",
         "release",
         "fork",
@@ -179,14 +179,7 @@ class GitHub(object):
 
     def _short_url(self, url):
         log.debug("git.io shortening: %s" % url)
-        try:
-            page = utils.http.request(
-                "https://git.io", method="POST", post_data={"url": url}
-            )
-            return page.headers["Location"]
-        except utils.http.HTTPTimeoutException:
-            log.warn("HTTPTimeoutException while waiting for github short URL")
-            return url
+        return url
 
     def _iso8601(self, s):
         return utils.datetime.parse.iso8601(s)
