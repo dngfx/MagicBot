@@ -45,3 +45,4 @@ test.py
 trash.py
 .history/*
 modules/.vscode/settings.json
+modules/quotes_new.py

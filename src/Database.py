@@ -178,6 +178,46 @@ class Users(Table):
         )
         return (value or [None])[0]
 
+class Quotes(Table):
+    def get_current_quote_id(self, channel_id: int):
+        value = self.database.execute_fetchone(
+            "SELECT channel_quote_id FROM channel_quotes WHERE channel_id=? ORDER BY channel_quote_id DESC"
+            [channel_id]
+        )
+
+        return (value or [0])[0]
+
+    def quote_id_exists(self, channel_id: int, quote_id: int):
+        value = self.database.execute_fetchone(
+            "SELECT channel_quote_id FROM channel_quotes WHERE channel_quote_id=?, channel_id=?"
+            [quote_id, channel_id]
+        )
+
+        return True if value else False
+
+    def get_quote_by_id(self, channel_id: int, quote_id: int):
+        if not self.quote_id_exists(channel_id, quote_id):
+            return False
+
+        value = self.database.execute_fetchone(
+            "SELECT channel_quote_id, user_id, quote FROM channel_quotes WHERE channel_quote_id=?, channel_id=?"
+            [quote_id, channel_id]
+        )
+
+        return (value or [False])[0]
+
+    def add_quote(self, channel_id: int, user_id: int, quote: str):
+        quoteid = self.get_current_quote_id(channel_id) + 1
+
+        self.database.execute(
+            """INSERT OR IGNORE INTO channel_quotes
+                (channel_quote_id, channel_id, user_id, quote) VALUES (?, ?, ?, ?)""",
+            [quoteid, channel_id, user_id, quote]
+        )
+
+        return self.quote_id_exists(channel_id, quote_id)
+
+
 
 class BotSettings(Table):
     def set(self, setting: str, value: typing.Any):
