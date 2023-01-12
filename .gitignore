@@ -46,5 +46,5 @@ trash.py
 .history/*
 modules/.vscode/settings.json
 modules/quotes_new.py
-magicbotd
 magicbotctl
+magicbotd
