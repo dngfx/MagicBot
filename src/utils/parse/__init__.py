@@ -6,12 +6,11 @@ from .spec import *
 from .time import duration
 from .types import try_int
 
-
 COMMENT_TYPES = ["#", "//"]
 
 
 def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[str]]]:
-    hashflags = []  # type: typing.List[typing.Tuple[str, typing.Optional[str]]]
+    hashflags = []    # type: typing.List[typing.Tuple[str, typing.Optional[str]]]
     with io.open(filename, "r") as f:
         for line in f:
             line = line.strip("\n")
@@ -31,6 +30,7 @@ def hashflags(filename: str) -> typing.List[typing.Tuple[str, typing.Optional[st
 
 
 class Docstring(object):
+
     def __init__(
         self,
         description: str,
@@ -46,8 +46,8 @@ def docstring(s: str) -> Docstring:
     description = ""
     last_item = None
     last_item_no_space = False
-    items = {}  # type: typing.Dict[str, str]
-    var_items = {}  # type: typing.Dict[str, typing.List[str]]
+    items = {}    # type: typing.Dict[str, str]
+    var_items = {}    # type: typing.Dict[str, typing.List[str]]
     if s:
         for line in s.split("\n"):
             line = line.strip()
@@ -78,7 +78,7 @@ def docstring(s: str) -> Docstring:
 
 
 def keyvalue(s: str, delimiter: str = " ") -> typing.Dict[str, typing.Optional[str]]:
-    items = {}  # type: typing.Dict[str, typing.Optional[str]]
+    items = {}    # type: typing.Dict[str, typing.Optional[str]]
     pairs = s.split(delimiter)
     for pair in filter(None, pairs):
         key, sep, value = pair.partition("=")
@@ -106,8 +106,7 @@ def parse_number(s: str) -> str:
     try:
         number = decimal.Decimal(number_str)
     except:
-        raise ValueError(
-            "Invalid format '%s' passed to parse_number" % number_str)
+        raise ValueError("Invalid format '%s' passed to parse_number" % number_str)
 
     if unit == "k":
         number *= decimal.Decimal("1_000")
@@ -161,7 +160,7 @@ def format_tokens(s: str, sigil: str = "$") -> typing.List[typing.Tuple[int, int
                 token_end = s.find("}", i)
                 if token_end > i:
                     token = s[i:token_end]
-                    tokens.append((i - 1, token_end, s[i + 1: token_end]))
+                    tokens.append((i - 1, token_end, s[i + 1:token_end]))
                     i = token_end
             elif s[i] == sigil:
                 tokens.append((i - 1, i, sigil))
